@@ -66,7 +66,7 @@ def test_csrf_required(public):
 
 def test_marketing_headline_and_honest_disclaimer(public):
     page = public.get("/en/").text
-    assert "50 cancers. One blood draw." in page
+    assert ">50 cancers.</span>" in page and ">One blood draw.</span>" in page
     assert "Not a clinically validated test" in page
     assert "€2,690" in page
 
