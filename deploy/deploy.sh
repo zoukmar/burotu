@@ -9,7 +9,7 @@ DIR="${BUROTU_DIR:-/opt/burotu}"
 cd "$DIR"
 
 if [[ ! -f .env ]]; then
-  echo "ERREUR : $DIR/.env manquant (voir deploy/.env.example)" >&2
+  echo "ERROR: $DIR/.env is missing (see deploy/.env.example)" >&2
   exit 1
 fi
 
@@ -25,7 +25,7 @@ for i in $(seq 1 30); do
   if curl -fsS -H "Host: burotu.com" http://127.0.0.1:8120/healthz >/dev/null; then
     echo "$TAG" > .image-tag
     echo "OK: Burotu ${TAG} is up (${i}s)."
-    docker image prune -f >/dev/null || true  # images orphelines uniquement
+    docker image prune -f >/dev/null || true  # dangling images only
     exit 0
   fi
   sleep 1
