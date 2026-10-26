@@ -13,8 +13,7 @@
   <a href="https://burotu.com">burotu.com</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#meta-models">Meta models</a> ·
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#version-française">Version française</a>
+  <a href="#quick-start">Quick start</a>
 </p>
 
 > [!IMPORTANT]
@@ -43,7 +42,7 @@ Blood draw at a partner site ─► Partner lab ─► burotu-bmc file ─► Bu
 ```
 
 1. A partner collection site takes two tubes of blood.
-2. The partner lab isolates cell-free DNA from plasma and sequences a **targeted panel of 1,692
+2. The partner lab isolates cell-free DNA from plasma and sequences a **targeted panel of 1,681
    CpG sites**, chosen because they are almost never methylated in healthy blood.
 3. The lab returns a read-count file in the open [`burotu-bmc`](src/burotu/labformat.py) format.
 4. A dedicated classifier looks for a cancer signal and its likely tissue of origin.
@@ -72,8 +71,8 @@ All public, no patient data collected.
 | Role | Dataset |
 | --- | --- |
 | Tumour methylation, 8 types × 48 tumours | TCGA via the GDC portal (open access, Illumina 450K) |
-| Healthy blood background, 164 adults | Hannum et al., *Mol Cell* 2013 — GEO GSE40279 |
-| Real plasma for validation | Moss et al., *Nat Commun* 2018 — GEO GSE122126 |
+| Healthy blood background, 164 adults | Hannum et al., *Mol Cell* 2013, GEO GSE40279 |
+| Real plasma for validation | Moss et al., *Nat Commun* 2018, GEO GSE122126 |
 
 Plasma samples are simulated by mixing real tumour profiles into real healthy blood at tumour
 fractions from 0.01 % to 10 %, then sampling sequencing reads. People and tumours are split into
@@ -81,12 +80,12 @@ train and test **before** simulation and panel selection. Details in [docs/data.
 
 ## The product
 
-- **[burotu.com](https://burotu.com)** — one-page site in English, French and Spanish, with
-  booking at partner collection sites.
-- **admin.burotu.com** — tracking for every sample: request, confirmed appointment, blood drawn,
+- **[burotu.com](https://burotu.com)**: one-page site in English, French and Spanish (picked from
+  the browser language, English by default), with booking at partner collection sites.
+- **admin.burotu.com**: tracking for every sample: request, confirmed appointment, blood drawn,
   in the lab, analysed, report sent, with a timestamped history.
 
-<p align="center"><img src="docs/assets/suivi.png" alt="Sample tracking" width="640"></p>
+<p align="center"><img src="docs/assets/tracking.png" alt="Sample tracking" width="640"></p>
 
 ## Quick start
 
@@ -128,36 +127,3 @@ over SSH, with automatic rollback if the site does not answer. See
 - [ ] Cancer signal and tissue-of-origin classifier, validated on real plasma
 - [ ] Muse Spark quality control and patient report
 - [ ] From 8 to 50 cancer types
-
----
-
-## Version française
-
-**50 cancers. Une seule prise de sang.** Burotu recherche dans le sang les traces d'ADN laissées
-par les tumeurs, grâce à leur signature de méthylation, et indique d'où vient un signal.
-
-> [!IMPORTANT]
-> **Prototype de démonstration** réalisé pour le Meta Global AI Developer Hackathon 2026.
-> Ce n'est pas un dispositif médical : test non validé cliniquement, sans marquage CE, à ne pas
-> utiliser pour une décision médicale. Rien n'est vendu, le paiement est en mode test.
-
-**Fonctionnement.** Une prise de sang chez un préleveur partenaire ; le laboratoire séquence un
-panel ciblé de 1 692 sites CpG sur l'ADN circulant et renvoie un fichier `burotu-bmc` ; un
-classifieur dédié détecte un signal de cancer et son organe d'origine probable ; **Muse Spark**
-(Meta) contrôle la qualité des données et rédige un compte rendu en langage clair.
-
-**Couverture.** Le produit vise 50 types de cancer. Le prototype commence par 8 : poumon,
-colorectal, sein, pancréas, foie, œsophage et estomac, tête et cou, prostate.
-
-**Données.** Uniquement publiques : TCGA (portail GDC), Hannum et al. 2013 (GSE40279) pour le sang
-sain, Moss et al. 2018 (GSE122126) pour la validation sur plasma réel. Les plasmas d'entraînement
-sont simulés en mélangeant des profils tumoraux réels à du sang sain réel.
-
-**Démarrer.**
-
-```bash
-make install && make check && make dev
-```
-
-Documentation détaillée (en français) : [architecture](docs/architecture.md) ·
-[données et méthode](docs/data.md) · [déploiement](docs/deployment.md).

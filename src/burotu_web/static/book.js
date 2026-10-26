@@ -1,4 +1,4 @@
-// Réservation : charge les horaires libres du centre et du jour choisis.
+// Booking: load free slots for the chosen site and day.
 (function () {
   const done = document.getElementById("booking-done");
   if (done) done.focus();
@@ -25,7 +25,7 @@
       const res = await fetch(url);
       if (res.ok) slots = (await res.json()).slots;
     } catch (_) {
-      /* réseau indisponible : on garde le message par défaut */
+      /* network unavailable: keep the default message */
     }
     if (!slots.length) return message(form.dataset.msgNone);
     box.replaceChildren(

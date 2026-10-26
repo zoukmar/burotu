@@ -1,5 +1,5 @@
-# Bloc à ajouter au Caddy système de srv-prod-2 (/etc/caddy/Caddyfile),
-# à côté de clipperton, postiz et nukuoro. Caddy obtient les certificats seul.
+# Block to append to the srv-prod-2 system Caddyfile (/etc/caddy/Caddyfile).
+# Caddy obtains the TLS certificates on its own.
 
 www.burotu.com {
 	redir https://burotu.com{uri} permanent

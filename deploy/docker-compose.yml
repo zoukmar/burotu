@@ -1,10 +1,10 @@
-# Stack de production, installée dans /opt/burotu sur srv-prod-2.
-# Le Caddy système de l'hôte termine le HTTPS et relaie vers 127.0.0.1:8120.
+# Production stack, installed in /opt/burotu on srv-prod-2.
+# The host's system Caddy terminates HTTPS and proxies to 127.0.0.1:8120.
 name: burotu
 
 services:
   web:
-    image: ghcr.io/zoukmar/burotu-web:${BUROTU_IMAGE_TAG:?définir BUROTU_IMAGE_TAG}
+    image: ghcr.io/zoukmar/burotu-web:${BUROTU_IMAGE_TAG:?set BUROTU_IMAGE_TAG}
     restart: unless-stopped
     env_file: .env
     environment:

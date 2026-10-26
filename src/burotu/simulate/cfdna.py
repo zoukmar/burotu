@@ -1,17 +1,17 @@
-"""Simulateur d'ADN circulant (cfDNA) pour le panel ciblé Burotu.
+"""Cell-free DNA (cfDNA) simulator for the Burotu targeted panel.
 
-Modèle :
-  1. Le plasma d'une personne saine contient surtout de l'ADN issu des cellules
-     sanguines : on tire un individu sain réel (profil de sang total).
-  2. Chez une personne atteinte de cancer, une fraction `tf` (fraction tumorale,
-     typiquement 0,01 % à 10 %) provient de la tumeur : on tire une tumeur réelle
-     TCGA de la classe voulue et on mélange les profils.
-  3. Le séquençage bisulfite ciblé est simulé par un tirage binomial des lectures
-     méthylées, avec une profondeur variable d'un CpG à l'autre.
+Model:
+  1. Plasma from a healthy person is mostly DNA released by blood cells: we draw a
+     real healthy individual (whole-blood profile).
+  2. In a person with cancer, a fraction `tf` (tumour fraction, typically 0.01% to
+     10%) comes from the tumour: we draw a real TCGA tumour of the chosen class and
+     mix the two profiles.
+  3. Targeted bisulfite sequencing is simulated by binomial sampling of methylated
+     reads, with a read depth that varies from one CpG to the next.
 
-Limite connue (à dire au jury) : on simule CpG par CpG, sans motifs de méthylation
-au niveau de la lecture. Les tests commerciaux exploitent ces motifs et sont donc
-plus sensibles à faible fraction tumorale.
+Known limitation: the simulation works CpG by CpG, without read-level methylation
+patterns. Commercial tests exploit those patterns and are therefore more sensitive
+at very low tumour fractions.
 """
 
 from __future__ import annotations
@@ -27,8 +27,8 @@ from burotu.data.reference import Reference
 
 @dataclass
 class SimConfig:
-    depth: float = 500.0  # profondeur moyenne de lecture par CpG
-    depth_sd_log: float = 0.5  # variabilité log-normale de la profondeur entre CpG
+    depth: float = 500.0  # mean read depth per CpG
+    depth_sd_log: float = 0.5  # log-normal spread of depth across CpGs
     tf_min: float = 1e-4
     tf_max: float = 0.1
     seed: int = 0
@@ -41,7 +41,7 @@ def mix_and_sequence(
     cfg: SimConfig,
     rng: np.random.Generator,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Renvoie (lectures méthylées, profondeur) pour un échantillon."""
+    """Return (methylated reads, read depth) for one sample."""
     beta = blood_beta if tumor_beta is None or tf <= 0 else (1 - tf) * blood_beta + tf * tumor_beta
     beta = np.clip(beta, 0.0, 1.0)
     lam = cfg.depth * rng.lognormal(-(cfg.depth_sd_log**2) / 2, cfg.depth_sd_log, size=beta.shape)
@@ -58,16 +58,16 @@ def simulate_cohort(
     cfg: SimConfig | None = None,
     tf_values: list[float] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, pd.DataFrame]:
-    """Simule une cohorte à partir du split `train` ou `test` (aucune fuite entre les deux).
+    """Simulate a cohort from the `train` or `test` split (no leakage between them).
 
-    Renvoie (meth, total, meta) avec meth/total de forme (échantillons, CpG du panel).
-    Si `tf_values` est donné, chaque patient cancer reçoit successivement ces fractions
-    (utile pour tracer la sensibilité en fonction de la fraction tumorale) ; sinon la
-    fraction est tirée en log-uniforme entre tf_min et tf_max.
+    Returns (meth, total, meta) with meth/total shaped (samples, panel CpGs).
+    If `tf_values` is given, each cancer patient is simulated at each of these
+    fractions (useful to plot sensitivity against tumour fraction); otherwise the
+    fraction is drawn log-uniformly between tf_min and tf_max.
     """
     cfg = cfg or SimConfig()
     rng = np.random.default_rng(cfg.seed)
-    blood = getattr(ref, f"blood_{split}").to_numpy(np.float32)  # CpG × individus
+    blood = getattr(ref, f"blood_{split}").to_numpy(np.float32)  # CpG × individuals
     tumors = getattr(ref, f"tumor_{split}")
     tmeta = ref.tumor_meta.set_index("file_id").loc[tumors.columns]
     tumors_np = tumors.to_numpy(np.float32)

@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% block title %}{{ b.ref }}{% endblock %}
 {% block main %}
-<p class="small"><a class="link" href="/">Réservations</a></p>
+<p class="small"><a class="link" href="/">Bookings</a></p>
 <div class="admin-head">
   <h1>{{ b.first_name }} {{ b.last_name }} <span class="muted">{{ b.ref }}</span></h1>
   <span class="badge badge-{{ b.status }}">{{ STATUS_LABELS[b.status] }}</span>
@@ -9,7 +9,7 @@
 
 {% if b.status != 'cancelled' %}
 {% set current = PIPELINE.index(b.status) %}
-<ol class="progress" aria-label="Avancement">
+<ol class="progress" aria-label="Progress">
   {% for key in PIPELINE %}
   <li class="{% if loop.index0 < current %}is-done{% elif loop.index0 == current %}is-current{% endif %}"{% if loop.index0 == current %} aria-current="step"{% endif %}>{{ STATUS_LABELS[key] }}</li>
   {% endfor %}
@@ -18,46 +18,46 @@
 
 <div class="detail-grid">
   <section class="site-card">
-    <h2>Rendez-vous</h2>
+    <h2>Appointment</h2>
     <dl class="facts">
-      <div><dt>Date</dt><dd>{{ b.day }} à {{ b.slot }}</dd></div>
-      <div><dt>Centre</dt><dd>{{ b.site_name }}<br><span class="muted small">{{ b.address }}</span></dd></div>
-      <div><dt>Médecin</dt><dd>{{ b.doctor or "Non renseigné" }}</dd></div>
-      <div><dt>Montant</dt><dd>{{ b.amount_cents|euros }} <span class="muted small">(paiement test)</span></dd></div>
-      <div><dt>Réservé le</dt><dd>{{ b.created_at.replace('T', ' à ') }}, site en {{ b.lang|upper }}</dd></div>
+      <div><dt>Date</dt><dd>{{ b.day }} at {{ b.slot }}</dd></div>
+      <div><dt>Site</dt><dd>{{ b.site_name }}<br><span class="muted small">{{ b.address }}</span></dd></div>
+      <div><dt>Doctor</dt><dd>{{ b.doctor or "Not given" }}</dd></div>
+      <div><dt>Amount</dt><dd>{{ b.amount_cents|euros }} <span class="muted small">(test payment)</span></dd></div>
+      <div><dt>Booked on</dt><dd>{{ b.created_at.replace('T', ' at ') }}, site in {{ b.lang|upper }}</dd></div>
     </dl>
     <h2>Patient</h2>
     <dl class="facts">
-      <div><dt>Né en</dt><dd>{{ b.birth_year }}</dd></div>
-      <div><dt>E-mail</dt><dd><a href="mailto:{{ b.email }}">{{ b.email }}</a></dd></div>
-      <div><dt>Téléphone</dt><dd><a href="tel:{{ b.phone }}">{{ b.phone }}</a></dd></div>
+      <div><dt>Born in</dt><dd>{{ b.birth_year }}</dd></div>
+      <div><dt>Email</dt><dd><a href="mailto:{{ b.email }}">{{ b.email }}</a></dd></div>
+      <div><dt>Phone</dt><dd><a href="tel:{{ b.phone }}">{{ b.phone }}</a></dd></div>
     </dl>
   </section>
 
   <div>
     <section class="site-card">
-      <h2>Passer à l'étape suivante</h2>
+      <h2>Move to the next stage</h2>
       <form method="post" action="/bookings/{{ b.ref }}/status" class="stack">
         <input type="hidden" name="csrf" value="{{ csrf }}">
-        <label class="field">Étape
+        <label class="field">Stage
           <select name="status">
             {% for s in STATUSES %}
             <option value="{{ s.key }}"{% if b.status != 'cancelled' and s.key == PIPELINE[[current + 1, PIPELINE|length - 1]|min] %} selected{% elif b.status == 'cancelled' and s.key == 'cancelled' %} selected{% endif %}>{{ s.label }}</option>
             {% endfor %}
           </select>
         </label>
-        <label class="field">Commentaire (facultatif)<input name="note" maxlength="1000" placeholder="Par exemple : tube reçu au labo, n° de lot"></label>
-        <button class="btn btn-small" type="submit">Enregistrer l'étape</button>
+        <label class="field">Comment (optional)<input name="note" maxlength="1000" placeholder="For example: tube received at the lab, batch number"></label>
+        <button class="btn btn-small" type="submit">Save stage</button>
       </form>
     </section>
 
     <section class="site-card">
-      <h2>Historique</h2>
+      <h2>History</h2>
       <ol class="timeline">
         {% for e in events|reverse %}
         <li>
           <span class="badge badge-{{ e.status }}">{{ STATUS_LABELS[e.status] }}</span>
-          <span class="muted small">{{ e.at.replace('T', ' à ') }}, par {{ e.actor }}</span>
+          <span class="muted small">{{ e.at.replace('T', ' at ') }}, by {{ e.actor }}</span>
           {% if e.note %}<p>{{ e.note }}</p>{% endif %}
         </li>
         {% endfor %}
@@ -65,11 +65,11 @@
     </section>
 
     <section class="site-card">
-      <h2>Note interne</h2>
+      <h2>Internal note</h2>
       <form method="post" action="/bookings/{{ b.ref }}/note" class="stack">
         <input type="hidden" name="csrf" value="{{ csrf }}">
-        <label class="field">Visible uniquement dans le suivi<textarea name="note" rows="3" maxlength="2000">{{ b.admin_note }}</textarea></label>
-        <button class="btn btn-small btn-ghost" type="submit">Enregistrer la note</button>
+        <label class="field">Only visible in tracking<textarea name="note" rows="3" maxlength="2000">{{ b.admin_note }}</textarea></label>
+        <button class="btn btn-small btn-ghost" type="submit">Save note</button>
       </form>
     </section>
   </div>

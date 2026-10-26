@@ -11,10 +11,10 @@ dist/
 # Secrets
 .env
 
-# Données (téléchargées ou générées : voir docs/data.md)
+# Data (downloaded or generated: see docs/data.md)
 /data/
 
-# Éditeurs et OS
+# Editors and OS
 .vscode/
 .idea/
 .DS_Store

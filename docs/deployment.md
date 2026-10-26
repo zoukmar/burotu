@@ -1,41 +1,40 @@
-# Déploiement
+# Deployment
 
-Burotu tourne sur **srv-prod-2** (`193.70.45.138`) comme les autres projets du serveur :
-une image GHCR étiquetée par commit, une stack Compose dans `/opt/burotu`, et le **Caddy
-système** de l'hôte pour le HTTPS.
+Burotu runs on **srv-prod-2** (`193.70.45.138`): one GHCR image tagged per commit, a Compose
+stack in `/opt/burotu`, and the host's **system Caddy** for HTTPS.
 
 ```
-GitHub (push sur main)
-  └─ Actions : lint + tests → image ghcr.io/zoukmar/burotu-web:<sha> → SSH
-       └─ srv-prod-2 : /opt/burotu/deploy.sh <sha>
+GitHub (push to main)
+  └─ Actions: lint + tests → image ghcr.io/zoukmar/burotu-web:<sha> → SSH
+       └─ srv-prod-2: /opt/burotu/deploy.sh <sha>
             └─ docker compose up  (127.0.0.1:8120)
-                 └─ Caddy : burotu.com · www.burotu.com → burotu.com · admin.burotu.com
+                 └─ Caddy: burotu.com · www.burotu.com → burotu.com · admin.burotu.com
 ```
 
-| Domaine | Rôle |
+| Domain | Role |
 | --- | --- |
-| `burotu.com` | Site public (one-pager EN/FR/ES, réservation) |
-| `www.burotu.com` | Redirection permanente vers `burotu.com` |
-| `admin.burotu.com` | Suivi : réservations, parcours des échantillons, centres |
+| `burotu.com` | Public site (one-pager in EN/FR/ES, booking) |
+| `www.burotu.com` | Permanent redirect to `burotu.com` |
+| `admin.burotu.com` | Tracking: bookings, sample journey, collection sites |
 
-Un seul conteneur sert les deux sites ; l'application choisit le site selon le nom de domaine.
+A single container serves both sites; the app picks the site from the host name.
 
-## Mise en place (une seule fois)
+## One-time setup
 
 ### 1. DNS
 
-Chez le registrar de `burotu.com`, trois enregistrements A vers `193.70.45.138` :
-`@`, `www` et `admin`.
+Point `burotu.com`, `www` and `admin` to `193.70.45.138` (A records, or CNAMEs to
+`burotu.com` for the subdomains). Remove any parking records and any AAAA records.
 
-### 2. Serveur
+### 2. Server
 
 ```bash
-# Utilisateur dédié au déploiement, membre du groupe docker, sans sudo
+# Dedicated deploy user, member of the docker group, no sudo
 sudo adduser --disabled-password --gecos "" deploy-burotu
 sudo usermod -aG docker deploy-burotu
 sudo install -d -o deploy-burotu -g deploy-burotu -m 750 /opt/burotu
 
-# Secrets de l'application
+# Application secrets
 sudo -u deploy-burotu tee /opt/burotu/.env >/dev/null <<EOF
 BUROTU_ADMIN_USER=admin
 BUROTU_ADMIN_PASSWORD=$(openssl rand -base64 24)
@@ -43,51 +42,55 @@ BUROTU_SECRET_KEY=$(openssl rand -hex 32)
 MODEL_API_KEY=
 EOF
 sudo chmod 600 /opt/burotu/.env
-sudo cat /opt/burotu/.env   # noter le mot de passe admin dans le gestionnaire de mots de passe
+sudo grep ADMIN_PASSWORD /opt/burotu/.env   # store it in your password manager
 ```
 
-### 3. Clé SSH de déploiement
+### 3. Deploy SSH key
 
-Sur le serveur :
+On the server:
 
 ```bash
+sudo -u deploy-burotu install -d -m 700 /home/deploy-burotu/.ssh
 sudo -u deploy-burotu ssh-keygen -t ed25519 -N "" -C "github-actions-burotu" -f /home/deploy-burotu/.ssh/id_deploy
 sudo -u deploy-burotu sh -c 'cat ~/.ssh/id_deploy.pub >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys'
-sudo cat /home/deploy-burotu/.ssh/id_deploy        # clé privée → secret DEPLOY_SSH_KEY
-ssh-keyscan -t ed25519 srv-prod-2.tuvalutech.com   # → secret DEPLOY_KNOWN_HOSTS
-sudo rm /home/deploy-burotu/.ssh/id_deploy         # la clé privée ne reste que dans GitHub
+sudo cat /home/deploy-burotu/.ssh/id_deploy        # private key → DEPLOY_SSH_KEY secret
+ssh-keyscan -t ed25519 srv-prod-2.tuvalutech.com   # → DEPLOY_KNOWN_HOSTS secret
+sudo rm /home/deploy-burotu/.ssh/id_deploy         # the private key now only lives in GitHub
 ```
 
-Dans GitHub, **Settings → Environments → New environment** : `production`, puis ajouter
-ces secrets d'environnement :
+In GitHub, go to **Settings → Environments → New environment**, name it `production`, and add
+these environment secrets:
 
-| Secret | Valeur |
+| Secret | Value |
 | --- | --- |
 | `DEPLOY_HOST` | `srv-prod-2.tuvalutech.com` |
 | `DEPLOY_USER` | `deploy-burotu` |
-| `DEPLOY_SSH_KEY` | la clé privée générée ci-dessus |
-| `DEPLOY_KNOWN_HOSTS` | la sortie de `ssh-keyscan` |
+| `DEPLOY_SSH_KEY` | the private key generated above |
+| `DEPLOY_KNOWN_HOSTS` | the `ssh-keyscan` output |
 
 ### 4. Caddy
 
-Ajouter le contenu de [`deploy/caddy/burotu.caddy`](../deploy/caddy/burotu.caddy) à la fin de
-`/etc/caddy/Caddyfile`, puis :
+Append [`deploy/caddy/burotu.caddy`](../deploy/caddy/burotu.caddy) to `/etc/caddy/Caddyfile`,
+then:
 
 ```bash
-sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
+sudo install -d -o caddy -g caddy /var/log/caddy
+sudo caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+sudo chown -R caddy:caddy /var/log/caddy   # validate runs as root and may create the log files
+sudo systemctl reload caddy
 ```
 
-Caddy obtient les certificats Let's Encrypt dès que le DNS pointe sur le serveur.
+Caddy gets Let's Encrypt certificates as soon as DNS points to the server.
 
-## Au quotidien
+## Day to day
 
-- **Déployer** : pousser sur `main`. Le workflow *Deploy* fait le reste.
-- **Redéployer une version** : Actions → *Deploy* → *Run workflow*, ou sur le serveur
+- **Deploy**: push to `main`. The *Deploy* workflow does the rest.
+- **Redeploy a version**: Actions → *Deploy* → *Run workflow*, or on the server
   `bash /opt/burotu/deploy.sh <sha>`.
-- **Retour arrière automatique** : si le site ne répond pas après 30 s, `deploy.sh`
-  relance la version précédente.
-- **Logs** : `docker compose -f /opt/burotu/docker-compose.yml logs -f web`
-- **Sauvegarde** de la base SQLite (volume `burotu_data`) :
+- **Automatic rollback**: if the site does not answer within 30 s, `deploy.sh` restarts the
+  previous version.
+- **Logs**: `docker compose -f /opt/burotu/docker-compose.yml logs -f web`
+- **Back up** the SQLite database (volume `burotu_data`):
 
 ```bash
 docker compose -f /opt/burotu/docker-compose.yml exec web \

@@ -1,16 +1,16 @@
-"""Client pour les modèles Meta (Muse Spark) via la Meta Model API.
+"""Client for Meta's Muse models through the Meta Model API.
 
-L'API est compatible OpenAI (chat completions) :
+The API is OpenAI-compatible (chat completions):
     POST {base_url}/chat/completions   Authorization: Bearer $MODEL_API_KEY
 
-Variables d'environnement :
-    MODEL_API_KEY       clé de la Meta Model API (absente → mode mock)
-    META_API_BASE_URL   défaut https://api.meta.ai/v1
-    META_MODEL          défaut muse-spark-1.3
-    BUROTU_LLM_MOCK=1   force le mode mock (tests, démo hors ligne)
+Environment variables:
+    MODEL_API_KEY       Meta Model API key (missing → mock mode)
+    META_API_BASE_URL   default https://api.meta.ai/v1
+    META_MODEL          default muse-spark-1.3
+    BUROTU_LLM_MOCK=1   force mock mode (tests, offline demo)
 
-Le mode mock permet de développer et de tester tout le pipeline sans clé :
-il renvoie une réponse déterministe et le signale explicitement.
+Mock mode lets the whole pipeline run and be tested without a key: it returns a
+deterministic answer and says so explicitly.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ class LLMResponse:
     usage: dict[str, Any] | None = None
 
     def json(self) -> Any:
-        """Extrait le premier objet JSON de la réponse (tolère un bloc ```json)."""
+        """Extract the first JSON object from the answer (tolerates a ```json block)."""
         t = self.text.strip()
         if "```" in t:
             t = t.split("```")[1]
@@ -107,10 +107,10 @@ class MetaClient:
                 ):
                     raise
                 time.sleep(2**attempt)
-        raise RuntimeError(f"Meta Model API indisponible après {retries} essais : {last}")
+        raise RuntimeError(f"Meta Model API unavailable after {retries} attempts: {last}")
 
 
 def _default_mock(messages: list[dict[str, str]], json_mode: bool) -> str:
     if json_mode:
-        return json.dumps({"mock": True, "note": "Réponse simulée : définir MODEL_API_KEY pour utiliser Muse Spark."})
-    return "[MODE MOCK] Réponse simulée. Définir MODEL_API_KEY pour utiliser Muse Spark."
+        return json.dumps({"mock": True, "note": "Mock answer: set MODEL_API_KEY to use Muse Spark."})
+    return "[MOCK MODE] Simulated answer. Set MODEL_API_KEY to use Muse Spark."

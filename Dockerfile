@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Image du site Burotu (burotu.com + admin.burotu.com). Le pipeline ML n'y est pas embarqué.
+# Burotu web image (burotu.com + admin.burotu.com). The ML pipeline is not included.
 
 FROM python:3.12-slim AS build
 WORKDIR /src
@@ -25,6 +25,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"
 
-# --forwarded-allow-ips : Caddy tourne sur l'hôte et transmet l'IP réelle du visiteur.
+# --forwarded-allow-ips: Caddy runs on the host and forwards the visitor's real IP.
 CMD ["uvicorn", "burotu_web.main:app", "--host", "0.0.0.0", "--port", "8000", \
      "--proxy-headers", "--forwarded-allow-ips", "*", "--workers", "1"]

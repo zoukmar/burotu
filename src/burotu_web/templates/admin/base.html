@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>{% block title %}Suivi{% endblock %} · Burotu</title>
+<title>{% block title %}Tracking{% endblock %} · Burotu</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="/static/site.css">
 <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
@@ -13,18 +13,18 @@
 <header class="topbar">
   <a class="brand" href="/">
     <svg viewBox="0 0 64 20" aria-hidden="true"><circle cx="6" cy="10" r="5" class="o"/><circle cx="32" cy="10" r="5" class="f"/><circle cx="58" cy="10" r="5" class="o"/></svg>
-    burotu <span class="brand-sub">suivi</span>
+    burotu <span class="brand-sub">tracking</span>
   </a>
   {% if user %}
   {% set path = request.url.path %}
-  <nav class="nav" aria-label="Suivi">
-    <a href="/"{% if path == '/' or path.startswith('/bookings') %} aria-current="page"{% endif %}>Réservations</a>
-    <a href="/sites"{% if path.startswith('/sites') %} aria-current="page"{% endif %}>Centres et horaires</a>
+  <nav class="nav" aria-label="Tracking">
+    <a href="/"{% if path == '/' or path.startswith('/bookings') %} aria-current="page"{% endif %}>Bookings</a>
+    <a href="/sites"{% if path.startswith('/sites') %} aria-current="page"{% endif %}>Sites and hours</a>
   </nav>
   <form method="post" action="/logout" class="topbar-end">
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <span class="muted small">{{ user }}</span>
-    <button class="btn btn-small btn-ghost" type="submit">Se déconnecter</button>
+    <button class="btn btn-small btn-ghost" type="submit">Sign out</button>
   </form>
   {% endif %}
 </header>

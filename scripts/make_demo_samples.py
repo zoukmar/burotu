@@ -1,7 +1,7 @@
-"""Génère des fichiers « labo » simulés (format burotu-bmc) pour la démo.
+"""Generate simulated lab files (burotu-bmc format) for the demo.
 
-Usage : python scripts/make_demo_samples.py --out data/demo_samples
-Les échantillons viennent du split test : jamais vus à l'entraînement.
+Usage: python scripts/make_demo_samples.py --out data/demo_samples
+Samples come from the test split: never seen during training.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ def main() -> None:
     ap.add_argument("--out", default="data/demo_samples")
     ap.add_argument("--healthy", type=int, default=4)
     ap.add_argument("--per-class", type=int, default=1)
-    ap.add_argument("--tf", type=float, default=0.02, help="fraction tumorale des cas cancer")
+    ap.add_argument("--tf", type=float, default=0.02, help="tumour fraction of cancer cases")
     ap.add_argument("--seed", type=int, default=7)
     args = ap.parse_args()
 
@@ -36,12 +36,12 @@ def main() -> None:
             ref.panel,
             meth[i],
             total[i],
-            lab="Laboratoire partenaire (simulé)",
+            lab="Partner lab (simulated)",
             assay="targeted-bisulfite-panel-v1",
         )
-    # La vérité terrain reste séparée des fichiers labo (le labo ne la connaît pas).
+    # Ground truth is kept apart from the lab files (the lab does not know it).
     meta.assign(sample_id=[f"BRT-DEMO-{i:03d}" for i in range(len(meta))]).to_csv(out / "_truth.csv", index=False)
-    print(f"{len(meta)} fichiers écrits dans {out}")
+    print(f"{len(meta)} files written to {out}")
 
 
 if __name__ == "__main__":

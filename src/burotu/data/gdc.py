@@ -1,7 +1,7 @@
-"""Téléchargement des profils de méthylation tumoraux TCGA (GDC, accès ouvert).
+"""Download TCGA tumour methylation profiles (GDC portal, open access).
 
-Chaque fichier GDC « Methylation Beta Value » (450K, pipeline SeSAMe) contient
-deux colonnes sans en-tête : identifiant de sonde CpG et valeur bêta (0 à 1).
+Each GDC "Methylation Beta Value" file (450K, SeSAMe pipeline) has two columns and
+no header: the CpG probe ID and its beta value (0 to 1).
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ GDC_DATA = "https://api.gdc.cancer.gov/data/"
 
 
 def list_tumor_files(projects: list[str]) -> list[dict]:
-    """Liste les fichiers bêta 450K de tumeurs primaires pour des projets TCGA."""
+    """List 450K beta files of primary tumours for the given TCGA projects."""
     filt = {
         "op": "and",
         "content": [
@@ -44,7 +44,7 @@ def list_tumor_files(projects: list[str]) -> list[dict]:
 
 
 def select_files(per_class: int = TUMORS_PER_CLASS, seed: int = SEED) -> pd.DataFrame:
-    """Tire `per_class` tumeurs par classe CSO, une seule par patient."""
+    """Draw `per_class` tumours per CSO class, at most one per patient."""
     rng = random.Random(seed)
     rows = []
     for cls, projects in CANCER_CLASSES.items():
@@ -67,7 +67,7 @@ def _fetch_beta(file_id: str, retries: int = 4) -> pd.Series:
             r.raise_for_status()
             s = pd.read_csv(io.BytesIO(r.content), sep="\t", header=None, index_col=0).iloc[:, 0]
             return s.astype("float32")
-        except Exception:  # réseau instable : on réessaie
+        except Exception:  # flaky network: retry with backoff
             if attempt == retries - 1:
                 raise
             time.sleep(2 * (attempt + 1))
@@ -75,9 +75,9 @@ def _fetch_beta(file_id: str, retries: int = 4) -> pd.Series:
 
 
 def download_tumors(per_class: int = TUMORS_PER_CLASS, workers: int = 6) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Télécharge les tumeurs et renvoie (matrice bêta CpG × échantillons, métadonnées).
+    """Download tumours and return (beta matrix CpG × samples, metadata).
 
-    Le résultat est mis en cache dans data/raw/tcga_tumors.npy (lu en memmap).
+    The result is cached in data/raw/tcga_tumors.npy and read back as a memmap.
     """
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     cache = RAW_DIR / "tcga_tumors.npy"
@@ -88,9 +88,8 @@ def download_tumors(per_class: int = TUMORS_PER_CLASS, workers: int = 6) -> tupl
         return _load_cache(cache, probes_path, meta_path)
 
     meta = select_files(per_class)
-    # Chaque fichier est aligné sur un index de sondes commun et stocké en
-    # float32 sur disque : la mémoire reste faible et le téléchargement reprend
-    # là où il s'est arrêté en cas de coupure.
+    # Each file is aligned on a shared probe index and stored as float32 on disk:
+    # memory stays low and an interrupted download resumes where it stopped.
     part_dir.mkdir(exist_ok=True)
     probes: pd.Index | None = pd.Index(probes_path.read_text().split()) if probes_path.exists() else None
 
@@ -106,8 +105,8 @@ def download_tumors(per_class: int = TUMORS_PER_CLASS, workers: int = 6) -> tupl
                     probes_path.write_text("\n".join(probes))
                 np.save(part_dir / f"{fid}.npy", s.reindex(probes).to_numpy(np.float32))
                 del s
-            except Exception as e:  # on garde le reste du lot
-                print(f"  échec {fid}: {e}")
+            except Exception as e:  # keep the rest of the batch
+                print(f"  failed {fid}: {e}")
             if i % 20 == 0 or i == len(futs):
                 print(f"  TCGA {i}/{len(futs)}", flush=True)
 
@@ -123,7 +122,7 @@ def download_tumors(per_class: int = TUMORS_PER_CLASS, workers: int = 6) -> tupl
 
 
 def _load_cache(cache, probes_path, meta_path) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Charge la matrice en mémoire partagée (memmap), sans copie."""
+    """Load the matrix as a shared-memory memmap, without copying."""
     meta = pd.read_csv(meta_path)
     arr = np.load(cache, mmap_mode="r")
     probes = pd.Index(probes_path.read_text().split(), name="cpg_id")

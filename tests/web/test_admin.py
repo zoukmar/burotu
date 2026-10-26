@@ -26,15 +26,15 @@ def test_sample_tracking(public, logged_admin):
     assert ref in listing.text
 
     detail = logged_admin.get(f"/bookings/{ref}")
-    assert detail.status_code == 200 and "Demande reçue" in detail.text
+    assert detail.status_code == 200 and "Requested" in detail.text
     token = csrf(logged_admin, f"/bookings/{ref}")
     for status in ("confirmed", "drawn", "in_lab"):
         r = logged_admin.post(
-            f"/bookings/{ref}/status", data={"csrf": token, "status": status, "note": f"étape {status}"}
+            f"/bookings/{ref}/status", data={"csrf": token, "status": status, "note": f"stage {status}"}
         )
         assert r.status_code == 200
     page = logged_admin.get(f"/bookings/{ref}").text
-    assert "Au laboratoire" in page and "étape drawn" in page
+    assert "In the lab" in page and "stage drawn" in page
 
     assert logged_admin.post(f"/bookings/{ref}/status", data={"csrf": token, "status": "bogus"}).status_code == 400
 
@@ -56,7 +56,7 @@ def test_csv_export_neutralises_formulas(public, logged_admin):
 def test_site_management(logged_admin):
     token = csrf(logged_admin, "/sites")
     r = logged_admin.post(
-        "/sites", data={"csrf": token, "name": "Burotu Point Test", "city": "Nice", "address": "1 rue X"}
+        "/sites", data={"csrf": token, "name": "Burotu Point Test", "city": "Nice", "address": "1 Test Street"}
     )
     assert r.status_code == 200 and "Burotu Point Test" in r.text
     bad = logged_admin.post(

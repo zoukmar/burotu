@@ -1,4 +1,4 @@
-"""Configuration du site, lue dans les variables d'environnement."""
+"""Site settings, read from environment variables."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ def _csv(value: str) -> tuple[str, ...]:
 
 @dataclass(frozen=True)
 class Settings:
-    # Domaines : le site public répond sur PUBLIC_HOSTS, le suivi sur ADMIN_HOST.
+    # Domains: the public site answers on PUBLIC_HOSTS, tracking on ADMIN_HOST.
     public_hosts: tuple[str, ...] = field(
         default_factory=lambda: _csv(os.environ.get("BUROTU_PUBLIC_HOSTS", "burotu.com,localhost,127.0.0.1,testserver"))
     )

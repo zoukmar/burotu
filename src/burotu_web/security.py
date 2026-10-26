@@ -1,4 +1,4 @@
-"""Briques de sécurité partagées : jeton CSRF, en-têtes HTTP, limitation des connexions."""
+"""Shared security helpers: CSRF token, HTTP headers, login throttling."""
 
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ def check_csrf(request: Request, token: str) -> None:
 
 
 class LoginThrottle:
-    """Bloque une adresse IP après `limit` échecs sur `window` secondes."""
+    """Block an IP address after `limit` failures within `window` seconds."""
 
     def __init__(self, limit: int = 8, window: int = 900) -> None:
         self.limit, self.window = limit, window

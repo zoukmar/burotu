@@ -1,53 +1,55 @@
 # Architecture
 
-## Vue d'ensemble
+## Overview
 
 ```
- Patient ── prise de sang ──► Préleveur partenaire ──► Laboratoire
-                                                         │ séquençage bisulfite ciblé
+ Patient ── blood draw ──► Partner collection site ──► Partner lab
+                                                         │ targeted bisulfite sequencing
                                                          ▼
-                                              fichier burotu-bmc (comptages par CpG)
+                                              burotu-bmc file (read counts per CpG)
                                                          │
                        ┌─────────────────────────────────┴──────────────────────┐
                        │ Burotu                                                  │
-                       │  1. Contrôle qualité ......... Muse Spark (Meta)        │
-                       │  2. Signal cancer ............ classifieur dédié        │
-                       │  3. Organe d'origine ......... classifieur dédié        │
-                       │  4. Compte rendu médecin ..... Muse Spark (Meta)        │
+                       │  1. Data quality check ....... Muse Spark (Meta)        │
+                       │  2. Cancer signal ............ dedicated classifier     │
+                       │  3. Tissue of origin ......... dedicated classifier     │
+                       │  4. Plain-language report .... Muse Spark (Meta)        │
                        └─────────────────────────────────┬──────────────────────┘
                                                          ▼
-                                                      Médecin
+                                                      Patient
 ```
 
-Le classifieur est un modèle tabulaire entraîné sur des profils de méthylation : un modèle de
-langage n'est pas fait pour classer des centaines de milliers de valeurs numériques. Les modèles
-Meta interviennent là où le langage compte : vérifier qu'un fichier de laboratoire est
-exploitable, expliquer un résultat à un médecin, répondre à ses questions.
+Detection relies on a tabular classifier trained on methylation profiles: a language model is
+not the right tool to classify thousands of numeric values. Meta's models are used where
+language matters: checking that a lab file can be trusted, explaining a result clearly, and
+answering follow-up questions.
 
-## Composants du dépôt
+## Repository components
 
-| Dossier | Rôle |
+| Path | Role |
 | --- | --- |
-| `src/burotu/data` | Téléchargement TCGA (GDC) et GEO, construction du panel ciblé |
-| `src/burotu/simulate` | Simulateur d'ADN circulant à partir de profils réels |
-| `src/burotu/llm` | Client Meta Model API (compatible OpenAI), mode mock sans clé |
-| `src/burotu/labformat.py` | Format d'échange `burotu-bmc` avec le laboratoire |
-| `src/burotu_web` | burotu.com (one-pager, réservation) et admin.burotu.com (suivi) |
-| `deploy/` | Compose de production, bloc Caddy, script de déploiement |
+| `src/burotu/data` | Download TCGA (GDC) and GEO data, build the targeted panel |
+| `src/burotu/simulate` | Cell-free DNA simulator built from real profiles |
+| `src/burotu/llm` | Meta Model API client (OpenAI-compatible), mock mode without a key |
+| `src/burotu/labformat.py` | `burotu-bmc` exchange format with the partner lab |
+| `src/burotu_web` | burotu.com (one-pager, booking) and admin.burotu.com (tracking) |
+| `deploy/` | Production compose file, Caddy block, deploy script |
 
-## Site et suivi
+## Website and tracking
 
-Un seul processus FastAPI, deux sites aiguillés par le nom de domaine (`starlette.routing.Host`) :
+One FastAPI process serves two sites, routed by host name (`starlette.routing.Host`):
 
-- **burotu.com** : one-pager en anglais, français et espagnol, réservation d'une prise de sang.
-- **admin.burotu.com** : réservations et parcours de chaque échantillon
-  (demande reçue → rendez-vous confirmé → sang prélevé → au laboratoire → analysé →
-  compte rendu envoyé), avec historique horodaté, centres, horaires et fermetures.
+- **burotu.com**: one-page site in English, French and Spanish, with blood-draw booking. The
+  root URL redirects to the visitor's browser language, and to English when the browser asks for
+  a language the site does not offer.
+- **admin.burotu.com**: bookings and the journey of each sample (requested → appointment
+  confirmed → blood drawn → in the lab → analysed → report sent), with a timestamped history,
+  collection sites, opening hours and closures.
 
-Les deux sites ont des cookies de session distincts ; les routes du suivi n'existent pas sur
-le domaine public. Formulaires protégés par jeton CSRF, connexion limitée à 8 essais par
-quart d'heure, en-têtes de sécurité stricts (CSP sans script externe), export CSV protégé
-contre l'injection de formules.
+Both sites use separate session cookies, and tracking routes do not exist on the public domain.
+Forms carry a CSRF token, sign-in is throttled to 8 failures per 15 minutes, HTTP headers are
+strict (a CSP with no third-party scripts), and the CSV export is protected against formula
+injection.
 
-Stockage : SQLite (WAL) dans un volume Docker. Suffisant pour le prototype ; le passage à
-PostgreSQL ne touche que `db.py`.
+Storage is SQLite (WAL mode) in a Docker volume. That is enough for the prototype; moving to
+PostgreSQL only touches `db.py`.

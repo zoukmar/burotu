@@ -1,9 +1,9 @@
-/* Burotu — palette tirée du plasma et du sang veineux. */
+/* Burotu: a palette drawn from plasma and venous blood. */
 :root {
   --glass: #F6F7F4;      /* fond : verre de laboratoire */
   --ink: #1B2130;        /* texte : encre graphite */
   --ink-soft: #4A5263;
-  --venous: #7A1F33;     /* sang veineux : actions, CpG méthylés */
+  --venous: #7A1F33;     /* venous blood: actions, methylated CpGs */
   --venous-deep: #5E1626;
   --plasma: #EFE2AE;     /* plasma paille */
   --plasma-soft: #F6EFD2;
@@ -48,7 +48,7 @@ p { margin: 0 0 1em; }
 .skip { position: absolute; left: -9999px; }
 .skip:focus { left: 1rem; top: 1rem; z-index: 10; background: var(--white); padding: .5rem 1rem; }
 
-/* Bandeau démo : discret mais toujours présent. */
+/* Demo banner: discreet but always present. */
 .demo-banner {
   background: var(--plasma);
   color: var(--ink);
@@ -57,7 +57,7 @@ p { margin: 0 0 1em; }
   text-align: center;
 }
 
-/* Barre du haut */
+/* Top bar */
 .topbar {
   display: flex; align-items: center; gap: 2rem;
   padding: 1rem var(--gutter);
@@ -104,7 +104,7 @@ p { margin: 0 0 1em; }
 .lead { font-size: var(--step-1); line-height: 1.5; color: var(--ink-soft); margin: 0; }
 .hero-actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
 
-/* Lectures de séquençage */
+/* Sequencing reads */
 .reads { margin: clamp(3rem, 7vw, 5rem) 0 0; padding: 2.5rem 0 1.5rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--white); overflow: hidden; }
 .reads svg { width: 100%; height: clamp(180px, 26vw, 330px); }
 .read line { stroke: var(--line); stroke-width: 2; }
@@ -125,7 +125,7 @@ p { margin: 0 0 1em; }
 .section-ink { background: var(--ink); color: var(--glass); }
 .section-ink .muted { color: #B9C0CC; }
 
-/* Parcours du tube : vraie séquence, donc numérotée. */
+/* Tube journey: a real sequence, hence numbered. */
 .journey { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; counter-reset: none; }
 .journey li { position: relative; padding: 0 1.75rem 0 0; }
 .journey li::before { content: ""; position: absolute; top: 1.15rem; left: 2.75rem; right: .75rem; height: 2px; background: var(--line); }
@@ -162,7 +162,7 @@ p { margin: 0 0 1em; }
 .footer-meta { margin: 0; }
 .langs a { margin-left: 1rem; }
 
-/* Réservation */
+/* Booking */
 .book h1 { font-size: var(--step-3); }
 .book-grid { display: grid; grid-template-columns: minmax(0, 1fr) 21rem; gap: 3rem 4rem; align-items: start; }
 fieldset { border: 0; padding: 0; margin: 0 0 2.5rem; min-width: 0; }
@@ -222,7 +222,7 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
 .admin h2 { font-size: var(--step-1); }
 .admin-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
 
-.filters { display: flex; gap: 1rem; align-items: flex-end; /* aligne le bouton sur les champs */ flex-wrap: wrap; margin-bottom: 1.5rem; }
+.filters { display: flex; gap: 1rem; align-items: flex-end; /* align the button with the fields */ flex-wrap: wrap; margin-bottom: 1.5rem; }
 .filters .field { min-width: 14rem; }
 .filters select { padding: .7rem .8rem; }
 .filters .btn { padding: .78rem 1rem; }
@@ -268,7 +268,7 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
   .cpg-tumour { animation: none; }
 }
 
-/* --- Suivi : parcours des échantillons ------------------------------------ */
+/* --- Tracking: sample journey ------------------------------------------- */
 .brand-sub { font-weight: 500; color: var(--ink-soft); letter-spacing: 0; }
 .pipeline { list-style: none; margin: 0 0 .75rem; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .pipeline a { display: flex; flex-direction: column; gap: .2rem; padding: 1rem 1.1rem; background: var(--white); text-decoration: none; height: 100%; }
@@ -317,7 +317,7 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
   .facts div { grid-template-columns: 1fr; gap: .1rem; }
 }
 
-/* --- Accroche et couverture des 50 cancers ---------------------------------- */
+/* --- Headline and 50-cancer coverage ---------------------------------------- */
 .hero-note { margin: 2rem 0 0; font-size: var(--step--1); color: var(--ink-soft); max-width: 60ch; padding-left: .9rem; border-left: 3px solid var(--plasma); }
 .coverage { width: 100%; max-width: 22rem; margin: .5rem 0 1rem; }
 .coverage .o { fill: none; stroke: var(--ink); stroke-width: 1.5; opacity: .55; }

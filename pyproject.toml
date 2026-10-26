@@ -39,8 +39,8 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
-ignore = ["RUF001", "RUF002", "RUF003"]  # textes en français : apostrophes et espaces typographiques voulus
+ignore = ["RUF001", "RUF002", "RUF003"]  # translated site copy: typographic apostrophes and spaces are intended
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["B"]
-"src/burotu_web/i18n.py" = ["E501"]  # textes traduits : une phrase par ligne
+"src/burotu_web/i18n.py" = ["E501"]  # translated copy: one sentence per line

@@ -3,37 +3,37 @@ PY ?= python3
 
 .PHONY: help install data reference demo-samples dev lint format test check docker
 
-help: ## Affiche cette aide
+help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1m%-14s\033[0m %s\n", $$1, $$2}'
 
-install: ## Installe le projet et les outils de développement
+install: ## Install the project and development tools
 	$(PY) -m pip install -e ".[dev]"
 
-data: ## Télécharge les données publiques (TCGA, GEO)
+data: ## Download public data (TCGA, GEO)
 	$(PY) -m burotu.data.gdc
 	$(PY) -m burotu.data.geo
 
-reference: ## Construit le panel ciblé et le découpage train/test
+reference: ## Build the targeted panel and train/test split
 	$(PY) -m burotu.data.reference
 
-demo-samples: ## Génère des fichiers labo simulés pour la démo
+demo-samples: ## Generate simulated lab files for the demo
 	$(PY) scripts/make_demo_samples.py
 
-dev: ## Lance le site en local (http://localhost:8000 et http://admin.localhost:8000)
+dev: ## Run the site locally (http://localhost:8000 and http://admin.localhost:8000)
 	BUROTU_ADMIN_PASSWORD=$${BUROTU_ADMIN_PASSWORD:-dev} $(PY) -m uvicorn burotu_web.main:app --reload --port 8000
 
-lint: ## Vérifie le style du code
+lint: ## Check code style
 	ruff check src tests scripts
 	ruff format --check src tests scripts
 
-format: ## Formate le code
+format: ## Format the code
 	ruff check --fix src tests scripts
 	ruff format src tests scripts
 
-test: ## Lance les tests
+test: ## Run the tests
 	$(PY) -m pytest
 
-check: lint test ## Lint et tests (comme la CI)
+check: lint test ## Lint and tests (same as CI)
 
-docker: ## Construit l'image Docker du site
+docker: ## Build the site Docker image
 	docker build -t burotu-web .

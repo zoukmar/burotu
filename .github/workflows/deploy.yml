@@ -1,6 +1,6 @@
 name: Deploy
 
-# Chaque push sur main : tests → image GHCR → déploiement SSH sur srv-prod-2.
+# Every push to main: tests → GHCR image → SSH deployment to srv-prod-2.
 on:
   push:
     branches: [main]
@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: deploy-production
-  cancel-in-progress: false  # ne jamais couper un déploiement en cours
+  cancel-in-progress: false  # never interrupt a running deployment
 
 permissions:
   contents: read
@@ -63,7 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Préparer SSH
+      - name: Set up SSH
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
@@ -74,19 +74,19 @@ jobs:
           printf 'Host prod\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  IdentitiesOnly yes\n' \
             "${{ secrets.DEPLOY_HOST }}" "${{ secrets.DEPLOY_USER }}" > ~/.ssh/config
 
-      - name: Copier la configuration
+      - name: Copy configuration
         run: scp deploy/docker-compose.yml deploy/deploy.sh prod:/opt/burotu/
 
-      - name: Déployer
+      - name: Deploy
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # Le jeton passe par l'entrée standard : il n'apparaît ni dans les logs ni dans `ps` sur le serveur.
+        # The token goes through stdin: it never shows in logs or in `ps` on the server.
         run: |
           printf '%s' "$GHCR_TOKEN" | ssh prod \
             "docker login ghcr.io -u '${{ github.actor }}' --password-stdin >/dev/null \
              && bash /opt/burotu/deploy.sh '${{ github.sha }}'; status=\$?; docker logout ghcr.io >/dev/null; exit \$status"
 
-      - name: Vérifier en ligne
+      - name: Check live site
         run: |
           for host in burotu.com admin.burotu.com; do
             curl -fsS --retry 5 --retry-delay 3 "https://$host/healthz" >/dev/null && echo "$host OK"

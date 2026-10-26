@@ -1,4 +1,4 @@
-"""Suivi admin.burotu.com : réservations, parcours des échantillons, centres et horaires."""
+"""Tracking site admin.burotu.com: bookings, sample journey, collection sites and hours."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ TIME_RE = re.compile(r"^\d{2}:\d{2}$")
 
 
 class LoginRequired(Exception):
-    """Levée quand une page du suivi est demandée sans session admin."""
+    """Raised when a tracking page is requested without an admin session."""
 
 
 def require_admin(request: Request) -> str:
@@ -49,7 +49,7 @@ def healthz():
     return {"ok": True}
 
 
-# --- Connexion ----------------------------------------------------------------
+# --- Sign-in -------------------------------------------------------------------
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -64,15 +64,15 @@ def login(request: Request, csrf: str = Form(""), username: str = Form(""), pass
     throttle: LoginThrottle = request.app.state.throttle
     ip = client_ip(request)
     if throttle.blocked(ip):
-        return page(request, "login.html", 429, error="Trop de tentatives. Réessayez dans 15 minutes.")
+        return page(request, "login.html", 429, error="Too many attempts. Try again in 15 minutes.")
     if not settings.admin_password:
-        return page(request, "login.html", 503, error="Aucun mot de passe n'est configuré (BUROTU_ADMIN_PASSWORD).")
+        return page(request, "login.html", 503, error="No admin password is configured (BUROTU_ADMIN_PASSWORD).")
     ok = hmac.compare_digest(username, settings.admin_user) & hmac.compare_digest(password, settings.admin_password)
     if not ok:
         throttle.fail(ip)
-        return page(request, "login.html", 401, error="Identifiant ou mot de passe incorrect.")
+        return page(request, "login.html", 401, error="Wrong username or password.")
     throttle.reset(ip)
-    request.session.clear()  # nouvelle session : évite la fixation de session
+    request.session.clear()  # fresh session: prevents session fixation
     request.session["admin"] = username
     return RedirectResponse("/", status_code=303)
 
@@ -84,7 +84,7 @@ def logout(request: Request, csrf: str = Form("")):
     return RedirectResponse("/login", status_code=303)
 
 
-# --- Réservations et suivi ---------------------------------------------------------
+# --- Bookings and tracking -----------------------------------------------------
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -118,7 +118,7 @@ def booking_status(request: Request, ref: str, csrf: str = Form(""), status: str
     user = require_admin(request)
     check_csrf(request, csrf)
     if status not in STATUS_KEYS:
-        raise HTTPException(400, "Statut inconnu")
+        raise HTTPException(400, "Unknown status")
     try:
         request.app.state.db.set_status(ref, status, note.strip(), actor=user)
     except KeyError as e:
@@ -145,7 +145,7 @@ def export_csv(request: Request):
     w = csv.writer(buf)
     w.writerow(cols)
     for r in request.app.state.db.list_bookings():
-        # Neutralise les formules à l'ouverture dans un tableur (injection CSV).
+        # Neutralise spreadsheet formulas (CSV injection).
         w.writerow([f"'{r[c]}" if str(r[c])[:1] in "=+-@" else r[c] for c in cols])
     name = f"burotu-reservations-{datetime.now():%Y%m%d}.csv"
     return StreamingResponse(
@@ -155,7 +155,7 @@ def export_csv(request: Request):
     )
 
 
-# --- Centres et horaires -----------------------------------------------------------
+# --- Collection sites and hours --------------------------------------------------
 
 
 @router.get("/sites", response_class=HTMLResponse)
@@ -199,7 +199,7 @@ def site_update(
     require_admin(request)
     check_csrf(request, csrf)
     if not (TIME_RE.match(open_from) and TIME_RE.match(open_to)) or open_from >= open_to:
-        raise HTTPException(400, "Horaires invalides")
+        raise HTTPException(400, "Invalid opening hours")
     request.app.state.db.update_site(
         site_id,
         name=name.strip(),
@@ -224,6 +224,6 @@ def closure(
     try:
         date.fromisoformat(day)
     except ValueError as e:
-        raise HTTPException(400, "Date invalide") from e
+        raise HTTPException(400, "Invalid date") from e
     request.app.state.db.set_closure(site_id, day, action == "close")
     return RedirectResponse("/sites", status_code=303)

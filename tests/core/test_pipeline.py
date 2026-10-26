@@ -18,7 +18,7 @@ def _toy_data(n_cpg=400, n_blood=20, per_class=10, seed=0):
     for c, cls in enumerate(["A", "B"]):
         for j in range(per_class):
             v = rng.beta(1, 30, n_cpg)
-            v[c * 50 : (c + 1) * 50] = rng.beta(20, 3, 50)  # marqueurs spécifiques
+            v[c * 50 : (c + 1) * 50] = rng.beta(20, 3, 50)  # class-specific markers
             fid = f"T{cls}{j}"
             cols[fid] = v
             meta.append({"file_id": fid, "case_id": fid, "project": cls, "cancer_class": cls})
@@ -30,7 +30,7 @@ def test_panel_and_split_no_leakage():
     ref = build_reference(blood, tumors, meta, per_class=30)
     assert set(ref.blood_train.columns).isdisjoint(ref.blood_test.columns)
     assert set(ref.tumor_train.columns).isdisjoint(ref.tumor_test.columns)
-    # Les marqueurs plantés doivent dominer le panel.
+    # The planted markers should dominate the panel.
     planted = {f"cg{i:08d}" for i in range(100)}
     assert len(planted & set(ref.panel)) / len(ref.panel) > 0.5
 
@@ -71,5 +71,5 @@ def test_labformat_roundtrip(tmp_path):
 def test_meta_client_mock():
     c = MetaClient(api_key=None)
     assert c.mock
-    r = c.chat([{"role": "user", "content": "bonjour"}], json_mode=True)
+    r = c.chat([{"role": "user", "content": "hello"}], json_mode=True)
     assert r.mock and r.json()["mock"] is True

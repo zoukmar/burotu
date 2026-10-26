@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches-ignore: [main]  # main passe par deploy.yml, qui appelle ce workflow
+    branches-ignore: [main]  # main goes through deploy.yml, which calls this workflow
   workflow_call:
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   check:
-    name: Lint et tests
+    name: Lint and tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -23,7 +23,7 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Installer
+      - name: Install
         run: pip install -e ".[dev]"
 
       - name: Ruff
@@ -34,5 +34,5 @@ jobs:
       - name: Tests
         run: pytest
 
-      - name: Image Docker (construction seule)
+      - name: Docker image (build only)
         run: docker build -t burotu-web:ci .

@@ -1,4 +1,4 @@
-"""Moteur de templates partagé par le site public et le suivi."""
+"""Template engine shared by the public site and tracking."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ templates.env.globals.update(
 
 
 def euros(cents: int) -> str:
-    return f"{cents / 100:,.0f}".replace(",", " ") + " €"
+    return f"€{cents / 100:,.0f}"
 
 
 templates.env.filters["euros"] = euros

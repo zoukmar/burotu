@@ -1,4 +1,4 @@
-"""Stockage SQLite : centres de prélèvement, réservations et suivi des échantillons."""
+"""SQLite storage: collection sites, bookings and sample tracking."""
 
 from __future__ import annotations
 
@@ -61,8 +61,8 @@ CREATE INDEX IF NOT EXISTS ix_events_booking ON events(booking_id);
 
 DEMO_SITES = [
     ("Burotu Point Clerkenwell", "London", "14 St John Street, EC1M (demo)"),
-    ("Burotu Point Bastille", "Paris", "22 rue de la Roquette, 75011 (démo)"),
-    ("Burotu Point Part-Dieu", "Lyon", "8 rue Servient, 69003 (démo)"),
+    ("Burotu Point Bastille", "Paris", "22 rue de la Roquette, 75011 (demo)"),
+    ("Burotu Point Part-Dieu", "Lyon", "8 rue Servient, 69003 (demo)"),
     ("Burotu Point Chamberí", "Madrid", "Calle de Santa Engracia 40 (demo)"),
     ("Burotu Point Eixample", "Barcelona", "Carrer del Consell de Cent 310 (demo)"),
 ]
@@ -72,18 +72,18 @@ DEMO_SITES = [
 class Status:
     key: str
     label: str
-    active: bool = True  # occupe un créneau
+    active: bool = True  # holds a booking slot
 
 
-# Parcours d'un échantillon, de la demande au compte rendu.
+# Journey of a sample, from request to report.
 STATUSES: tuple[Status, ...] = (
-    Status("requested", "Demande reçue"),
-    Status("confirmed", "Rendez-vous confirmé"),
-    Status("drawn", "Sang prélevé"),
-    Status("in_lab", "Au laboratoire"),
-    Status("analysed", "Analysé"),
-    Status("reported", "Compte rendu envoyé"),
-    Status("cancelled", "Annulé", active=False),
+    Status("requested", "Requested"),
+    Status("confirmed", "Appointment confirmed"),
+    Status("drawn", "Blood drawn"),
+    Status("in_lab", "In the lab"),
+    Status("analysed", "Analysed"),
+    Status("reported", "Report sent"),
+    Status("cancelled", "Cancelled", active=False),
 )
 STATUS_KEYS = tuple(s.key for s in STATUSES)
 STATUS_LABELS = {s.key: s.label for s in STATUSES}
@@ -114,7 +114,7 @@ class Database:
             if con.execute("SELECT COUNT(*) FROM sites").fetchone()[0] == 0:
                 con.executemany("INSERT INTO sites(name, city, address) VALUES (?,?,?)", DEMO_SITES)
 
-    # --- Centres -------------------------------------------------------------
+    # --- Collection sites ------------------------------------------------------
 
     def list_sites(self, active_only: bool = True) -> list[sqlite3.Row]:
         q = "SELECT * FROM sites" + (" WHERE active=1" if active_only else "") + " ORDER BY city, name"
@@ -133,7 +133,7 @@ class Database:
         fields = {k: v for k, v in fields.items() if k in SITE_FIELDS}
         if not fields:
             return
-        cols = ", ".join(f"{k}=?" for k in fields)  # noms de colonnes issus de la liste blanche
+        cols = ", ".join(f"{k}=?" for k in fields)  # column names come from the allow-list
         with self.connect() as con:
             con.execute(f"UPDATE sites SET {cols} WHERE id=?", (*fields.values(), site_id))
 
@@ -152,7 +152,7 @@ class Database:
                 (date.today().isoformat(),),
             ).fetchall()
 
-    # --- Créneaux ------------------------------------------------------------
+    # --- Slots -------------------------------------------------------------------
 
     @staticmethod
     def _slot_times(site: sqlite3.Row) -> list[str]:
@@ -183,17 +183,17 @@ class Database:
             ).fetchall()
         )
         slots = [s for s in self._slot_times(site) if taken.get(s, 0) < site["capacity"]]
-        if day == now.date():  # pas de rendez-vous dans moins d'une heure
+        if day == now.date():  # no appointment less than an hour from now
             limit = (now + timedelta(hours=1)).strftime("%H:%M")
             slots = [s for s in slots if s >= limit]
         return slots
 
-    # --- Réservations ----------------------------------------------------------
+    # --- Bookings ----------------------------------------------------------------
 
     def create_booking(self, data: dict) -> str | None:
-        """Crée la réservation si le créneau est libre. Renvoie la référence, ou None si complet."""
+        """Create the booking if the slot is free. Return its reference, or None if full."""
         with self.connect() as con:
-            con.execute("BEGIN IMMEDIATE")  # verrou d'écriture : pas de double réservation
+            con.execute("BEGIN IMMEDIATE")  # write lock: no double booking
             try:
                 if data["slot"] not in self.available_slots(data["site_id"], date.fromisoformat(data["day"]), con=con):
                     con.execute("ROLLBACK")
@@ -220,7 +220,7 @@ class Database:
                 )
                 con.execute(
                     "INSERT INTO events(booking_id, at, status, note, actor) VALUES (?,?,?,?,?)",
-                    (cur.lastrowid, _now(), "requested", "Réservation en ligne", "site"),
+                    (cur.lastrowid, _now(), "requested", "Booked online", "site"),
                 )
                 con.execute("COMMIT")
                 return ref
@@ -258,7 +258,7 @@ class Database:
 
     def set_status(self, ref: str, status: str, note: str = "", actor: str = "admin") -> None:
         if status not in STATUS_KEYS:
-            raise ValueError(f"statut inconnu : {status}")
+            raise ValueError(f"unknown status: {status}")
         with self.connect() as con:
             row = con.execute("SELECT id, status FROM bookings WHERE ref=?", (ref,)).fetchone()
             if row is None:

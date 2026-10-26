@@ -1,4 +1,4 @@
-"""Site public burotu.com : one-pager en/fr/es avec réservation intégrée."""
+"""Public site burotu.com: one-pager in en/fr/es with built-in booking."""
 
 from __future__ import annotations
 
@@ -15,14 +15,14 @@ from burotu_web.templating import templates
 
 router = APIRouter()
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-OPTIONAL_FIELDS = {"doctor"}  # sans ordonnance : le médecin est facultatif
+OPTIONAL_FIELDS = {"doctor"}  # no prescription needed: the doctor is optional
 
 
 def sequencing_reads(seed: int = 11) -> list[dict]:
-    """Lectures d'ADN circulant dessinées dans le hero : rangées de sites CpG.
+    """Cell-free DNA reads drawn in the hero: rows of CpG sites.
 
-    La plupart viennent du sang (CpG non méthylés, cercles creux) ; quelques
-    lectures tumorales voient leurs CpG se remplir lors de l'animation.
+    Most come from blood (unmethylated CpGs, hollow circles); a few tumour reads
+    see their CpGs fill in during the animation.
     """
     rng = random.Random(seed)
     reads, gap, width_max = [], 26, 1160
@@ -54,8 +54,21 @@ READS = sequencing_reads()
 
 
 def pick_lang(request: Request) -> str:
-    for part in request.headers.get("accept-language", "").lower().split(","):
-        code = part.split(";")[0].strip()[:2]
+    """Pick the site language from the browser's Accept-Language header.
+
+    Languages are ranked by their q-value (browser preference order breaks ties);
+    the first one the site supports wins. English is the default.
+    """
+    ranked = []
+    for pos, part in enumerate(request.headers.get("accept-language", "").lower().split(",")):
+        code, _, params = part.strip().partition(";")
+        try:
+            q = float(params.strip()[2:]) if params.strip().startswith("q=") else 1.0
+        except ValueError:
+            q = 0.0
+        if code and q > 0:
+            ranked.append((-q, pos, code[:2]))
+    for _, _, code in sorted(ranked):
         if code in LANGS:
             return code
     return DEFAULT_LANG
@@ -117,7 +130,7 @@ def api_slots(request: Request, site: int, day: str):
 def home(request: Request, lang: str, booked: str | None = None):
     lang = need_lang(lang)
     booking = None
-    # La confirmation n'est visible que dans la session qui vient de réserver.
+    # The confirmation is only shown to the session that just booked.
     if booked and request.session.get("last_booking") == booked:
         booking = request.app.state.db.get_booking(booked)
     return render_page(request, lang, booking=booking)
@@ -143,7 +156,7 @@ def book_submit(
     birth_year: str = Form(""),
     doctor: str = Form(""),
     consent: str = Form(""),
-    website: str = Form(""),  # pot de miel anti-robots, invisible pour les humains
+    website: str = Form(""),  # honeypot for bots, invisible to humans
 ):
     lang = need_lang(lang)
     check_csrf(request, csrf)

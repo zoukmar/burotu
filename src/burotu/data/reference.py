@@ -1,9 +1,9 @@
-"""Construction de la référence : alignement des sources, découpage train/test, panel ciblé.
+"""Build the reference: align sources, split train/test, design the targeted panel.
 
-Le panel imite un panel de séquençage bisulfite ciblé à la Galleri : on garde les
-CpG quasi non méthylés dans le sang (bruit de fond faible dans le plasma) et
-fortement méthylés dans au moins un type tumoral. Le panel est choisi uniquement
-sur la partie entraînement pour éviter toute fuite d'information.
+The panel mimics a targeted bisulfite sequencing panel: it keeps CpG sites that are
+almost never methylated in blood (low background in plasma) and strongly methylated
+in at least one tumour type. The panel is chosen on the training split only, so no
+information leaks into the test set.
 """
 
 from __future__ import annotations
@@ -20,9 +20,9 @@ from burotu.config import PROCESSED_DIR, SEED
 @dataclass
 class Reference:
     panel: list[str]
-    blood_train: pd.DataFrame  # panel × individus
+    blood_train: pd.DataFrame  # panel × individuals
     blood_test: pd.DataFrame
-    tumor_train: pd.DataFrame  # panel × tumeurs
+    tumor_train: pd.DataFrame  # panel × tumours
     tumor_test: pd.DataFrame
     tumor_meta: pd.DataFrame  # file_id, cancer_class, split
 
@@ -46,7 +46,7 @@ class Reference:
 
 
 def _impute_rows(df: pd.DataFrame, fill: np.ndarray) -> pd.DataFrame:
-    """Remplace les NaN de chaque ligne par la valeur `fill` de cette ligne."""
+    """Replace the NaNs of each row with that row's `fill` value."""
     a = df.to_numpy(np.float32, copy=True)
     r, c = np.where(np.isnan(a))
     a[r, c] = fill[r]
@@ -68,7 +68,7 @@ def design_panel(
     blood_max_mean: float = 0.10,
     blood_max_q95: float = 0.20,
 ) -> list[str]:
-    """Sélectionne les CpG du panel (sur données d'entraînement uniquement)."""
+    """Select the panel CpG sites (training data only)."""
     b_mean = blood.mean(axis=1)
     b_q95 = blood.quantile(0.95, axis=1)
     quiet = b_mean.index[(b_mean < blood_max_mean) & (b_q95 < blood_max_q95)]
@@ -76,14 +76,14 @@ def design_panel(
     chosen: list[str] = []
     for cls in sorted(classes.unique()):
         cols = classes.index[classes == cls]
-        # Score : méthylation tumorale médiane de la classe moins le fond sanguin,
-        # pénalisé par la méthylation des autres classes pour aider l'organe d'origine.
+        # Score: median tumour methylation of the class minus the blood background,
+        # plus a bonus for being specific to this class (helps tissue of origin).
         own = t[cols].median(axis=1)
         other = t.drop(columns=cols).median(axis=1)
         frac_hi = (t[cols] > 0.3).mean(axis=1)
         score = (own - b_mean.loc[quiet]) * frac_hi + 0.5 * (own - other)
         chosen.extend(score.sort_values(ascending=False).index[:per_class])
-    # Marqueurs pan-cancer : méthylés dans la majorité des tumeurs toutes classes.
+    # Pan-cancer markers: methylated in most tumours across all classes.
     pan = (t > 0.3).mean(axis=1).sort_values(ascending=False).index[:per_class]
     chosen.extend(pan)
     return list(dict.fromkeys(chosen))
@@ -100,19 +100,19 @@ def build_reference(
 ) -> Reference:
     rng = np.random.default_rng(seed)
     common = blood.index.intersection(tumors.index)
-    if restrict_to is not None:  # ex. CpG aussi présents sur l'EPIC (validation Moss)
+    if restrict_to is not None:  # e.g. CpGs also on the EPIC array (Moss validation)
         common = common.intersection(restrict_to)
     blood = blood.loc[common]
     tumors = tumors.loc[common]
 
-    # Imputation des valeurs manquantes : médiane par CpG (sang) / par classe (tumeurs).
+    # Missing values: median per CpG (blood) or per CpG and class (tumours).
     blood_med = np.nanmedian(blood.to_numpy(np.float32), axis=1)
     blood = _impute_rows(blood, blood_med)
     meta = pd.DataFrame({"file_id": list(tumors.columns)}).merge(tumor_meta, on="file_id", how="left")
     parts = []
     for _cls, grp in meta.groupby("cancer_class"):
         sub = tumors[grp["file_id"]]
-        with warnings.catch_warnings():  # lignes entièrement NaN : médiane du sang
+        with warnings.catch_warnings():  # all-NaN rows fall back to the blood median
             warnings.simplefilter("ignore", RuntimeWarning)
             med = np.nanmedian(sub.to_numpy(np.float32), axis=1)
         med = np.where(np.isnan(med), blood_med, med)
@@ -148,8 +148,8 @@ def main() -> None:
     moss, _ = load_moss_cfdna()
     ref = build_reference(blood, tumors, tmeta, restrict_to=moss.index)
     ref.save()
-    print(f"Panel : {len(ref.panel)} CpG")
-    print(f"Sang : {ref.blood_train.shape[1]} train / {ref.blood_test.shape[1]} test")
+    print(f"Panel: {len(ref.panel)} CpG")
+    print(f"Blood: {ref.blood_train.shape[1]} train / {ref.blood_test.shape[1]} test")
     print(ref.tumor_meta.groupby(["cancer_class", "split"]).size().unstack())
 
 

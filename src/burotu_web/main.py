@@ -1,9 +1,9 @@
-"""Point d'entrée : un seul processus sert deux sites, aiguillés par le nom de domaine.
+"""Entry point: one process serves two sites, routed by host name.
 
-    burotu.com        → site public (one-pager, réservation)
-    admin.burotu.com  → suivi (réservations, échantillons, centres)
+    burotu.com        → public site (one-pager, booking)
+    admin.burotu.com  → tracking (bookings, samples, collection sites)
 
-En local : http://localhost:8000 et http://admin.localhost:8000
+Locally: http://localhost:8000 and http://admin.localhost:8000
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ def _subapp(settings: Settings, db: Database, router, cookie: str) -> FastAPI:
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     app.state.settings = settings
     app.state.db = db
-    app.state.throttle = LoginThrottle()  # un compteur d'échecs par instance
+    app.state.throttle = LoginThrottle()  # one failure counter per app instance
     app.add_middleware(
         SessionMiddleware,
         secret_key=settings.secret_key,
@@ -61,7 +61,7 @@ def create_app(settings: Settings | None = None) -> Starlette:
 
     routes = [Host(settings.admin_host, admin_app)]
     routes += [Host(h, public_app) for h in settings.public_hosts]
-    routes.append(Mount("/", public_app))  # hôte inconnu : le reverse proxy filtre déjà les domaines
+    routes.append(Mount("/", public_app))  # unknown host: the reverse proxy already filters domains
     return Starlette(routes=routes, middleware=[Middleware(SecurityHeadersMiddleware)], lifespan=lifespan)
 
 
