@@ -1,0 +1,5 @@
+*
+!pyproject.toml
+!README.md
+!src/
+**/__pycache__

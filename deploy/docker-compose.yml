@@ -1,0 +1,31 @@
+# Stack de production, installée dans /opt/burotu sur srv-prod-2.
+# Le Caddy système de l'hôte termine le HTTPS et relaie vers 127.0.0.1:8120.
+name: burotu
+
+services:
+  web:
+    image: ghcr.io/zoukmar/burotu-web:${BUROTU_IMAGE_TAG:?définir BUROTU_IMAGE_TAG}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      BUROTU_PUBLIC_HOSTS: burotu.com,127.0.0.1,localhost
+      BUROTU_ADMIN_HOST: admin.burotu.com
+      BUROTU_DB_PATH: /data/site.db
+      BUROTU_SECURE_COOKIES: "1"
+    volumes:
+      - data:/data
+    ports:
+      - "127.0.0.1:8120:8000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  data:

@@ -1,0 +1,31 @@
+# Bloc à ajouter au Caddy système de srv-prod-2 (/etc/caddy/Caddyfile),
+# à côté de clipperton, postiz et nukuoro. Caddy obtient les certificats seul.
+
+www.burotu.com {
+	redir https://burotu.com{uri} permanent
+}
+
+burotu.com {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+	reverse_proxy 127.0.0.1:8120
+	log {
+		output file /var/log/caddy/burotu.log
+	}
+}
+
+admin.burotu.com {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+	reverse_proxy 127.0.0.1:8120
+	log {
+		output file /var/log/caddy/burotu-admin.log
+	}
+}
