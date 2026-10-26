@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+{% block title %}Centres et horaires{% endblock %}
+{% block main %}
+{% set days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] %}
+<div class="admin-head"><h1>Centres et horaires</h1></div>
+
+{% for s in sites %}
+<form class="site-card{% if not s.active %} inactive{% endif %}" method="post" action="/sites/{{ s.id }}">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <div class="fields">
+    <label class="field">Nom<input name="name" value="{{ s.name }}" required></label>
+    <label class="field">Ville<input name="city" value="{{ s.city }}" required></label>
+    <label class="field wide">Adresse<input name="address" value="{{ s.address }}" required></label>
+    <label class="field">Ouverture<input type="time" name="open_from" value="{{ s.open_from }}" required></label>
+    <label class="field">Fermeture<input type="time" name="open_to" value="{{ s.open_to }}" required></label>
+    <label class="field">Durée d'un créneau (min)<input type="number" name="slot_minutes" min="5" max="120" value="{{ s.slot_minutes }}"></label>
+    <label class="field">Personnes par créneau<input type="number" name="capacity" min="1" max="20" value="{{ s.capacity }}"></label>
+  </div>
+  <fieldset class="days"><legend>Jours d'ouverture</legend>
+    {% for d in days %}<label><input type="checkbox" name="weekdays" value="{{ loop.index0 }}"{% if loop.index0|string in s.weekdays.split(',') %} checked{% endif %}> {{ d }}</label>{% endfor %}
+  </fieldset>
+  <div class="site-actions">
+    <label><input type="checkbox" name="active" value="1"{% if s.active %} checked{% endif %}> Visible sur le site</label>
+    <button class="btn btn-small" type="submit">Enregistrer</button>
+  </div>
+</form>
+{% endfor %}
+
+<div class="admin-split">
+  <form class="site-card" method="post" action="/sites">
+    <h2>Ajouter un centre</h2>
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="fields">
+      <label class="field">Nom<input name="name" required></label>
+      <label class="field">Ville<input name="city" required></label>
+      <label class="field wide">Adresse<input name="address" required></label>
+    </div>
+    <button class="btn btn-small" type="submit">Ajouter le centre</button>
+  </form>
+
+  <div class="site-card">
+    <h2>Fermetures exceptionnelles</h2>
+    <form method="post" action="/closures" class="fields">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label class="field">Centre<select name="site_id">{% for s in sites %}<option value="{{ s.id }}">{{ s.city }}, {{ s.name }}</option>{% endfor %}</select></label>
+      <label class="field">Jour<input type="date" name="day" min="{{ today }}" required></label>
+      <input type="hidden" name="action" value="close">
+      <button class="btn btn-small" type="submit">Fermer ce jour</button>
+    </form>
+    {% if closures %}
+    <ul class="closures">
+      {% for c in closures %}
+      <li>{{ c.day }}, {{ c.name }}
+        <form method="post" action="/closures">
+          <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="site_id" value="{{ c.site_id }}">
+          <input type="hidden" name="day" value="{{ c.day }}"><input type="hidden" name="action" value="open">
+          <button class="btn btn-small btn-ghost" type="submit">Rouvrir</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">Aucune fermeture prévue.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

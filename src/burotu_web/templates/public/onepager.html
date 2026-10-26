@@ -1,0 +1,183 @@
+{% extends "public/base.html" %}
+{% block main %}
+<section class="hero">
+  <div class="wrap">
+    <h1 class="hero-title">{{ t.hero_title }}</h1>
+    <div class="hero-row">
+      <p class="lead">{{ t.hero_lead }}</p>
+      <div class="hero-actions">
+        <a class="btn" href="#book">{{ t.hero_cta }}</a>
+        <a class="link" href="#how">{{ t.hero_secondary }}</a>
+      </div>
+    </div>
+  </div>
+  <figure class="reads">
+    <svg viewBox="-12 -14 1184 346" preserveAspectRatio="xMidYMid slice" role="img" aria-label="{{ t.strip_caption }}">
+      {% for r in reads %}
+      <g class="read{% if r.tumour %} read-tumour{% endif %}">
+        <line x1="{{ r.x1 }}" y1="{{ r.y }}" x2="{{ r.x2 }}" y2="{{ r.y }}"/>
+        {% for s in r.sites %}
+        <circle cx="{{ s.cx }}" cy="{{ r.y }}" r="7"
+          class="{% if s.tumour %}cpg cpg-tumour{% elif s.filled %}cpg cpg-on{% else %}cpg{% endif %}"
+          {% if s.tumour %}style="animation-delay: {{ s.delay }}s"{% endif %}/>
+        {% endfor %}
+      </g>
+      {% endfor %}
+    </svg>
+    <figcaption class="wrap">{{ t.strip_caption }}</figcaption>
+  </figure>
+</section>
+
+<section class="section" id="how">
+  <div class="wrap">
+    <h2>{{ t.how_title }}</h2>
+    <p class="section-lead">{{ t.how_lead }}</p>
+    <ol class="journey">
+      {% for i in range(1, 5) %}
+      <li>
+        <span class="journey-n" aria-hidden="true">{{ i }}</span>
+        <h3>{{ t['step%d_t' % i] }}</h3>
+        <p>{{ t['step%d_d' % i] }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="section section-plasma" id="science">
+  <div class="wrap science">
+    <div class="science-text">
+      <h2>{{ t.science_title }}</h2>
+      <p>{{ t.science_p1 }}</p>
+      <p>{{ t.science_p2 }}</p>
+    </div>
+    <div class="science-list">
+      <h3>{{ t.science_list_title }}</h3>
+      <ul class="cancers">
+        {% for c in cancers %}<li>{{ c }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap limits">
+    <h2>{{ t.limits_title }}</h2>
+    <ul>
+      <li>{{ t.limit1 }}</li>
+      <li>{{ t.limit2 }}</li>
+      <li>{{ t.limit3 }}</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section section-ink" id="offer">
+  <div class="wrap offer">
+    <div>
+      <h2>{{ t.offer_title }}</h2>
+      <p>{{ t.offer_includes }}</p>
+      <p class="muted">{{ t.offer_for }}</p>
+    </div>
+    <div class="offer-buy">
+      <p class="price">{{ t.offer_price }}</p>
+      <a class="btn btn-light" href="#book">{{ t.offer_cta }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="section book" id="book" aria-labelledby="book-title">
+  {% if booking %}
+  <div class="wrap narrow done" tabindex="-1" id="booking-done">
+    <svg class="done-mark" viewBox="0 0 120 20" aria-hidden="true">
+      {% for i in range(5) %}<circle cx="{{ 10 + i * 25 }}" cy="10" r="7" class="{% if i == 2 %}f{% else %}o{% endif %}"/>{% endfor %}
+    </svg>
+    <h2 id="book-title">{{ t.done_title }}</h2>
+    <p class="lead">{{ t.done_lead }} <strong class="ref">{{ booking.ref }}</strong></p>
+    <dl class="done-facts">
+      <div><dt>{{ t.done_when }}</dt><dd>{{ booking.day }}, {{ booking.slot }}</dd></div>
+      <div><dt>{{ t.done_where }}</dt><dd>{{ booking.site_name }}<br><span class="muted">{{ booking.address }}</span></dd></div>
+      <div><dt>{{ t.book_total }}</dt><dd>{{ t.offer_price }} <span class="test-mode inline">{{ t.book_pay_note }}</span></dd></div>
+    </dl>
+    <p class="muted">{{ t.done_next }}</p>
+    <a class="link" href="/{{ lang }}/#book">{{ t.done_new }}</a>
+  </div>
+  {% else %}
+  <div class="wrap book-grid">
+    <form class="book-form" id="book-form" method="post" action="/{{ lang }}/book#book" novalidate
+          data-msg-pick="{{ t.book_time_pick }}" data-msg-none="{{ t.book_time_none }}">
+      <h2 id="book-title">{{ t.book_title }}</h2>
+      <p class="section-lead">{{ t.book_section_lead }}</p>
+
+      {% if errors %}
+      <div class="errors" role="alert" tabindex="-1" id="errors">
+        <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></div>
+
+      <fieldset>
+        <legend>{{ t.book_site }}</legend>
+        <div class="sites">
+          {% for s in sites %}
+          <label class="site">
+            <input type="radio" name="site_id" value="{{ s.id }}" {% if form.site_id == s.id|string %}checked{% endif %} required>
+            <span class="site-body"><strong>{{ s.city }}</strong><span>{{ s.name }}</span><span class="muted">{{ s.address }}</span></span>
+          </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <fieldset class="when">
+        <legend>{{ t.book_time }}</legend>
+        <label class="field">{{ t.book_date }}
+          <input type="date" name="day" id="day" value="{{ form.day or '' }}" min="{{ today.isoformat() }}" required>
+        </label>
+        <div class="slots" id="slots" role="radiogroup" aria-label="{{ t.book_time }}" data-selected="{{ form.slot or '' }}">
+          <p class="muted">{{ t.book_time_pick }}</p>
+        </div>
+        <noscript><label class="field">{{ t.book_time }} <input name="slot" placeholder="08:15" value="{{ form.slot or '' }}"></label></noscript>
+      </fieldset>
+
+      <fieldset>
+        <legend>{{ t.book_you }}</legend>
+        <div class="fields">
+          <label class="field">{{ t.book_first }}<input name="first_name" autocomplete="given-name" value="{{ form.first_name or '' }}" required maxlength="120"></label>
+          <label class="field">{{ t.book_last }}<input name="last_name" autocomplete="family-name" value="{{ form.last_name or '' }}" required maxlength="120"></label>
+          <label class="field">{{ t.book_email }}<input type="email" name="email" autocomplete="email" value="{{ form.email or '' }}" required maxlength="120"></label>
+          <label class="field">{{ t.book_phone }}<input type="tel" name="phone" autocomplete="tel" value="{{ form.phone or '' }}" required maxlength="40"></label>
+          <label class="field">{{ t.book_birth }}<input name="birth_year" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" value="{{ form.birth_year or '' }}" required></label>
+          <label class="field">{{ t.book_doctor }}<input name="doctor" value="{{ form.doctor or '' }}" required maxlength="120"></label>
+        </div>
+        <label class="consent"><input type="checkbox" name="consent" value="1" required> <span>{{ t.book_consent }}</span></label>
+      </fieldset>
+    </form>
+
+    <aside class="summary" aria-label="{{ t.book_summary }}">
+      <h3>{{ t.book_summary }}</h3>
+      <p class="summary-item"><span>{{ t.offer_title }}</span><span>{{ t.offer_price }}</span></p>
+      <p class="muted small">{{ t.offer_includes }}</p>
+      <p class="summary-total"><span>{{ t.book_total }}</span><span>{{ t.offer_price }}</span></p>
+      <p class="test-mode">{{ t.book_pay_note }}</p>
+      <button class="btn btn-block" type="submit" form="book-form">{{ t.book_submit }}</button>
+    </aside>
+  </div>
+  {% endif %}
+</section>
+
+<section class="section" id="faq">
+  <div class="wrap faq">
+    <h2>{{ t.faq_title }}</h2>
+    <div>
+      {% for i in range(1, 5) %}
+      <details>
+        <summary>{{ t['faq%d_q' % i] }}</summary>
+        <p>{{ t['faq%d_a' % i] }}</p>
+      </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="/static/book.js" defer></script>{% endblock %}

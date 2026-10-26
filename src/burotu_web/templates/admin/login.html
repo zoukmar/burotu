@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block title %}Connexion{% endblock %}
+{% block main %}
+<form class="login" method="post" action="/login">
+  <h1>Connexion au suivi</h1>
+  {% if error %}<div class="errors" role="alert"><p>{{ error }}</p></div>{% endif %}
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label class="field">Identifiant<input name="username" autocomplete="username" required autofocus></label>
+  <label class="field">Mot de passe<input type="password" name="password" autocomplete="current-password" required></label>
+  <button class="btn btn-block" type="submit">Se connecter</button>
+</form>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% block title %}Réservations{% endblock %}
+{% block main %}
+<div class="admin-head">
+  <h1>Réservations</h1>
+  <a class="btn btn-small btn-ghost" href="/export.csv">Exporter en CSV</a>
+</div>
+
+<ol class="pipeline" aria-label="Échantillons par étape">
+  {% for key in PIPELINE %}
+  <li>
+    <a href="/?status={{ key }}"{% if status == key %} aria-current="true"{% endif %}>
+      <span class="pipeline-n">{{ stats[key] }}</span>
+      <span class="pipeline-l">{{ STATUS_LABELS[key] }}</span>
+    </a>
+  </li>
+  {% endfor %}
+</ol>
+<p class="kpi-line muted small">
+  {{ stats.total }} réservation{{ 's' if stats.total != 1 }} au total{% if stats.cancelled %}, dont {{ stats.cancelled }} annulée{{ 's' if stats.cancelled != 1 }}{% endif %}.
+  Chiffre d'affaires en mode test : {{ stats.revenue_cents|euros }}.
+</p>
+
+<form class="filters" method="get" action="/">
+  <label class="field">Recherche<input name="q" value="{{ q }}" placeholder="Référence, nom ou e-mail"></label>
+  <label class="field">Étape
+    <select name="status">
+      <option value="">Toutes</option>
+      {% for s in STATUSES %}<option value="{{ s.key }}"{% if s.key == status %} selected{% endif %}>{{ s.label }}</option>{% endfor %}
+    </select>
+  </label>
+  <button class="btn btn-small" type="submit">Filtrer</button>
+  {% if q or status %}<a class="link small" href="/">Effacer les filtres</a>{% endif %}
+</form>
+
+{% if bookings %}
+<div class="table-wrap">
+<table class="table">
+  <thead><tr><th>Rendez-vous</th><th>Patient</th><th>Centre</th><th>Médecin</th><th>Étape</th></tr></thead>
+  <tbody>
+  {% for b in bookings %}
+  <tr class="status-{{ b.status }}{% if b.day < today %} past{% endif %}">
+    <td><a class="row-link" href="/bookings/{{ b.ref }}"><strong>{{ b.day }}</strong> à {{ b.slot }}</a><br><span class="muted small">{{ b.ref }}</span></td>
+    <td>{{ b.first_name }} {{ b.last_name }} <span class="muted small">({{ b.birth_year }})</span><br><span class="small">{{ b.email }}</span></td>
+    <td>{{ b.city }}<br><span class="muted small">{{ b.site_name }}</span></td>
+    <td>{{ b.doctor }}</td>
+    <td><span class="badge badge-{{ b.status }}">{{ STATUS_LABELS[b.status] }}</span></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">{% if q or status %}Aucune réservation ne correspond à ces filtres.{% else %}Aucune réservation pour l'instant. Celles faites sur burotu.com apparaîtront ici.{% endif %}</p>
+{% endif %}
+{% endblock %}
