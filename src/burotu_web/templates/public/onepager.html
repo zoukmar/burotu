@@ -2,7 +2,11 @@
 {% block main %}
 <section class="hero">
   <div class="wrap">
-    <h1 class="hero-title">{{ t.hero_title }}</h1>
+    <h1 class="hero-title">
+      {%- for sentence in t.hero_title.split('. ') -%}
+      <span class="hero-line">{{ sentence }}{% if not loop.last %}.{% endif %}</span>
+      {%- endfor -%}
+    </h1>
     <div class="hero-row">
       <p class="lead">{{ t.hero_lead }}</p>
       <div class="hero-actions">
@@ -10,6 +14,7 @@
         <a class="link" href="#how">{{ t.hero_secondary }}</a>
       </div>
     </div>
+    <p class="hero-note">{{ t.hero_note }}</p>
   </div>
   <figure class="reads">
     <svg viewBox="-12 -14 1184 346" preserveAspectRatio="xMidYMid slice" role="img" aria-label="{{ t.strip_caption }}">
@@ -53,6 +58,13 @@
     </div>
     <div class="science-list">
       <h3>{{ t.science_list_title }}</h3>
+      <svg class="coverage" viewBox="0 0 250 125" role="img" aria-label="{{ t.coverage_note }}">
+        {% for i in range(target_cancers) %}
+        <circle cx="{{ 12.5 + (i % 10) * 25 }}" cy="{{ 12.5 + (i // 10) * 25 }}" r="8" class="{% if i < cancers|length %}f{% else %}o{% endif %}"/>
+        {% endfor %}
+      </svg>
+      <p class="coverage-note">{{ t.coverage_note }}</p>
+      <h4 class="coverage-now">{{ t.coverage_now }}</h4>
       <ul class="cancers">
         {% for c in cancers %}<li>{{ c }}</li>{% endfor %}
       </ul>
@@ -148,7 +160,7 @@
           <label class="field">{{ t.book_email }}<input type="email" name="email" autocomplete="email" value="{{ form.email or '' }}" required maxlength="120"></label>
           <label class="field">{{ t.book_phone }}<input type="tel" name="phone" autocomplete="tel" value="{{ form.phone or '' }}" required maxlength="40"></label>
           <label class="field">{{ t.book_birth }}<input name="birth_year" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" value="{{ form.birth_year or '' }}" required></label>
-          <label class="field">{{ t.book_doctor }}<input name="doctor" value="{{ form.doctor or '' }}" required maxlength="120"></label>
+          <label class="field">{{ t.book_doctor }}<input name="doctor" value="{{ form.doctor or '' }}" maxlength="120"></label>
         </div>
         <label class="consent"><input type="checkbox" name="consent" value="1" required> <span>{{ t.book_consent }}</span></label>
       </fieldset>

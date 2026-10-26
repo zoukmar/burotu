@@ -22,7 +22,7 @@
     <dl class="facts">
       <div><dt>Date</dt><dd>{{ b.day }} à {{ b.slot }}</dd></div>
       <div><dt>Centre</dt><dd>{{ b.site_name }}<br><span class="muted small">{{ b.address }}</span></dd></div>
-      <div><dt>Médecin</dt><dd>{{ b.doctor }}</dd></div>
+      <div><dt>Médecin</dt><dd>{{ b.doctor or "Non renseigné" }}</dd></div>
       <div><dt>Montant</dt><dd>{{ b.amount_cents|euros }} <span class="muted small">(paiement test)</span></dd></div>
       <div><dt>Réservé le</dt><dd>{{ b.created_at.replace('T', ' à ') }}, site en {{ b.lang|upper }}</dd></div>
     </dl>

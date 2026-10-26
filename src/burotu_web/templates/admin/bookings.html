@@ -43,7 +43,7 @@
     <td><a class="row-link" href="/bookings/{{ b.ref }}"><strong>{{ b.day }}</strong> à {{ b.slot }}</a><br><span class="muted small">{{ b.ref }}</span></td>
     <td>{{ b.first_name }} {{ b.last_name }} <span class="muted small">({{ b.birth_year }})</span><br><span class="small">{{ b.email }}</span></td>
     <td>{{ b.city }}<br><span class="muted small">{{ b.site_name }}</span></td>
-    <td>{{ b.doctor }}</td>
+    <td>{{ b.doctor or "Non renseigné" }}</td>
     <td><span class="badge badge-{{ b.status }}">{{ STATUS_LABELS[b.status] }}</span></td>
   </tr>
   {% endfor %}

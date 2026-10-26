@@ -88,7 +88,7 @@ STATUSES: tuple[Status, ...] = (
 STATUS_KEYS = tuple(s.key for s in STATUSES)
 STATUS_LABELS = {s.key: s.label for s in STATUSES}
 PIPELINE = tuple(s.key for s in STATUSES if s.active)
-PRICE_CENTS = 69000
+PRICE_CENTS = 269000
 SITE_FIELDS = {"name", "city", "address", "open_from", "open_to", "slot_minutes", "capacity", "weekdays", "active"}
 
 

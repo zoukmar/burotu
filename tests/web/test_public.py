@@ -62,3 +62,14 @@ def test_validation_errors(public):
 def test_csrf_required(public):
     csrf(public, "/en/")
     assert public.post("/en/book", data={"csrf": "forged"}).status_code == 400
+
+
+def test_marketing_headline_and_honest_disclaimer(public):
+    page = public.get("/en/").text
+    assert "50 cancers. One blood draw." in page
+    assert "Not a clinically validated test" in page
+    assert "€2,690" in page
+
+
+def test_doctor_is_optional(public):
+    assert book(public, doctor="").status_code == 303

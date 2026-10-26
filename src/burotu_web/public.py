@@ -9,13 +9,13 @@ from datetime import date
 from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
 
-from burotu_web.i18n import CANCERS, DEFAULT_LANG, LANGS, T
+from burotu_web.i18n import CANCERS, DEFAULT_LANG, LANGS, TARGET_CANCER_TYPES, T
 from burotu_web.security import check_csrf, csrf_token
 from burotu_web.templating import templates
 
 router = APIRouter()
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-TEXT_FIELDS = ("first_name", "last_name", "email", "phone", "doctor")
+OPTIONAL_FIELDS = {"doctor"}  # sans ordonnance : le médecin est facultatif
 
 
 def sequencing_reads(seed: int = 11) -> list[dict]:
@@ -77,6 +77,7 @@ def render_page(request: Request, lang: str, *, form=None, errors=None, booking=
             "t": T[lang],
             "csrf": csrf_token(request),
             "cancers": CANCERS[lang],
+            "target_cancers": TARGET_CANCER_TYPES,
             "reads": READS,
             "sites": db.list_sites(),
             "today": date.today(),
@@ -159,7 +160,7 @@ def book_submit(
         "doctor": doctor.strip()[:120],
     }
     errors = []
-    if website or not all(form.values()):
+    if website or not all(v for k, v in form.items() if k not in OPTIONAL_FIELDS):
         errors.append(t["err_required"])
     if form["email"] and not EMAIL_RE.match(form["email"]):
         errors.append(t["err_email"])
