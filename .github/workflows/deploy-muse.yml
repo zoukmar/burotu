@@ -1,0 +1,71 @@
+name: Deploy Muse
+
+# Manual: Actions → Deploy Muse → Run workflow, after a "Train Muse" run.
+# Serves the trained run on a Modal GPU behind an authenticated API (scales to zero).
+# Needs repository secrets MODAL_TOKEN_ID, MODAL_TOKEN_SECRET and BUROTU_MUSE_TOKEN;
+# put the same BUROTU_MUSE_TOKEN and the printed URL in /opt/burotu/.env on the server.
+on:
+  workflow_dispatch:
+    inputs:
+      run_name:
+        description: Trained run to serve (the run_name used in Train Muse)
+        default: glimmer
+      gpu:
+        description: Modal GPU
+        type: choice
+        options: [L40S, A100-80GB, H100]
+        default: L40S
+
+concurrency:
+  group: deploy-muse
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+      BUROTU_MUSE_TOKEN: ${{ secrets.BUROTU_MUSE_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Modal
+        run: pip install "modal==1.6.2"
+
+      - name: Store the API token on Modal
+        run: |
+          if [ "${#BUROTU_MUSE_TOKEN}" -lt 24 ]; then
+            echo "::error::Add a BUROTU_MUSE_TOKEN repository secret (at least 24 characters)."; exit 1
+          fi
+          modal secret create burotu-muse BUROTU_MUSE_TOKEN="$BUROTU_MUSE_TOKEN" --force > /dev/null
+
+      - name: Deploy
+        env:
+          BUROTU_GPU: ${{ inputs.gpu }}
+          BUROTU_MUSE_RUN: ${{ inputs.run_name }}
+        run: modal deploy scripts/modal_muse.py | tee deploy.log
+
+      - name: Warm up and check
+        run: |
+          url=$(grep -oE 'https://[a-z0-9-]+--burotu-muse\.modal\.run' deploy.log | head -1)
+          if [ -z "$url" ]; then echo "::error::Endpoint URL not found in the deploy output."; exit 1; fi
+          echo "Waiting for the model to load (first start downloads and quantises Muse Glimmer)..."
+          curl -sS --fail --retry 3 --max-time 900 "$url/health"; echo
+          {
+            echo "### Muse Glimmer is served"
+            echo ""
+            echo "Add to \`/opt/burotu/.env\` on the server, then \`docker compose up -d\`:"
+            echo '```'
+            echo "BUROTU_MUSE_URL=$url/predict"
+            echo "BUROTU_MUSE_TOKEN=<the BUROTU_MUSE_TOKEN secret>"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
