@@ -16,6 +16,7 @@ targeted panel (equivalent to a Bismark coverage file restricted to the panel):
 
 from __future__ import annotations
 
+import io
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -54,26 +55,33 @@ class LabFormatError(ValueError):
 
 def read_lab_file(path: str | Path) -> LabSample:
     path = Path(path)
+    return parse_lab_text(path.read_text(), path.name)
+
+
+def parse_lab_text(text: str, name: str = "lab file") -> LabSample:
+    """Parse a burotu-bmc file from its text (an upload, an API payload or a file on disk)."""
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != MAGIC:
+        raise LabFormatError(f"{name}: missing '{MAGIC}' header")
     header: dict[str, str] = {}
-    with open(path) as f:
-        first = f.readline().strip()
-        if first != MAGIC:
-            raise LabFormatError(f"{path.name}: missing '{MAGIC}' header")
-        pos = f.tell()
-        line = f.readline()
-        while line.startswith("#"):
-            k, _, v = line[1:].strip().partition("=")
-            header[k.strip()] = v.strip()
-            pos = f.tell()
-            line = f.readline()
-        f.seek(pos)
-        df = pd.read_csv(f, sep="\t")
+    i = 1
+    while i < len(lines) and lines[i].startswith("#"):
+        k, _, v = lines[i][1:].strip().partition("=")
+        header[k.strip()] = v.strip()
+        i += 1
+    try:
+        df = pd.read_csv(io.StringIO("\n".join(lines[i:])), sep="\t")
+    except (pd.errors.ParserError, pd.errors.EmptyDataError) as e:
+        raise LabFormatError(f"{name}: unreadable table ({e})") from e
     missing = {"cpg_id", "meth", "total"} - set(df.columns)
     if missing:
-        raise LabFormatError(f"{path.name}: missing columns {sorted(missing)}")
+        raise LabFormatError(f"{name}: missing columns {sorted(missing)}")
     if "sample_id" not in header:
-        raise LabFormatError(f"{path.name}: no sample_id in header")
+        raise LabFormatError(f"{name}: no sample_id in header")
+    for col in ("meth", "total"):
+        if not pd.api.types.is_integer_dtype(df[col]):
+            raise LabFormatError(f"{name}: '{col}' must contain whole read counts")
     if (df["meth"] < 0).any() or (df["meth"] > df["total"]).any():
-        raise LabFormatError(f"{path.name}: inconsistent counts (meth > total or negative)")
+        raise LabFormatError(f"{name}: inconsistent counts (meth > total or negative)")
     df = df.drop_duplicates("cpg_id").set_index("cpg_id")[["meth", "total"]]
     return LabSample(sample_id=header["sample_id"], counts=df, header=header)

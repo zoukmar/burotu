@@ -45,11 +45,12 @@ def sequencing_reads(seed: int = 11) -> list[dict]:
     for r in reads:
         for s in r["sites"]:
             if s["tumour"]:
-                s["delay"] = round(0.4 + order * 0.05, 2)
+                s["delay"] = min(order, MAX_DELAY_STEP)  # CSS class d0..d39 (the CSP forbids inline styles)
                 order += 1
     return reads
 
 
+MAX_DELAY_STEP = 39
 READS = sequencing_reads()
 
 

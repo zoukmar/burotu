@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import secrets
 import sqlite3
 from collections.abc import Iterator
@@ -57,6 +58,15 @@ CREATE TABLE IF NOT EXISTS events (
     actor TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS ix_events_booking ON events(booking_id);
+CREATE TABLE IF NOT EXISTS analyses (
+    id INTEGER PRIMARY KEY,
+    booking_id INTEGER NOT NULL REFERENCES bookings(id),
+    at TEXT NOT NULL,
+    engine TEXT NOT NULL,
+    result_json TEXT NOT NULL,
+    actor TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_analyses_booking ON analyses(booking_id);
 """
 
 DEMO_SITES = [
@@ -270,6 +280,25 @@ class Database:
                 "INSERT INTO events(booking_id, at, status, note, actor) VALUES (?,?,?,?,?)",
                 (row["id"], _now(), status, note[:1000], actor),
             )
+
+    def add_analysis(self, ref: str, engine: str, result: dict, actor: str) -> None:
+        with self.connect() as con:
+            row = con.execute("SELECT id FROM bookings WHERE ref=?", (ref,)).fetchone()
+            if row is None:
+                raise KeyError(ref)
+            con.execute(
+                "INSERT INTO analyses(booking_id, at, engine, result_json, actor) VALUES (?,?,?,?,?)",
+                (row["id"], _now(), engine, json.dumps(result), actor),
+            )
+
+    def latest_analysis(self, ref: str) -> dict | None:
+        with self.connect() as con:
+            row = con.execute(
+                """SELECT a.* FROM analyses a JOIN bookings b ON b.id=a.booking_id
+                   WHERE b.ref=? ORDER BY a.id DESC LIMIT 1""",
+                (ref,),
+            ).fetchone()
+        return None if row is None else {"at": row["at"], "actor": row["actor"], **json.loads(row["result_json"])}
 
     def set_note(self, ref: str, note: str) -> None:
         with self.connect() as con:

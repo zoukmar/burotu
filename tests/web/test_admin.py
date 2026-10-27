@@ -73,3 +73,33 @@ def test_site_management(logged_admin):
         },
     )
     assert bad.status_code == 400
+
+
+def _ref(public):
+    return book(public).headers["location"].split("booked=")[1].split("#")[0]
+
+
+def test_analyse_a_demo_sample(public, logged_admin):
+    ref = _ref(public)
+    token = csrf(logged_admin, f"/bookings/{ref}")
+    r = logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
+    assert r.status_code == 200
+    page = r.text
+    assert "Lab result" in page and "Detected" in page and "Colorectal" in page
+    assert "Simulation ground truth: Colorectal" in page
+    assert "Analysed" in page  # stage moved forward
+
+
+def test_quality_failure_does_not_give_a_result(public, logged_admin):
+    ref = _ref(public)
+    token = csrf(logged_admin, f"/bookings/{ref}")
+    page = logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-08"}).text
+    assert "No result" in page and "new blood draw" in page
+
+
+def test_unreadable_upload_is_explained(public, logged_admin):
+    ref = _ref(public)
+    token = csrf(logged_admin, f"/bookings/{ref}")
+    files = {"lab_file": ("bad.tsv", b"not a lab file", "text/tab-separated-values")}
+    page = logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token}, files=files).text
+    assert "This file cannot be read" in page

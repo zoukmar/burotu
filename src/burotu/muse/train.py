@@ -29,7 +29,8 @@ from burotu.data.reference import Reference
 from burotu.model.features import Featurizer
 from burotu.muse.reader import MuseReader
 
-# Linear layers of the language model only: the vision tower is never used.
+# Linear layers of the language model only, as in Meta's official Glimmer QLoRA recipe
+# (meta-oss-cookbook/muse-glimmer/post-training): the vision tower stays frozen.
 LORA_TARGETS = r".*language_model.*\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)"
 
 
@@ -41,12 +42,13 @@ class TrainConfig:
     batch_size: int = 16
     grad_accum: int = 1
     lr_adapter: float = 1e-3
-    lr_lora: float = 1e-4
+    lr_lora: float = 2e-4  # Meta's Glimmer QLoRA recipe uses 2e-4
     lora_r: int = 16
     n_tokens: int = 16
     warmup: int = 50
     eval_batch: int = 32
     train_cohort: str = "fit_large"
+    revision: str = ""  # pin a model revision for reproducible runs
     eval_stride: int = 1  # score every n-th calibration/test sample (smoke runs use > 1)
     seed: int = 0
     out: str = "runs/latest"
@@ -66,8 +68,10 @@ def load_lm(cfg: TrainConfig):
     else:
         from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForMultimodalLM, AutoTokenizer
 
-        tokenizer = AutoTokenizer.from_pretrained(cfg.model)
+        tokenizer = AutoTokenizer.from_pretrained(cfg.model, revision=cfg.revision or None)
         kwargs: dict = {"dtype": torch.bfloat16, "device_map": {"": 0} if torch.cuda.is_available() else None}
+        if cfg.revision:
+            kwargs["revision"] = cfg.revision
         if cfg.load_4bit:
             from transformers import BitsAndBytesConfig
 
@@ -76,8 +80,9 @@ def load_lm(cfg: TrainConfig):
                 bnb_4bit_quant_type="nf4",
                 bnb_4bit_compute_dtype=torch.bfloat16,
                 bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_storage=torch.bfloat16,  # required to reload QLoRA adapters (Meta's guide)
             )
-        multimodal = hasattr(AutoConfig.from_pretrained(cfg.model), "text_config")
+        multimodal = hasattr(AutoConfig.from_pretrained(cfg.model, revision=cfg.revision or None), "text_config")
         loader = AutoModelForMultimodalLM if multimodal else AutoModelForCausalLM
         lm = loader.from_pretrained(cfg.model, **kwargs)
         target = LORA_TARGETS if multimodal else r".*\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)"

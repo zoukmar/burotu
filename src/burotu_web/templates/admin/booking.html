@@ -16,6 +16,81 @@
 </ol>
 {% endif %}
 
+<section class="site-card lab" id="lab" aria-labelledby="lab-title">
+  <div class="lab-head">
+    <h2 id="lab-title">Lab result</h2>
+    {% if analysis %}<span class="muted small">Analysed {{ analysis.at.replace('T', ' at ') }} by {{ analysis.actor }}, sample {{ analysis.sample_id }}</span>{% endif %}
+  </div>
+
+  {% if error %}<div class="errors" role="alert"><p>{{ error }}</p></div>{% endif %}
+
+  {% if analysis %}
+  {% set q = analysis.quality %}{% set d = analysis.detection %}
+  <div class="lab-grid">
+    <div>
+      <p class="lab-label">Quality control</p>
+      <p><span class="badge qc-{{ q.status }}">{{ {'pass': 'Passed', 'warn': 'Passed with warnings', 'fail': 'Failed'}[q.status] }}</span></p>
+      <dl class="facts compact">
+        <div><dt>Panel coverage</dt><dd>{{ '%.1f' % (q.panel_coverage * 100) }}%</dd></div>
+        <div><dt>Median depth</dt><dd>{{ '%.0f' % q.median_depth }} reads</dd></div>
+        <div><dt>Low-depth sites</dt><dd>{{ '%.1f' % (q.low_depth_share * 100) }}%</dd></div>
+      </dl>
+      {% for issue in q.issues %}<p class="small muted">{{ issue }}</p>{% endfor %}
+    </div>
+
+    <div>
+      <p class="lab-label">Cancer signal</p>
+      {% if d %}
+      <p class="verdict {{ 'is-signal' if d.cancer_signal else 'is-clear' }}">{{ 'Detected' if d.cancer_signal else 'Not detected' }}</p>
+      <p class="small muted">Score {{ '%.4f' % d.score }}, threshold {{ '%.4f' % d.threshold }} (99.5% specificity)</p>
+      <p class="small">Engine: <strong>{{ d.engine_label }}</strong></p>
+      {% else %}
+      <p class="verdict">No result</p>
+      <p class="small muted">The sample did not pass quality control.</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <p class="lab-label">Likely tissue of origin</p>
+      {% if d and d.cancer_signal %}
+      <ol class="origins">
+        {% for o in d.origin %}
+        <li><span>{{ o.class }}</span><svg class="bar" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><rect class="track" width="100" height="8" rx="4"/><rect class="fill" width="{{ '%.1f' % (o.probability * 100) }}" height="8" rx="4"/></svg><span class="pct">{{ '%.0f' % (o.probability * 100) }}%</span></li>
+        {% endfor %}
+      </ol>
+      {% else %}
+      <p class="small muted">Only shown when a cancer signal is detected.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="report">
+    <p class="lab-label">Report for the patient</p>
+    <blockquote>{{ analysis.report.text }}</blockquote>
+    <p class="small muted">Written by {{ 'Muse Spark (Meta Model API)' if analysis.report.author.lower().startswith('muse') else 'a fixed template, Muse Spark not connected' if analysis.report.author == 'template' else analysis.report.author }}, in the language the patient booked in ({{ b.lang|upper }}).</p>
+  </div>
+  {% for n in analysis.notes %}<p class="small muted">{{ n }}</p>{% endfor %}
+  {% if analysis.ground_truth %}
+  {% set g = analysis.ground_truth %}
+  <p class="truth small">Simulation ground truth: {{ g.label }}{% if g.tumor_fraction %}, {{ '%g' % (g.tumor_fraction * 100) }}% tumour DNA{% endif %}{% if g.depth < 200 %}, under-sequenced on purpose ({{ g.depth }} reads per site){% endif %}.</p>
+  {% endif %}
+  {% endif %}
+
+  <form class="lab-form" method="post" action="/bookings/{{ b.ref }}/analyse" enctype="multipart/form-data">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label class="field">Lab file (burotu-bmc)<input type="file" name="lab_file" accept=".tsv,.txt"></label>
+    {% if demo_samples %}
+    <label class="field">or a demo sample
+      <select name="demo">
+        <option value="">Choose…</option>
+        {% for s in demo_samples %}<option value="{{ s.sample_id }}">{{ s.sample_id }}</option>{% endfor %}
+      </select>
+    </label>
+    {% endif %}
+    <button class="btn btn-small" type="submit">{{ 'Analyse again' if analysis else 'Analyse sample' }}</button>
+  </form>
+</section>
+
 <div class="detail-grid">
   <section class="site-card">
     <h2>Appointment</h2>

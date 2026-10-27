@@ -23,8 +23,7 @@
         <line x1="{{ r.x1 }}" y1="{{ r.y }}" x2="{{ r.x2 }}" y2="{{ r.y }}"/>
         {% for s in r.sites %}
         <circle cx="{{ s.cx }}" cy="{{ r.y }}" r="7"
-          class="{% if s.tumour %}cpg cpg-tumour{% elif s.filled %}cpg cpg-on{% else %}cpg{% endif %}"
-          {% if s.tumour %}style="animation-delay: {{ s.delay }}s"{% endif %}/>
+          class="{% if s.tumour %}cpg cpg-tumour d{{ s.delay }}{% elif s.filled %}cpg cpg-on{% else %}cpg{% endif %}"/>
         {% endfor %}
       </g>
       {% endfor %}
