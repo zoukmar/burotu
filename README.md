@@ -107,11 +107,23 @@ tumours**; the detection threshold is set on blood donors no model ever saw.
 
 Specificity measured on unseen healthy donors: **99.8%** (target 99.5%).
 
+**Real patient plasma.** 27 cell-free DNA samples from Moss et al. (12 healthy, 15 cancer),
+measured on methylation arrays rather than sequencing. Healthy plasma is not pure blood
+(endothelial and liver DNA add background) and the platform differs, so against the whole-blood
+background every sample crosses the threshold. A lab fixes this the way it calibrates any new
+assay: with healthy controls. Re-estimating the background from the healthy samples, always
+leaving out the donor being scored, with the same model and threshold
+([realplasma.py](src/burotu/realplasma.py)):
+
+| Real plasma (Moss et al.) | AUC | Healthy flagged | Cancers detected | Origin correct |
+| --- | --- | --- | --- | --- |
+| Whole-blood background | 0.62 | 12 / 12 | 15 / 15 | 2 / 11 |
+| Healthy-control background | **0.82** | **0 / 12** | 11 / 15 | 7 / 11 |
+
 What these numbers do **not** say:
 - The plasma is simulated CpG by CpG; real tests also use read-level patterns.
-- On real patient plasma (Moss et al., measured on arrays rather than sequencing), the platform
-  shift is not corrected yet: every sample crosses the threshold and the healthy/cancer AUC is
-  only 0.62. Correcting it is on the roadmap.
+- 27 real samples is a sanity check, not a clinical performance figure. Lung cancer is the weak
+  spot (1 of 4 detected).
 
 ## Data
 
@@ -206,5 +218,6 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [ ] Full QLoRA fine-tuning of Muse Glimmer 30B on Modal
 - [ ] Muse Glimmer vs benchmark on the same held-out data
 - [ ] Muse Spark quality control, patient report and Q&A
-- [ ] Platform correction and validation on real plasma
+- [x] Background calibration on real patient plasma (healthy controls)
+- [ ] Validation on a large real plasma cohort, sequenced
 - [ ] From 8 to 50 cancer types
