@@ -10,19 +10,20 @@
                                                          │
                        ┌─────────────────────────────────┴──────────────────────┐
                        │ Burotu                                                  │
-                       │  1. Data quality check ....... Muse Spark (Meta)        │
-                       │  2. Cancer signal ............ dedicated classifier     │
-                       │  3. Tissue of origin ......... dedicated classifier     │
-                       │  4. Plain-language report .... Muse Spark (Meta)        │
+                       │  1. Data quality check ....... Muse Spark (API)         │
+                       │  2. Cancer signal ............ Muse Glimmer + adapter   │
+                       │  3. Tissue of origin ......... Muse Glimmer + adapter   │
+                       │  4. Plain-language report .... Muse Spark (API)         │
                        └─────────────────────────────────┬──────────────────────┘
                                                          ▼
                                                       Patient
 ```
 
-Detection relies on a tabular classifier trained on methylation profiles: a language model is
-not the right tool to classify thousands of numeric values. Meta's models are used where
-language matters: checking that a lab file can be trusted, explaining a result clearly, and
-answering follow-up questions.
+Muse Glimmer, Meta's open-weight model, receives the sample through a small methylation adapter
+that projects the per-CpG signal into its token space, and is fine-tuned with LoRA. Numbers are
+never fed to it as text. A gradient-boosted classifier runs on the same features as the benchmark
+and safety net. Muse Spark, through the Meta Model API, handles the steps where language matters:
+checking a lab file, explaining a result clearly, and answering follow-up questions.
 
 ## Repository components
 
@@ -30,6 +31,7 @@ answering follow-up questions.
 | --- | --- |
 | `src/burotu/data` | Download TCGA (GDC) and GEO data, build the targeted panel |
 | `src/burotu/simulate` | Cell-free DNA simulator built from real profiles |
+| `src/burotu/model` | Features and benchmark classifier (Muse Glimmer adapter next) |
 | `src/burotu/llm` | Meta Model API client (OpenAI-compatible), mock mode without a key |
 | `src/burotu/labformat.py` | `burotu-bmc` exchange format with the partner lab |
 | `src/burotu_web` | burotu.com (one-pager, booking) and admin.burotu.com (tracking) |
