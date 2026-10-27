@@ -1,12 +1,16 @@
-"""Fine-tune Muse Glimmer on Modal GPUs and bring the benchmark report back.
+"""Fine-tune Muse Glimmer on Modal GPUs, then serve it to the tracking site.
 
     modal run scripts/modal_muse.py                              # full Muse Glimmer run
     modal run scripts/modal_muse.py --steps 30 --eval-stride 20  # quick smoke run
     BUROTU_GPU=H100 modal run scripts/modal_muse.py              # pick another GPU
 
-Usually launched from GitHub Actions ("Train Muse" workflow), which holds the Modal token.
-The base model is cached in a Modal volume after the first download; adapter and LoRA
-weights and every report are kept in the `burotu-runs` volume.
+    BUROTU_MUSE_RUN=glimmer modal deploy scripts/modal_muse.py   # serve a trained run
+
+Usually launched from GitHub Actions ("Train Muse" and "Deploy Muse" workflows), which
+hold the Modal token. The base model is cached in a Modal volume after the first
+download; adapter and LoRA weights and every report are kept in the `burotu-runs` volume.
+The served API (burotu.muse.serve) needs the `burotu-muse` Modal secret, holding
+BUROTU_MUSE_TOKEN, the same bearer token admin.burotu.com sends.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ import modal
 
 ROOT = Path(__file__).resolve().parents[1]
 GPU = os.environ.get("BUROTU_GPU", "L40S")  # 48 GB: enough for Glimmer 30B in 4-bit
+RUN = os.environ.get("BUROTU_MUSE_RUN", "glimmer")  # run served by `modal deploy`
 
 image = (
     modal.Image.debian_slim(python_version="3.12")
@@ -33,6 +38,7 @@ image = (
         "pyarrow==26.0.0",
         "scikit-learn==1.9.1",
         "httpx",
+        "fastapi==0.162.0",
     )
     .env({"BUROTU_DATA_DIR": "/root/data", "HF_HOME": "/cache/hf", "PYTHONPATH": "/root/src"})
     .add_local_dir(ROOT / "data" / "processed", "/root/data/processed")
@@ -58,6 +64,28 @@ def train(args: dict) -> dict:
         hf_cache.commit()
     report["gpu"] = GPU
     return report
+
+
+@app.cls(
+    gpu=GPU,
+    image=image.env({"BUROTU_MUSE_RUN": RUN}),
+    volumes={"/runs": runs, "/cache": hf_cache},
+    secrets=[modal.Secret.from_name("burotu-muse")],
+    scaledown_window=15 * 60,  # stay warm through a demo, then scale to zero
+    timeout=600,
+)
+class Detector:
+    @modal.enter()
+    def load(self) -> None:
+        from burotu.muse.serve import MuseService
+
+        self.service = MuseService(f"/runs/{os.environ['BUROTU_MUSE_RUN']}")
+
+    @modal.asgi_app(label="burotu-muse")
+    def web(self):
+        from burotu.muse.serve import make_app
+
+        return make_app(self.service, os.environ["BUROTU_MUSE_TOKEN"])
 
 
 @app.local_entrypoint()

@@ -174,6 +174,22 @@ def score(reader: MuseReader, x: torch.Tensor, labels: np.ndarray, batch: int, w
     return score_arr, origin
 
 
+def save_for_serving(out: Path, cfg: TrainConfig, featurizer: Featurizer, panel, classes, threshold: float) -> None:
+    """Everything burotu.muse.serve needs next to trainable.pt to answer like the benchmark."""
+    np.save(out / "mu.npy", featurizer.mu.astype(np.float32))
+    meta = {
+        "model": cfg.model,
+        "revision": cfg.revision,
+        "load_4bit": cfg.load_4bit,
+        "lora_r": cfg.lora_r,
+        "n_tokens": cfg.n_tokens,
+        "panel": list(panel),
+        "classes": list(classes),
+        "threshold": float(threshold),
+    }
+    (out / "serving.json").write_text(json.dumps(meta))
+
+
 def run(cfg: TrainConfig) -> dict:
     out = Path(cfg.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -205,6 +221,7 @@ def run(cfg: TrainConfig) -> dict:
 
     c_score, _ = score(reader, features_of(calib, featurizer), calib.labels, cfg.eval_batch, with_origin=False)
     threshold = benchmark.threshold_at_specificity(c_score)
+    save_for_serving(out, cfg, featurizer, ref.panel, classes, threshold)
     t_score, t_origin = score(reader, features_of(test, featurizer), test.labels, cfg.eval_batch, with_origin=True)
     report = {
         "model": cfg.model,

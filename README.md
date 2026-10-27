@@ -137,7 +137,10 @@ A model alone does not reach patients, so Burotu ships as a product from day one
 - **[burotu.com](https://burotu.com)**: one-page site in English, French and Spanish (picked from
   the browser language), with booking at partner collection sites.
 - **admin.burotu.com**: tracking for every sample, from request to blood draw, lab, analysis and
-  report, with a timestamped history.
+  report, with a timestamped history. Drop the lab's read-count file on a sample and get, in
+  seconds: quality control, cancer signal, likely tissue of origin, and a plain-language report
+  for the patient written by Muse Spark in their language. Detection comes from the fine-tuned
+  Muse Glimmer when it is served, from the benchmark classifier otherwise; the page says which.
 
 <p align="center"><img src="docs/assets/tracking.png" alt="Sample tracking" width="640"></p>
 
@@ -167,6 +170,11 @@ pip install -e ".[dev,muse]"
 python -m burotu.muse.train --model tiny --steps 30 --eval-stride 20
 ```
 
+Once trained, **Actions → Deploy Muse** serves the run on a Modal GPU behind an authenticated API
+([serve.py](src/burotu/muse/serve.py), scales to zero when idle; needs a `BUROTU_MUSE_TOKEN`
+secret). Setting `BUROTU_MUSE_URL` and `BUROTU_MUSE_TOKEN` on the server switches the tracking
+site to Muse Glimmer.
+
 Every model is scored on the same frozen benchmark (`data/benchmark/`): the calibration cohort
 sets the threshold, the test cohort gives the numbers.
 
@@ -194,6 +202,7 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [x] burotu.com and sample tracking, continuous deployment
 - [x] Benchmark classifier on held-out simulated plasma
 - [x] Methylation adapter and QLoRA training code, tested end to end on a tiny Glimmer
+- [x] Lab-file analysis in the tracking site, with a GPU serving API for the fine-tuned model
 - [ ] Full QLoRA fine-tuning of Muse Glimmer 30B on Modal
 - [ ] Muse Glimmer vs benchmark on the same held-out data
 - [ ] Muse Spark quality control, patient report and Q&A
