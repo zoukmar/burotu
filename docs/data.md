@@ -37,5 +37,5 @@ Commercial tests use those patterns and are more sensitive at very low tumour fr
 ## Reproduce
 
 ```bash
-make data reference demo-samples
+make data reference baseline demo-samples
 ```

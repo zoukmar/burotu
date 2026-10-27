@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 PY ?= python3
 
-.PHONY: help install data reference demo-samples dev lint format test check docker
+.PHONY: help install data reference baseline demo-samples dev lint format test check docker
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1m%-14s\033[0m %s\n", $$1, $$2}'
@@ -15,6 +15,9 @@ data: ## Download public data (TCGA, GEO)
 
 reference: ## Build the targeted panel and train/test split
 	$(PY) -m burotu.data.reference
+
+baseline: ## Train and evaluate the baseline classifier (writes reports/baseline.json)
+	$(PY) scripts/train_baseline.py
 
 demo-samples: ## Generate simulated lab files for the demo
 	$(PY) scripts/make_demo_samples.py

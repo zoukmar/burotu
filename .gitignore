@@ -13,6 +13,7 @@ dist/
 
 # Data (downloaded or generated: see docs/data.md)
 /data/
+/models/
 
 # Editors and OS
 .vscode/
