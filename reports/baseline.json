@@ -1,0 +1,320 @@
+{
+  "target_specificity": 0.995,
+  "panel_size": 1681,
+  "classes": [
+    "Breast",
+    "Colorectal",
+    "Head and neck",
+    "Liver",
+    "Lung",
+    "Oesophagus-Stomach",
+    "Pancreas",
+    "Prostate"
+  ],
+  "train_samples": 8000,
+  "donors": {
+    "fit": 80,
+    "calibration": 35,
+    "test": 49
+  },
+  "threshold": 0.9956049379857056,
+  "test": {
+    "specificity_observed": 0.99825,
+    "n_healthy": 4000,
+    "by_tumor_fraction": [
+      {
+        "tumor_fraction": 0.0003,
+        "n": 336,
+        "sensitivity": 0.0,
+        "sensitivity_naive": 0.020833333333333332,
+        "auc": 0.522765625,
+        "origin_top1": 0.1130952380952381,
+        "origin_top2": 0.25,
+        "origin_top1_when_detected": null
+      },
+      {
+        "tumor_fraction": 0.001,
+        "n": 336,
+        "sensitivity": 0.005952380952380952,
+        "sensitivity_naive": 0.017857142857142856,
+        "auc": 0.6123206845238095,
+        "origin_top1": 0.17261904761904762,
+        "origin_top2": 0.3125,
+        "origin_top1_when_detected": 0.0
+      },
+      {
+        "tumor_fraction": 0.003,
+        "n": 336,
+        "sensitivity": 0.06845238095238096,
+        "sensitivity_naive": 0.02976190476190476,
+        "auc": 0.8307358630952381,
+        "origin_top1": 0.25,
+        "origin_top2": 0.41369047619047616,
+        "origin_top1_when_detected": 0.391304347826087
+      },
+      {
+        "tumor_fraction": 0.01,
+        "n": 336,
+        "sensitivity": 0.7083333333333334,
+        "sensitivity_naive": 0.03869047619047619,
+        "auc": 0.986297619047619,
+        "origin_top1": 0.5654761904761905,
+        "origin_top2": 0.7410714285714286,
+        "origin_top1_when_detected": 0.5630252100840336
+      },
+      {
+        "tumor_fraction": 0.03,
+        "n": 336,
+        "sensitivity": 0.9970238095238095,
+        "sensitivity_naive": 0.08630952380952381,
+        "auc": 0.9999561011904763,
+        "origin_top1": 0.8690476190476191,
+        "origin_top2": 0.9464285714285714,
+        "origin_top1_when_detected": 0.8686567164179104
+      },
+      {
+        "tumor_fraction": 0.1,
+        "n": 336,
+        "sensitivity": 1.0,
+        "sensitivity_naive": 0.9434523809523809,
+        "auc": 1.0,
+        "origin_top1": 0.9613095238095238,
+        "origin_top2": 0.9970238095238095,
+        "origin_top1_when_detected": 0.9613095238095238
+      }
+    ],
+    "by_class_at_1pct": {
+      "Breast": {
+        "sensitivity": 0.7857142857142857,
+        "origin_top1": 0.5952380952380952
+      },
+      "Colorectal": {
+        "sensitivity": 0.6904761904761905,
+        "origin_top1": 0.6666666666666666
+      },
+      "Head and neck": {
+        "sensitivity": 0.5238095238095238,
+        "origin_top1": 0.5238095238095238
+      },
+      "Liver": {
+        "sensitivity": 0.6190476190476191,
+        "origin_top1": 0.8571428571428571
+      },
+      "Lung": {
+        "sensitivity": 0.6904761904761905,
+        "origin_top1": 0.21428571428571427
+      },
+      "Oesophagus-Stomach": {
+        "sensitivity": 0.7857142857142857,
+        "origin_top1": 0.21428571428571427
+      },
+      "Pancreas": {
+        "sensitivity": 0.6666666666666666,
+        "origin_top1": 0.6904761904761905
+      },
+      "Prostate": {
+        "sensitivity": 0.9047619047619048,
+        "origin_top1": 0.7619047619047619
+      }
+    }
+  },
+  "real_plasma": {
+    "auc_cancer_vs_healthy": 0.6222222222222222,
+    "detected_healthy": 12,
+    "detected_cancer": 15,
+    "n_healthy": 12,
+    "n_cancer": 15,
+    "note": "Different platform (EPIC array, not sequencing): treat as a sanity check, not a performance figure.",
+    "samples": [
+      {
+        "title": "cfDNA_young_male_pool_rep1",
+        "label": "Healthy",
+        "cancer_score": 0.9996,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_young_male_pool_rep2",
+        "label": "Healthy",
+        "cancer_score": 0.9999,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_young_female_pool_rep1",
+        "label": "Healthy",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_young_female_pool_rep2",
+        "label": "Healthy",
+        "cancer_score": 0.9999,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_old_male_pool_rep1",
+        "label": "Healthy",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_old_male_pool_rep2",
+        "label": "Healthy",
+        "cancer_score": 0.9998,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_old_female_pool_rep1",
+        "label": "Healthy",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_old_female_pool_rep2",
+        "label": "Healthy",
+        "cancer_score": 0.9997,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_healthy_individual_1",
+        "label": "Healthy",
+        "cancer_score": 0.9997,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_colon_cancer_806",
+        "label": "Colorectal",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_colon_cancer_684",
+        "label": "Colorectal",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_colon_cancer_806_50ng",
+        "label": "Colorectal",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_lung_cancer_1",
+        "label": "Lung",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_CUP_1302",
+        "label": "Unknown primary",
+        "cancer_score": 0.9998,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_CUP_1149",
+        "label": "Unknown primary",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_CUP_1322",
+        "label": "Unknown primary",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_CUP_1936_1994",
+        "label": "Unknown primary",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_healthy_individual_2",
+        "label": "Healthy",
+        "cancer_score": 0.9999,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_lung_cancer_1478",
+        "label": "Lung",
+        "cancer_score": 0.999,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_colon_cancer_2010",
+        "label": "Colorectal",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_breast_cancer_1040",
+        "label": "Breast",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Breast"
+      },
+      {
+        "title": "cfDNA_breast_cancer_1711",
+        "label": "Breast",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Breast"
+      },
+      {
+        "title": "cfDNA_healthy_individual_3",
+        "label": "Healthy",
+        "cancer_score": 0.9996,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_healthy_individual_4",
+        "label": "Healthy",
+        "cancer_score": 0.9999,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_breast_cancer_1438",
+        "label": "Breast",
+        "cancer_score": 1.0,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_lung_cancer_2244",
+        "label": "Lung",
+        "cancer_score": 0.9999,
+        "detected": true,
+        "origin_top1": "Liver"
+      },
+      {
+        "title": "cfDNA_lung_cancer_1433",
+        "label": "Lung",
+        "cancer_score": 0.9982,
+        "detected": true,
+        "origin_top1": "Liver"
+      }
+    ]
+  }
+}

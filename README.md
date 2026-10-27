@@ -78,6 +78,31 @@ Plasma samples are simulated by mixing real tumour profiles into real healthy bl
 fractions from 0.01 % to 10 %, then sampling sequencing reads. People and tumours are split into
 train and test **before** simulation and panel selection. Details in [docs/data.md](docs/data.md).
 
+## Results so far
+
+Baseline classifier (gradient boosting on per-CpG excess methylation), evaluated on simulated
+plasma built only from **held-out people and tumours**. The detection threshold is set on blood
+donors the model never saw.
+
+<p align="center"><img src="docs/assets/baseline_sensitivity.png" alt="Sensitivity by tumour fraction" width="640"></p>
+
+| Tumour fraction in plasma | 0.3% | 1% | 3% | 10% |
+| --- | --- | --- | --- | --- |
+| Cancer signal detected | 7% | 71% | 99.7% | 100% |
+| Tissue of origin, top-1 | 25% | 57% | 87% | 96% |
+| Tissue of origin, top-2 | 41% | 74% | 95% | 99.7% |
+
+Observed specificity on unseen healthy donors: **99.8%** (target 99.5%).
+
+What these numbers do **not** say:
+- The plasma is simulated CpG by CpG; real tests also use read-level patterns.
+- On real plasma (Moss et al., measured on arrays rather than sequencing), the platform shift
+  is not corrected yet: every sample crosses the threshold and the healthy/cancer AUC is only
+  0.62. Correcting the platform shift is the next step.
+
+This classifier is the yardstick for the next phase: **fine-tuning Meta's open-weight Muse
+Glimmer to read methylation directly**, and measuring whether it does better.
+
 ## The product
 
 - **[burotu.com](https://burotu.com)**: one-page site in English, French and Spanish (picked from
@@ -100,6 +125,7 @@ Data pipeline (about 5 GB downloaded from GDC and GEO):
 ```bash
 make data           # TCGA tumours, whole blood, real plasma
 make reference      # targeted panel and train/test split
+make baseline       # baseline classifier and metrics (about 5 min on CPU)
 make demo-samples   # simulated lab files for the demo
 ```
 
@@ -124,6 +150,8 @@ over SSH, with automatic rollback if the site does not answer. See
 
 - [x] Public data pipeline, targeted panel, cfDNA simulator
 - [x] burotu.com and sample tracking, continuous deployment
-- [ ] Cancer signal and tissue-of-origin classifier, validated on real plasma
+- [x] Baseline classifier: cancer signal and tissue of origin on held-out simulated plasma
+- [ ] Platform correction and validation on real plasma
+- [ ] Fine-tune Muse Glimmer (open weights) to read methylation, compared against the baseline
 - [ ] Muse Spark quality control and patient report
 - [ ] From 8 to 50 cancer types
