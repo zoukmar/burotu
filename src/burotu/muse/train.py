@@ -174,6 +174,25 @@ def score(reader: MuseReader, x: torch.Tensor, labels: np.ndarray, batch: int, w
     return score_arr, origin
 
 
+class ReaderAsModel:
+    """The baseline model's interface over a MuseReader, for burotu.realplasma."""
+
+    def __init__(self, reader: MuseReader, featurizer: Featurizer, threshold: float, batch: int) -> None:
+        self.reader, self.featurizer, self.threshold, self.batch = reader, featurizer, threshold, batch
+        self.classes = reader.classes
+
+    def _x(self, meth: np.ndarray, total: np.ndarray) -> torch.Tensor:
+        return torch.from_numpy(self.featurizer.transform(meth, total))
+
+    def cancer_score(self, meth: np.ndarray, total: np.ndarray) -> np.ndarray:
+        x = self._x(meth, total)
+        return score(self.reader, x, np.full(len(x), HEALTHY), self.batch, with_origin=False)[0]
+
+    def origin_proba(self, meth: np.ndarray, total: np.ndarray) -> np.ndarray:
+        x = self._x(meth, total)
+        return score(self.reader, x, np.full(len(x), "cancer"), self.batch, with_origin=True)[1]
+
+
 def save_for_serving(out: Path, cfg: TrainConfig, featurizer: Featurizer, panel, classes, threshold: float) -> None:
     """Everything burotu.muse.serve needs next to trainable.pt to answer like the benchmark."""
     np.save(out / "mu.npy", featurizer.mu.astype(np.float32))
@@ -229,8 +248,15 @@ def run(cfg: TrainConfig) -> dict:
         "trainable_params": trainable,
         "train_samples": len(fit),
         "test": benchmark.evaluate(t_score, t_origin, classes, threshold, test.meta),
-        "minutes": round((time.time() - t0) / 60, 1),
     }
+    try:
+        from burotu import realplasma
+
+        model = ReaderAsModel(reader, featurizer, threshold, cfg.eval_batch)
+        report["real_plasma"] = realplasma.report(model, ref.panel)
+    except FileNotFoundError as e:  # real plasma subset not available
+        log({"event": "real_plasma_skipped", "reason": str(e)})
+    report["minutes"] = round((time.time() - t0) / 60, 1)
     (out / "report.json").write_text(json.dumps(report, indent=2))
     log({"event": "done", "minutes": report["minutes"], "specificity": report["test"]["specificity_observed"]})
     return report

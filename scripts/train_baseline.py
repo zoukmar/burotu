@@ -16,9 +16,8 @@ import time
 from pathlib import Path
 
 import numpy as np
-from sklearn.metrics import roc_auc_score
 
-from burotu import benchmark
+from burotu import benchmark, realplasma
 from burotu.benchmark import TARGET_SPECIFICITY
 from burotu.config import HEALTHY, ROOT
 from burotu.data.reference import Reference
@@ -31,39 +30,15 @@ def naive_score(meth: np.ndarray, total: np.ndarray) -> np.ndarray:
     return meth.sum(axis=1) / np.maximum(total.sum(axis=1), 1)
 
 
-def evaluate_real_plasma(model: BaselineModel, panel: list[str]) -> dict:
-    """Moss et al. cfDNA: array beta values turned into pseudo read counts (depth 500)."""
-    from burotu.data.geo import load_moss_cfdna
-
-    beta, meta = load_moss_cfdna()
-    b = beta.reindex(panel).to_numpy(np.float32).T  # samples × panel
-    b = np.where(np.isnan(b), model.featurizer.mu[None, :], b)
-    total = np.full(b.shape, 500, dtype=np.int64)
-    meth = np.rint(b * 500).astype(np.int64)
-    score = model.cancer_score(meth, total)
-    proba = model.origin_proba(meth, total)
-    labels = meta["label"].to_numpy()
-    is_cancer = labels != HEALTHY
-    samples = []
-    for i, row in meta.iterrows():
-        samples.append(
-            {
-                "title": row["title"],
-                "label": labels[i],
-                "cancer_score": round(float(score[i]), 4),
-                "detected": bool(score[i] > model.threshold),
-                "origin_top1": model.classes[int(np.argmax(proba[i]))],
-            }
+def print_real_plasma(rp: dict) -> None:
+    for key in ("whole_blood_background", "recalibrated"):
+        r = rp[key]
+        print(
+            f"real plasma, {r['background']}: AUC {r['auc_cancer_vs_healthy']:.3f}, "
+            f"cancers {r['detected_cancer']}/{r['n_cancer']}, "
+            f"healthy flagged {r['detected_healthy']}/{r['n_healthy']}, "
+            f"origin {r['origin_top1_correct']}/{r['n_known_origin']}"
         )
-    return {
-        "auc_cancer_vs_healthy": float(roc_auc_score(is_cancer, score)),
-        "detected_healthy": int(sum(s["detected"] for s in samples if s["label"] == HEALTHY)),
-        "detected_cancer": int(sum(s["detected"] for s in samples if s["label"] != HEALTHY)),
-        "n_healthy": int((~is_cancer).sum()),
-        "n_cancer": int(is_cancer.sum()),
-        "note": "Different platform (EPIC array, not sequencing): treat as a sanity check, not a performance figure.",
-        "samples": samples,
-    }
 
 
 def plot(report: dict, path: Path) -> None:
@@ -141,7 +116,7 @@ def main() -> None:
         },
         "threshold": model.threshold,
         "test": result,
-        "real_plasma": evaluate_real_plasma(model, ref.panel),
+        "real_plasma": realplasma.report(model, ref.panel),
     }
     model.save(ROOT / "models" / "baseline.pkl")
     out = ROOT / "reports" / "baseline.json"
@@ -155,9 +130,7 @@ def main() -> None:
             f"TF {r['tumor_fraction']:>7.2%}  sens {r['sensitivity']:.2f} (naive {r['sensitivity_naive']:.2f})"
             f"  AUC {r['auc']:.3f}  origin top1 {r['origin_top1']:.2f} top2 {r['origin_top2']:.2f}"
         )
-    rp = report["real_plasma"]
-    print(f"real plasma AUC {rp['auc_cancer_vs_healthy']:.3f}, detected {rp['detected_cancer']}/{rp['n_cancer']} "
-          f"cancers, {rp['detected_healthy']}/{rp['n_healthy']} healthy")  # fmt: skip
+    print_real_plasma(report["real_plasma"])
     print(f"done in {time.time() - t0:.0f}s")
 
 
