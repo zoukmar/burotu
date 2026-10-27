@@ -1,0 +1,57 @@
+"""Muse reader on a tiny random Glimmer: shapes, gradients, scoring and persistence."""
+
+import numpy as np
+import pytest
+
+torch = pytest.importorskip("torch")
+pytest.importorskip("transformers")
+pytest.importorskip("peft")
+
+from burotu.muse import prompts  # noqa: E402
+from burotu.muse.reader import MuseReader  # noqa: E402
+from burotu.muse.train import TrainConfig, load_lm  # noqa: E402
+
+CLASSES = ["Colorectal", "Lung"]
+
+
+@pytest.fixture(scope="module")
+def reader():
+    torch.manual_seed(0)
+    lm, tok = load_lm(TrainConfig(model="tiny"))
+    return MuseReader(lm, tok, in_dim=12, classes=CLASSES, n_tokens=4).eval()  # no dropout when scoring
+
+
+def test_answers_are_what_we_score():
+    assert prompts.target_text("Healthy") == " no."
+    assert prompts.target_text("Lung") == " yes. Most likely origin: Lung."
+
+
+def test_loss_backpropagates_to_adapter_and_lora(reader):
+    x = torch.randn(3, 12)
+    loss = reader.loss(x, np.array(["Healthy", "Lung", "Colorectal"]))
+    loss.backward()
+    assert torch.isfinite(loss)
+    assert any(p.grad is not None and p.grad.abs().sum() > 0 for p in reader.adapter.parameters())
+    lora = [p for n, p in reader.lm.named_parameters() if "lora_" in n]
+    assert lora and any(p.grad is not None and p.grad.abs().sum() > 0 for p in lora)
+    reader.zero_grad()
+
+
+def test_scores_have_the_right_shape(reader):
+    x = torch.randn(5, 12)
+    assert reader.cancer_score(x).shape == (5,)
+    proba = reader.origin_proba(x)
+    assert proba.shape == (5, len(CLASSES))
+    assert torch.allclose(proba.sum(dim=1), torch.ones(5), atol=1e-5)
+
+
+def test_trainable_weights_roundtrip(reader, tmp_path):
+    x = torch.randn(2, 12)
+    before = reader.cancer_score(x)
+    reader.save_trainable(tmp_path / "w.pt")
+    with torch.no_grad():
+        for p in reader.adapter.parameters():
+            p.add_(1.0)
+    assert not torch.allclose(before, reader.cancer_score(x))
+    reader.load_trainable(tmp_path / "w.pt")
+    assert torch.allclose(before, reader.cancer_score(x), atol=1e-5)

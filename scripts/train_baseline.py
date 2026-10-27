@@ -1,21 +1,16 @@
-"""Train and evaluate the baseline classifier.
+"""Train and evaluate the baseline classifier on the frozen benchmark.
 
     python scripts/train_baseline.py
 
-Cohorts (people and tumours never cross between them):
-  * train:       simulated from the training split, random tumour fractions
-  * calibration: healthy draws from training-split donors held out of model fitting,
-                 so the threshold is set on people the model has never seen
-  * test:        simulated from the test split at fixed tumour fractions
-  * real plasma: Moss et al. 2018 cfDNA (EPIC array), validation only
+Cohorts come from `burotu.benchmark` (simulated once, cached in data/benchmark/), so
+the baseline and Muse Glimmer are scored on exactly the same samples. Real patient
+plasma (Moss et al. 2018, EPIC array) is used as a sanity check only.
 
 Writes models/baseline.pkl, reports/baseline.json and docs/assets/baseline_sensitivity.png.
 """
 
 from __future__ import annotations
 
-import argparse
-import dataclasses
 import json
 import time
 from pathlib import Path
@@ -23,60 +18,17 @@ from pathlib import Path
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
+from burotu import benchmark
+from burotu.benchmark import TARGET_SPECIFICITY
 from burotu.config import HEALTHY, ROOT
 from burotu.data.reference import Reference
-from burotu.model.baseline import TARGET_SPECIFICITY, BaselineModel
+from burotu.model.baseline import BaselineModel
 from burotu.model.features import Featurizer
-from burotu.simulate.cfdna import SimConfig, simulate_cohort
-
-TEST_TFS = [3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1]
 
 
 def naive_score(meth: np.ndarray, total: np.ndarray) -> np.ndarray:
     """Day-1 reference: mean methylation over the whole panel."""
     return meth.sum(axis=1) / np.maximum(total.sum(axis=1), 1)
-
-
-def evaluate(model: BaselineModel, meth, total, meta, calib_naive: np.ndarray) -> dict:
-    labels = meta["label"].to_numpy()
-    is_cancer = labels != HEALTHY
-    tf = meta["tumor_fraction"].to_numpy()
-    score = model.cancer_score(meth, total)
-    detected = score > model.threshold
-    proba = model.origin_proba(meth, total)
-    rank = np.argsort(proba, axis=1)[:, ::-1]
-    truth_idx = np.array([model.classes.index(c) if c in model.classes else -1 for c in labels])
-    top1 = rank[:, 0] == truth_idx
-    top2 = (rank[:, :2] == truth_idx[:, None]).any(axis=1)
-
-    naive = naive_score(meth, total)
-    naive_thr = float(np.quantile(calib_naive, TARGET_SPECIFICITY))
-
-    out = {
-        "specificity_observed": float(1 - detected[~is_cancer].mean()),
-        "n_healthy": int((~is_cancer).sum()),
-        "by_tumor_fraction": [],
-        "by_class_at_1pct": {},
-    }
-    for f in TEST_TFS:
-        m = is_cancer & np.isclose(tf, f)
-        auc = roc_auc_score(np.r_[np.zeros((~is_cancer).sum()), np.ones(m.sum())], np.r_[score[~is_cancer], score[m]])
-        out["by_tumor_fraction"].append(
-            {
-                "tumor_fraction": f,
-                "n": int(m.sum()),
-                "sensitivity": float(detected[m].mean()),
-                "sensitivity_naive": float((naive[m] > naive_thr).mean()),
-                "auc": float(auc),
-                "origin_top1": float(top1[m].mean()),
-                "origin_top2": float(top2[m].mean()),
-                "origin_top1_when_detected": float(top1[m & detected].mean()) if (m & detected).any() else None,
-            }
-        )
-    for c in model.classes:
-        m = (labels == c) & np.isclose(tf, 1e-2)
-        out["by_class_at_1pct"][c] = {"sensitivity": float(detected[m].mean()), "origin_top1": float(top1[m].mean())}
-    return out
 
 
 def evaluate_real_plasma(model: BaselineModel, panel: list[str]) -> dict:
@@ -150,46 +102,45 @@ def plot(report: dict, path: Path) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--train-healthy", type=int, default=4000)
-    ap.add_argument("--train-per-class", type=int, default=500)
-    ap.add_argument("--test-healthy", type=int, default=4000)
-    ap.add_argument("--test-per-class", type=int, default=42)
-    ap.add_argument("--calib-donors", type=int, default=35)
-    args = ap.parse_args()
-
     t0 = time.time()
     ref = Reference.load()
+    fit_ref, calib_ref = benchmark.split_donors(ref)
+    fit, calib, test = (benchmark.load_cohort(n, ref) for n in ("fit", "calibration", "test"))
+    print(f"cohorts ready: fit {len(fit)}, calibration {len(calib)}, test {len(test)} ({time.time() - t0:.0f}s)")
+
     featurizer = Featurizer.from_blood(ref.blood_train.to_numpy(np.float32))
+    model = BaselineModel.fit(featurizer, fit.meth, fit.total, fit.labels, HEALTHY)
+    model.calibrate(calib.meth, calib.total, TARGET_SPECIFICITY)
+    print(f"trained ({time.time() - t0:.0f}s)")
 
-    # Hold out some training donors: the detection threshold must be set on unseen people.
-    donors = np.array(sorted(ref.blood_train.columns))
-    np.random.default_rng(0).shuffle(donors)
-    calib_donors, fit_donors = donors[: args.calib_donors], donors[args.calib_donors :]
-    fit_ref = dataclasses.replace(ref, blood_train=ref.blood_train[fit_donors])
-    calib_ref = dataclasses.replace(ref, blood_train=ref.blood_train[calib_donors])
-
-    meth, total, meta = simulate_cohort(
-        fit_ref, "train", args.train_healthy, args.train_per_class, SimConfig(seed=1, tf_min=3e-4)
+    result = benchmark.evaluate(
+        model.cancer_score(test.meth, test.total),
+        model.origin_proba(test.meth, test.total),
+        model.classes,
+        model.threshold,
+        test.meta,
     )
-    model = BaselineModel.fit(featurizer, meth, total, meta["label"].to_numpy(), HEALTHY)
-    print(f"trained on {len(meta)} samples ({time.time() - t0:.0f}s)")
+    # Day-1 naive score on the same samples, for the chart.
+    naive_thr = benchmark.threshold_at_specificity(naive_score(calib.meth, calib.total))
+    naive = naive_score(test.meth, test.total) > naive_thr
+    is_cancer = test.labels != HEALTHY
+    tf = test.meta["tumor_fraction"].to_numpy()
+    for row in result["by_tumor_fraction"]:
+        m = is_cancer & np.isclose(tf, row["tumor_fraction"])
+        row["sensitivity_naive"] = float(naive[m].mean())
 
-    c_meth, c_total, _ = simulate_cohort(calib_ref, "train", 3000, 0, SimConfig(seed=2))
-    model.calibrate(c_meth, c_total)
-    calib_naive = naive_score(c_meth, c_total)
-
-    t_meth, t_total, t_meta = simulate_cohort(
-        ref, "test", args.test_healthy, args.test_per_class, SimConfig(seed=3), tf_values=TEST_TFS
-    )
     report = {
         "target_specificity": TARGET_SPECIFICITY,
         "panel_size": len(ref.panel),
         "classes": model.classes,
-        "train_samples": len(meta),
-        "donors": {"fit": len(fit_donors), "calibration": len(calib_donors), "test": ref.blood_test.shape[1]},
+        "train_samples": len(fit),
+        "donors": {
+            "fit": fit_ref.blood_train.shape[1],
+            "calibration": calib_ref.blood_train.shape[1],
+            "test": ref.blood_test.shape[1],
+        },
         "threshold": model.threshold,
-        "test": evaluate(model, t_meth, t_total, t_meta, calib_naive),
+        "test": result,
         "real_plasma": evaluate_real_plasma(model, ref.panel),
     }
     model.save(ROOT / "models" / "baseline.pkl")
@@ -198,8 +149,8 @@ def main() -> None:
     out.write_text(json.dumps(report, indent=2))
     plot(report, ROOT / "docs" / "assets" / "baseline_sensitivity.png")
 
-    print(f"observed specificity: {report['test']['specificity_observed']:.4f}")
-    for r in report["test"]["by_tumor_fraction"]:
+    print(f"observed specificity: {result['specificity_observed']:.4f}")
+    for r in result["by_tumor_fraction"]:
         print(
             f"TF {r['tumor_fraction']:>7.2%}  sens {r['sensitivity']:.2f} (naive {r['sensitivity_naive']:.2f})"
             f"  AUC {r['auc']:.3f}  origin top1 {r['origin_top1']:.2f} top2 {r['origin_top2']:.2f}"

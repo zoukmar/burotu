@@ -58,7 +58,7 @@ Blood draw ─► Partner lab ─► burotu-bmc file (read counts on 1,681 CpG s
 
 | Step | Meta model | What it does | Status |
 | --- | --- | --- | --- |
-| Read the sample | **Muse Glimmer** (open weights, 30B) + methylation adapter + LoRA | Detects a cancer signal and ranks the likely tissues of origin | Training code next, GPU run pending |
+| Read the sample | **Muse Glimmer** (open weights, 30B) + methylation adapter + LoRA | Detects a cancer signal and ranks the likely tissues of origin | Training code ready, GPU run pending |
 | Check lab data | **Muse Spark** (Meta Model API) | Reads coverage and lab metadata, flags files that cannot be trusted and says what to rerun | Client ready |
 | Explain the result | **Muse Spark** | Writes a careful report and answers follow-up questions, grounded in the model's output | Client ready |
 
@@ -158,6 +158,18 @@ make baseline       # benchmark classifier and metrics (about 5 min on CPU)
 make demo-samples   # simulated lab files for the demo
 ```
 
+Fine-tuning Muse Glimmer runs on Modal GPUs, launched from GitHub: **Actions → Train Muse → Run
+workflow** (needs the `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` repository secrets). The same
+training code runs on CPU with a tiny random Glimmer, for tests and smoke runs:
+
+```bash
+pip install -e ".[dev,muse]"
+python -m burotu.muse.train --model tiny --steps 30 --eval-stride 20
+```
+
+Every model is scored on the same frozen benchmark (`data/benchmark/`): the calibration cohort
+sets the threshold, the test cohort gives the numbers.
+
 Set `MODEL_API_KEY` to call Muse Spark through the Meta Model API. Without it, the
 [client](src/burotu/llm/client.py) runs in mock mode so everything works offline. `make help`
 lists every command.
@@ -165,7 +177,7 @@ lists every command.
 ## Repository
 
 ```
-src/burotu/        pipeline: data, panel, cfDNA simulator, models, Meta client, lab format
+src/burotu/        pipeline: data, panel, cfDNA simulator, benchmark, models, Muse reader, Meta client
 src/burotu_web/    burotu.com (one-pager) and admin.burotu.com (tracking)
 tests/             pipeline, models, site, booking, tracking, security
 deploy/            production compose, Caddy block, deploy script
@@ -181,7 +193,8 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [x] Public data pipeline, targeted panel, cfDNA simulator
 - [x] burotu.com and sample tracking, continuous deployment
 - [x] Benchmark classifier on held-out simulated plasma
-- [ ] Methylation adapter and QLoRA fine-tuning of Muse Glimmer
+- [x] Methylation adapter and QLoRA training code, tested end to end on a tiny Glimmer
+- [ ] Full QLoRA fine-tuning of Muse Glimmer 30B on Modal
 - [ ] Muse Glimmer vs benchmark on the same held-out data
 - [ ] Muse Spark quality control, patient report and Q&A
 - [ ] Platform correction and validation on real plasma

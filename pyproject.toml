@@ -20,6 +20,7 @@ web = [
   "itsdangerous>=2.2",
   "python-multipart>=0.0.9",
 ]
+muse = ["torch>=2.6", "transformers>=5.21", "peft>=0.21", "accelerate"]
 dev = ["burotu[ml,web]", "pytest>=8", "ruff>=0.6"]
 
 [tool.setuptools.packages.find]

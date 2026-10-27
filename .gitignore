@@ -12,7 +12,15 @@ dist/
 .env
 
 # Data (downloaded or generated: see docs/data.md)
-/data/
+# Downloaded and generated data stay local, except the small reference panel and the
+# frozen calibration/test cohorts: every model must be scored on exactly these samples.
+/data/*
+!/data/processed/
+!/data/benchmark/
+/data/benchmark/*
+!/data/benchmark/calibration.*
+!/data/benchmark/test.*
+/runs/
 /models/
 
 # Editors and OS

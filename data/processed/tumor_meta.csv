@@ -1,0 +1,385 @@
+file_id,case_id,project,cancer_class,split
+1d9d68e2-0f95-44e7-85ff-453b46934e9e,a6ec75d4-1c90-4527-bfae-aa91d2dae082,TCGA-LUSC,Lung,train
+379f9212-aa2f-426c-b4e5-a4545746cffc,079ae0b3-b64b-4b8e-ab7d-225b8046568c,TCGA-LUAD,Lung,test
+7db82205-eccc-4546-91e4-42be8a2bd39c,b5e2cbda-bbfa-4ef8-a9c4-cb978bef9b23,TCGA-LUSC,Lung,train
+c19c4e6c-8a1d-41e0-b12a-b0ecd04f9748,aa00283a-4a9e-4600-8046-43adc6833218,TCGA-LUSC,Lung,test
+8f9b8d21-66d5-40fd-ac8a-979c9a602905,d566fa32-382b-499c-820a-c2bbb22501fb,TCGA-LUSC,Lung,test
+ba35952c-fed9-4a1c-8d9f-0a9ea6d1f1b7,243c6fd6-5516-46e5-bcef-292d93d7b7d3,TCGA-LUAD,Lung,train
+9812a86c-c279-4edb-8eb5-a7d4f27be57a,531d1248-76ae-46a1-8f65-cdecf9bcb0d8,TCGA-LUSC,Lung,train
+dbab6ccd-3b26-4b5a-bf11-f381f1091316,b266cbf5-80de-4473-b16f-08c502d365ca,TCGA-LUAD,Lung,train
+d6b1b019-ca00-42cd-aebf-3e137e5f4adf,e254aaeb-012c-4d92-8a03-cce1f6a2bcd6,TCGA-LUAD,Lung,train
+db172586-332b-4a89-bd7f-0041104616fb,5d2a9a4f-678d-4089-a8c5-81a5cb696629,TCGA-LUAD,Lung,train
+84104f70-da38-4005-9e60-ec7fcc975166,aecd6689-f203-4519-afab-3f46ee9d3e2c,TCGA-LUSC,Lung,train
+86ab0253-ee8e-4167-b5af-389a5a20050f,e6cf4b99-d0f9-432a-8977-3704fd38103c,TCGA-LUSC,Lung,train
+8249d65e-344c-45f5-bf75-32941fbd9ad5,f2d8b332-2f03-46e5-a9d5-f163972e5fa7,TCGA-LUAD,Lung,train
+e80908d4-faf0-4252-9b65-9b388936b2a5,69dba721-a168-47a4-b7ff-80a448bad654,TCGA-LUAD,Lung,test
+189c9734-fe04-4fbb-9ece-b2402ad9a58c,7cc8892e-4ba5-4cf5-be76-9e5cb4891d25,TCGA-LUSC,Lung,test
+3f27dd5e-fb74-416a-ad32-2fdb3e682c42,c4c1469d-752f-42b6-8686-714ad4a8ac97,TCGA-LUAD,Lung,train
+22ce762e-783e-455a-bb04-fa95a0c4b1d2,ba49117e-dab6-4e7d-bc44-f11dcafa1318,TCGA-LUAD,Lung,train
+5ec458ea-be07-47e4-a6f3-2fecbc167a6e,ad98977b-e159-410a-b8c2-f4e8a07f9784,TCGA-LUSC,Lung,test
+6732bb77-4a7d-4f2a-908a-03ef789c3e93,ce137f49-d12b-4112-825a-e673545f54e5,TCGA-LUSC,Lung,train
+511ad4a4-a63a-4a37-9204-95503663b5a5,4daf4a91-bc36-40c8-8fca-ea61b6706775,TCGA-LUSC,Lung,train
+239c91a5-3b03-40eb-b229-2434bbd65ecd,3afa5045-a1ee-4a07-8aad-2e252b2f7d7a,TCGA-LUAD,Lung,train
+3b856e51-9144-485f-ab82-1c166db9f069,a8764401-d2a5-45dd-941d-2ffb2e7a4664,TCGA-LUSC,Lung,train
+0b93b3dc-1a9b-464c-97ab-ff27111af519,851867cb-9ad0-4fdf-ac75-9bb0427ad440,TCGA-LUAD,Lung,train
+c5390ed7-7800-4052-917d-120016648cf8,eea9575a-c842-4a95-9e47-3a3b12533f25,TCGA-LUSC,Lung,train
+cfa0bdf2-1f05-454a-99ee-f928faa74ec9,30f276a8-3a4b-4de8-aea0-7f605d100401,TCGA-LUAD,Lung,train
+f5f2a2f9-e154-48b0-b732-9a4b74e74c2e,10c3acc1-5c0b-4312-9521-2e4104396c24,TCGA-LUSC,Lung,test
+694f7130-16b8-4f83-ba68-48349cc2395d,9ee20c0d-a1c3-47f3-abda-131b3f190f52,TCGA-LUAD,Lung,test
+c468a45e-df50-429b-958e-a60d0219f7c5,14313474-376f-4606-9ed9-25ed2acff411,TCGA-LUSC,Lung,test
+037852be-20ab-4f63-a325-478e9dec7423,8d32bea5-51ef-4ab0-83ae-1de31e7d4b43,TCGA-LUSC,Lung,train
+cb773286-4a34-44ba-89d7-9b0b7b96bf3f,3e1df30f-744a-41e9-a169-7dbbff66622e,TCGA-LUAD,Lung,train
+a38fef4e-8a25-431f-98c0-372ecc3a996c,6845099a-b2c9-48d8-b856-9903d39bb92e,TCGA-LUAD,Lung,train
+6068d0a3-cd60-48f8-8e88-0ae39cac8ecd,6e3b6b72-142d-4b8d-a462-28a205796e41,TCGA-LUAD,Lung,train
+573e0c65-6b49-43b0-9919-5c99833977bf,f2e35ffc-c87a-4e42-9c8d-e7e5d8b49d87,TCGA-LUSC,Lung,train
+05be9298-f6d4-46a5-8df8-e08ac3fff99e,d11c4976-ba19-4616-be79-d1e321c26d07,TCGA-LUSC,Lung,train
+c69ef1da-c810-4515-b9d6-a7bf1bf39068,0366c911-3267-41a0-af4b-5e74577ae16a,TCGA-LUSC,Lung,test
+f10303ae-0246-46db-8b0a-20eb35f3db2d,b89eaf49-b80b-4730-b928-3fbc4385b64c,TCGA-LUSC,Lung,test
+c8896ca1-8119-41c9-9e52-ed688379f843,3351b902-9b7e-4b90-bf6b-bcf74be00bc1,TCGA-LUSC,Lung,train
+10fabbc1-d12d-4109-8645-9df8075c2505,6bffe800-ec2b-4638-9333-97fe85dcd91c,TCGA-LUAD,Lung,test
+4a93ba1d-b4b2-4ea6-bf55-378e511d700a,ef03654a-dcf1-41ff-a67e-4f3fbf9ba807,TCGA-LUAD,Lung,train
+d03139f8-de7c-4bba-bb55-a9a421cb3df2,6144d666-8f77-4efe-95f1-f9e5c4e5e056,TCGA-LUAD,Lung,train
+4eb79c6c-ba32-4fd4-9a46-f58d14832daa,1a02b991-39f7-4c52-9f6e-bf0f7c7bde8d,TCGA-LUSC,Lung,train
+4e2d6887-3537-43ee-9923-baaa04bab13a,44d8c859-4b7a-4e9d-bffc-0de0e6afdcc4,TCGA-LUAD,Lung,test
+f76c924c-030c-458f-918d-95c847f2c41e,2e007464-f3f4-4eb2-bab8-91b8272c96d1,TCGA-LUSC,Lung,train
+a0f8ac3a-99e2-4da8-942a-9d5e6ca862fa,bab43415-d413-40be-a4c0-2c40a52afe6a,TCGA-LUAD,Lung,train
+a1a335fb-2b78-4554-8101-989d0f4b7632,889aec8e-14ba-48d9-8fe1-f2416e82b333,TCGA-LUAD,Lung,train
+78bf9a7a-020e-4654-9bf6-ff9040dcde43,cdab8ae1-d0e5-4a85-901e-2b05c63fa2b9,TCGA-LUSC,Lung,test
+8031046b-b353-458a-9333-e888033050e2,3e635902-5310-4406-8b4d-a238ce382639,TCGA-LUAD,Lung,train
+96aeeafb-bd58-49a6-8c11-d662ac9cd490,283af87a-f962-47ab-8a7b-4fcd7e45cdf6,TCGA-LUSC,Lung,train
+6ad8c669-cb11-4fec-9025-6d59453d2ff7,857a5889-19e7-4208-8362-f1377c408037,TCGA-COAD,Colorectal,train
+7603d83a-7886-4427-9372-1eea048d9f6e,c3f0608b-d493-4c74-930a-d7998a48a659,TCGA-READ,Colorectal,train
+8ffd19d9-39c2-4854-80f6-7801b089ddf0,9c34830b-4d7f-4b41-9659-fbfc36c145c9,TCGA-COAD,Colorectal,train
+8fbc2725-51d7-4827-b39c-3bc4686b4e9a,a94e1279-a975-480a-93e9-7b1ff05cbcbf,TCGA-COAD,Colorectal,train
+7b59fd2c-b93f-466f-9cae-3c7e9b6e450a,14cc6f5b-5692-471e-98b4-ae200b3d8fed,TCGA-COAD,Colorectal,train
+03b09624-49a1-4df6-abed-6f7b62cb7fa9,56d5b0b9-9093-4286-a2c6-7faa9a1680f5,TCGA-COAD,Colorectal,test
+716a22d5-9ab1-4616-b4ab-0e70fdc08878,a54b322b-80d3-435c-8d14-25841b741f6c,TCGA-COAD,Colorectal,train
+05d0a4cf-d929-4c70-be71-c54ffc943558,4ad9784e-1edc-4186-9b45-4dfe0003f74b,TCGA-COAD,Colorectal,train
+839d0a5c-d6cc-45c8-8e23-ab15b8ee2207,300fff5a-0f61-402d-b845-3938ba7b1294,TCGA-COAD,Colorectal,train
+96cdf9d5-b0fc-455d-ba01-5c96e09f2c6f,3e0c34cb-fca5-4bcf-a5c1-5a7d286dd072,TCGA-COAD,Colorectal,test
+395b6117-a877-4a6e-963e-be7d8b12ca82,7f6898e2-a840-4ad1-80f7-783f8b766fcc,TCGA-COAD,Colorectal,train
+97f3af4b-2eb6-46ad-a8fb-665d20aff357,7144a65f-a63f-4b79-8fe2-cfe48696de03,TCGA-COAD,Colorectal,test
+9a8e1141-3b01-4b8c-8782-d92e6e578b0c,e3b6018c-ab2c-47c5-b183-a295d0110835,TCGA-COAD,Colorectal,test
+4cd07423-33e0-4d44-b945-4e34251a0327,32b77693-18e1-4692-8488-add1940c9e7c,TCGA-COAD,Colorectal,test
+e2c22263-2e93-4da4-ba2a-4b5aa326f67a,64b0461f-038d-4712-948e-818dc2f10eef,TCGA-COAD,Colorectal,train
+1a0c5a51-e50a-4f76-b090-ddb4ca14648d,c59d90a6-9cda-426d-b8ea-41f0a87033d5,TCGA-COAD,Colorectal,test
+1df66b99-e665-4791-9ab2-b6aa771f2d55,c113808a-773f-4179-82d6-9083518404b5,TCGA-COAD,Colorectal,test
+cdd55496-c7e8-4aaf-9c78-e1c96fae4c69,1e89c189-7c8a-44c9-9b0f-2f625a285003,TCGA-READ,Colorectal,train
+7ba54f1c-6b30-4007-b958-42e031e46977,01240896-3f3f-4bf9-9799-55c87bfacf36,TCGA-COAD,Colorectal,train
+0f52639e-6774-4bef-9873-4653deec1b31,3758f4f7-ac2f-4f9d-bee2-526196f8129a,TCGA-COAD,Colorectal,train
+6852b9a2-de41-45a4-a63b-a4a415b5cac4,8632579e-d318-4dab-9994-d3945afc42ab,TCGA-COAD,Colorectal,test
+117c07a7-0012-4545-81b6-5026000b9af1,ab9cc98a-86ae-4913-bcb2-cc3aeff8abb1,TCGA-COAD,Colorectal,train
+6351cd44-5faa-4f11-a37e-2669517ce48b,3eb37b12-b8b4-40a3-bd8b-f89fc39c05fa,TCGA-COAD,Colorectal,train
+203641ce-852f-41e5-8e39-eede6154d930,3f10de1e-c8ce-415e-b4e1-e50901686a2f,TCGA-READ,Colorectal,train
+46dd76a0-dd84-4953-9369-f63fb8afec9e,d8bfcc67-f5c3-42cd-9fc4-bd483f896da1,TCGA-READ,Colorectal,test
+6ad3b3c9-0e0c-48e8-8307-64064527c158,9df9af6b-00b0-47af-aac7-b52dac399ba5,TCGA-READ,Colorectal,test
+40421ddc-36cc-4525-80e7-c529bcae5388,849031de-ac8a-4012-9362-d192512997f1,TCGA-COAD,Colorectal,train
+fe407b5b-6c9c-4ff5-8d92-ed08218f616e,1c111912-c664-42f5-9802-065b1994a2f4,TCGA-COAD,Colorectal,train
+0a7778c1-76b3-4ed6-b9d1-de4f2ffbc87c,fbb69964-f962-4b89-b59b-dd05f8faf61a,TCGA-COAD,Colorectal,train
+07efc292-38cc-4670-a20c-fa65268c4921,568dbda7-88b5-4330-881f-dc5d6c7ce4ae,TCGA-COAD,Colorectal,train
+7764edb7-a19e-435b-8e2e-e9443013ce16,dbbee8f5-d83d-4195-85cf-f89d327da0a9,TCGA-COAD,Colorectal,test
+d06bcb8a-fbdc-4745-9a09-cd265ede3cfe,f6c674bf-396d-4bfe-8d08-e7266c314be3,TCGA-COAD,Colorectal,train
+a7ed0d30-7049-4c52-b14c-bcae83d5e028,4beee9d4-ee52-4fed-bcc4-d300f5ddd4d0,TCGA-COAD,Colorectal,train
+aee57c6d-9cfe-4270-8337-0800b274f9de,c2ea7b58-cabd-407e-98ce-6cbf9e4d93e1,TCGA-READ,Colorectal,train
+b30ded1d-ef61-444c-835e-766ab337cb65,cd05d121-f107-4c8e-95a8-153a84f5134a,TCGA-READ,Colorectal,test
+a10745fb-0385-417f-a534-69e9884e6854,b612d491-7442-4119-a53c-5ebcc35c31f4,TCGA-COAD,Colorectal,train
+7e0a09b5-f608-4c2f-aa43-9375a78187db,c658f35d-ceeb-4189-8e3d-03e3b9706667,TCGA-COAD,Colorectal,train
+1aa33c3f-fbf8-4667-93e9-fb099679fff7,31d960d7-8f5b-4d22-bf5e-fae0849c4efd,TCGA-COAD,Colorectal,train
+c5652138-2e17-4e8d-87aa-fcc0180065dd,b3fea9bb-53f9-4ddb-922d-b570562d7a7d,TCGA-COAD,Colorectal,test
+a16b3a23-fae2-4444-b3a8-e29ef8b83755,92c043b6-8d53-4c1c-808a-c4be5e2926e6,TCGA-COAD,Colorectal,train
+c5e0100b-3f9e-4bee-89e5-ad259a1ddca0,b728e6e8-a0e4-496b-904c-6f07c12e901f,TCGA-COAD,Colorectal,train
+e8edc227-1e78-4d43-986b-fddb433b7bb7,0dacc5ce-498f-4c60-9f78-7a013ffaa9ce,TCGA-COAD,Colorectal,train
+82022870-2743-4b6d-8a2b-b49edcfb9892,2cf90e4e-b952-4a77-aaa9-39e4e2e5c4b3,TCGA-READ,Colorectal,train
+284198a7-c96e-4ecd-944b-c72aa1d078fc,9d8c4693-8e36-473b-bb34-a7cdc04dd223,TCGA-COAD,Colorectal,train
+0b87da66-eae5-4cc8-8933-5a08f0960504,f9204a59-6877-4d06-a20e-fd7ab0859ed5,TCGA-READ,Colorectal,test
+e5d05131-e1ff-4b9b-aa43-adc7a678b1b0,3d8fd9b2-9aa2-4c81-8843-535ae66d6140,TCGA-COAD,Colorectal,train
+17c5bcd0-5dac-4d3d-b684-1542c4326ca7,dde411b2-5d2b-4638-8149-89bc1eb3c7ad,TCGA-COAD,Colorectal,train
+7da3fc9c-d70f-4c6b-abcd-6b98c5ce4aec,19089ae0-b590-4649-9d94-a147fa506e32,TCGA-COAD,Colorectal,train
+557fc5c9-9317-431b-93ec-a550f8bb31dd,389e5b18-8f89-41a9-9fa5-efd4172836e2,TCGA-BRCA,Breast,train
+b88337da-3afc-490b-818a-72eb9698bcdd,a6502f17-6bee-4d5a-8520-06364593d39c,TCGA-BRCA,Breast,train
+d278de6b-517c-4103-a54d-11ea8ceab6a8,378778d2-b331-4867-a93b-c64028c8b4c7,TCGA-BRCA,Breast,train
+4dc1099e-aed7-457b-a2c7-0bd92523aea8,dcb68327-1537-4ca6-81de-3910d0663cb8,TCGA-BRCA,Breast,train
+59c88428-681c-4ce0-8641-42c4667e16b9,e828455d-4680-41b2-8a1c-1582e3790d62,TCGA-BRCA,Breast,test
+28b5f296-b99b-4b13-b274-102414a2a619,5700c1b3-922a-4401-8ab8-89028908d696,TCGA-BRCA,Breast,test
+d3cdefe5-20eb-4e51-b1a2-0aa1e20221dd,bfa3dbc0-361c-400e-8c10-0aca7049fce9,TCGA-BRCA,Breast,train
+0149cc60-e61f-4812-83cb-53e437c88b54,76099beb-0abe-4b56-8b4e-e4485e0402e6,TCGA-BRCA,Breast,train
+38cc752f-df6f-4f43-b977-615cdf2779f0,241fffc8-4250-4cfa-b2e7-e68c33ae07dc,TCGA-BRCA,Breast,train
+7e1dcc0f-c056-4eb2-abe2-139ec67c5041,f357fe19-5359-4662-8ce9-aa996132283b,TCGA-BRCA,Breast,train
+b0393766-854d-41eb-80cc-08f584e25857,dbf6f981-15cc-40ad-91ac-a66360405fbd,TCGA-BRCA,Breast,test
+c6821b73-19a3-467e-8ebf-d88116a0856c,a8e7d8a4-bbf0-496b-b387-8e014cfdcea6,TCGA-BRCA,Breast,test
+f63337dd-3547-4d44-b04e-df7003840805,aa30ac3d-4216-45dd-a314-1ae192fafcb2,TCGA-BRCA,Breast,test
+d7a882d4-a935-4ed3-a997-9b3dbb6f4215,8db69f1d-72e2-40ba-ad8a-cf228499840d,TCGA-BRCA,Breast,train
+659cb5bc-0f37-4895-9b18-4fb9c21f93a4,87e09544-eddb-473b-8617-212407ce644e,TCGA-BRCA,Breast,train
+203721ec-aef7-41da-bb2b-08f585374dbe,726c6892-0dce-4869-a7a7-cc44c26fe843,TCGA-BRCA,Breast,test
+747c1b22-46ea-4801-aa6c-13bc40b62ae4,786e8dbe-442e-4551-87b3-b4c333b04dd4,TCGA-BRCA,Breast,train
+8ce30eb2-4342-41e6-89e7-b07c3603b2af,959ff069-8a49-4c9b-85c2-5291cac0acff,TCGA-BRCA,Breast,train
+3b60264b-bbba-4ed6-9957-feb56c12fb9b,eebad74f-5961-4e91-b0eb-157a2f6f952b,TCGA-BRCA,Breast,test
+76220357-7f70-4449-8abc-847239e6012f,55262fcb-1b01-4480-b322-36570430c917,TCGA-BRCA,Breast,train
+b7b93e6b-22df-4a7e-848e-349c570a4da0,90ff48c3-b14b-4a8b-94a1-98c0bab0d27b,TCGA-BRCA,Breast,test
+1389102f-16ce-4d96-9c84-31cdbd097860,ae8c77fe-e6c8-44d5-8265-4a38c637bbef,TCGA-BRCA,Breast,train
+d472af5b-1bfd-40f7-91de-59b3a96ea088,a8f5c479-8685-4e2d-bb60-63f1cc651083,TCGA-BRCA,Breast,train
+a9db1ab3-b5f5-42ac-b7ad-6dd8979b2a91,8744733a-7b46-43aa-bdef-64876816adbb,TCGA-BRCA,Breast,train
+97abb191-4b37-4a36-a5c8-22caef702ba8,cffe832c-8a81-4cdb-8b25-df7f35afafdc,TCGA-BRCA,Breast,train
+cdf9dfb2-0e55-428a-9638-ab913cf8228c,ecab16bc-28d5-4c3a-8735-3c785bd047c4,TCGA-BRCA,Breast,test
+488463f4-4f97-4aed-b080-77e20b03502d,2e32f31f-9817-4935-b259-96c59936ee33,TCGA-BRCA,Breast,train
+18531d89-48af-464c-a5ca-90303cb2914c,f2622cdb-ac92-42b3-a1ca-67e133c3dd4a,TCGA-BRCA,Breast,train
+5afe4135-f27a-464d-8c0f-b34ac01c5015,a721dac6-0126-476c-b2d4-2dbf7406454b,TCGA-BRCA,Breast,test
+dea38cdf-ad2e-4b94-9e3e-22d97d8f849e,2a84997d-ccee-4f46-bea2-752534f26416,TCGA-BRCA,Breast,train
+5481cc36-2804-437d-8d48-65f047579a3a,4f04bd10-9902-4a23-b15d-4f4409d79499,TCGA-BRCA,Breast,train
+4481a7a3-6020-44b0-accf-294d4a7090fb,6f0fd68f-ed6a-4c9e-be02-c97ba4950f76,TCGA-BRCA,Breast,train
+3a8a2640-b0f0-43b8-ae9f-585998e2ba7d,e666081b-caaf-4e8b-9446-807be71201a5,TCGA-BRCA,Breast,test
+386c2d03-7f8a-42cc-9ef8-3a7945518453,5a5f0f48-2b13-4e78-b130-901b85d9a7f3,TCGA-BRCA,Breast,train
+33392cf7-adf5-437c-9a65-67741211f712,67c5f371-3fa9-47c5-8b15-c2dd9acc8519,TCGA-BRCA,Breast,test
+5488bbab-527f-4a17-990e-f17df842e52c,3e637872-f5e5-49d3-bb0d-9c16b8713382,TCGA-BRCA,Breast,train
+80dcddfa-a808-4f70-99a6-4b0331f9a0d6,a482fc4c-ff1d-46a0-a968-7df06422cc4b,TCGA-BRCA,Breast,train
+b0f154c6-38ee-43a4-937f-8036d69eb1aa,8577ffcb-242e-40e2-98d4-2831d952be34,TCGA-BRCA,Breast,train
+4e012b2e-395e-4999-b326-b0239da2496c,72cd1b17-d349-4551-83f7-3062ce9db865,TCGA-BRCA,Breast,train
+cf7b94b6-d0f9-43d3-8172-a11a60f755d1,35bd694d-1dd2-466f-ab27-03320614b40e,TCGA-BRCA,Breast,train
+b407a72e-e4a4-4097-9cb9-48d6638b8ec3,42378dbc-a123-4cf9-8502-165e89fda271,TCGA-BRCA,Breast,train
+f852d9fb-35ee-4b70-934e-c42fc0cba200,61204cdf-3b1c-44a1-bda6-0fef1ac4a333,TCGA-BRCA,Breast,test
+a352f2b1-8db3-4f62-b12a-c7ae181bc29d,074e8b06-3929-4896-9263-3b80ad6a355b,TCGA-BRCA,Breast,train
+baf67149-f358-4f96-872f-d97bf7f34dec,9ad603dc-3fd0-44f5-ae4e-64eeb1ae8d6d,TCGA-BRCA,Breast,train
+a569e8f0-ef1e-440c-9474-16585e076b05,86c6f993-327f-4525-9983-29c55625593a,TCGA-BRCA,Breast,train
+26c42e8b-c5d6-4ffe-b0f2-2c7a9d483e39,d81594d9-dd6a-45c3-8bad-61960611d78d,TCGA-BRCA,Breast,test
+7accef28-ac89-4719-b6fb-27f1c3a6ce85,2d29a4ac-98e7-4663-9dd6-5681bc32ac2e,TCGA-BRCA,Breast,train
+929f4ada-0aa2-45e3-b224-dde0b42154da,dd67408e-46ba-4573-9415-d4814e9f84de,TCGA-BRCA,Breast,train
+487a73a1-260d-4536-8b1c-b02aa45f7d7e,c26002e7-abf1-42b9-bf36-0e97249d872f,TCGA-PAAD,Pancreas,test
+db28c0e5-6f2c-42e2-b8f1-0da5e635eab3,5494af7d-403a-423b-b7ff-e6db9c117e93,TCGA-PAAD,Pancreas,train
+0074cffa-897b-4588-9911-b1a5e723b538,58c1c391-5ea3-4432-bb1e-e7e1974954bc,TCGA-PAAD,Pancreas,train
+b8361560-fa7c-4e99-9f88-3f3ecd92fa8d,6788e0e5-b67f-4fe6-aabb-6d0430ae2d06,TCGA-PAAD,Pancreas,test
+ff9b1baa-2e17-4c52-a58c-76275b04543a,47cb93bc-8f6b-4b2a-804c-bb4fc78df9e1,TCGA-PAAD,Pancreas,train
+2ef40dfa-8151-4626-b3ea-fb1a7a3d23d4,53c94a86-1b4d-4833-a169-d990c460b301,TCGA-PAAD,Pancreas,train
+1838f91a-340e-4ebe-b74a-200887526716,a643d0b8-aa50-481c-9f12-f2e634d61d90,TCGA-PAAD,Pancreas,test
+0090b9d0-65d5-4eb6-8ce7-d840159d23a4,a5748656-5330-417a-8938-01f69ddb3576,TCGA-PAAD,Pancreas,train
+136798a6-1095-44ab-86bd-b2fbf44c26fc,2e8f90f4-aed3-43b0-985c-dfdc2581f24f,TCGA-PAAD,Pancreas,train
+135cafe1-57e7-48d3-a675-ba3a5d4b2410,ecdd0e44-0add-4a08-a3f8-ab2f51df7afd,TCGA-PAAD,Pancreas,train
+a83374eb-eb73-4c7d-8072-156651f8c3d8,2c636fb4-c341-4c55-b920-27bc2d40c815,TCGA-PAAD,Pancreas,train
+d5b20b2b-05b5-4fb9-a08d-72fa30e051fd,23908554-b98e-4ff8-98e7-dee3e2c5feaf,TCGA-PAAD,Pancreas,train
+c3b5e175-38c4-4b7c-9769-08652d91f364,f91eb33d-76f0-418c-9962-11a5b31ca1dc,TCGA-PAAD,Pancreas,train
+656491c2-1c1b-4900-9100-ae39cc42132d,a1d138fb-bba7-44d2-8071-c14470634e4c,TCGA-PAAD,Pancreas,test
+e44c1480-1961-4148-acb0-ad5207c6cf0f,1f5494c4-e26c-4512-96d9-30412b5b32ce,TCGA-PAAD,Pancreas,train
+084b1bf1-41d0-47bc-a4b8-ff05785b5412,d14154a5-9c8a-4c55-8c2d-64f3cad7b7d5,TCGA-PAAD,Pancreas,train
+7ef7b4e7-45c4-4c88-87b4-dc30d27a19da,ca2da39a-263c-4238-9826-de7d52e63d0f,TCGA-PAAD,Pancreas,train
+025280cf-1b79-4c39-aaa3-b7716a1ee1e5,45e48080-0b27-45f4-8149-1ae7e36c6933,TCGA-PAAD,Pancreas,train
+5afbccc8-e3d9-446e-b29a-bba13ebf8f23,d1e0f479-77dd-42cd-89cb-c1eeac60c10a,TCGA-PAAD,Pancreas,test
+68294305-5dfb-423c-968d-2d6b3e2dccb8,ec9ac713-08e9-4559-b606-5f58d2c4df50,TCGA-PAAD,Pancreas,train
+419c291a-f1f1-45de-b25d-d2d9ea6ece46,f96ab3fe-bb11-4585-a35e-52d400e55ab7,TCGA-PAAD,Pancreas,test
+ca78fcbc-893f-41cc-b5fd-867859d3479b,b84b58c7-95b8-4162-8e61-414f8fe422c6,TCGA-PAAD,Pancreas,test
+887e2501-8e8e-483f-85a2-340d08e432a6,40fc7973-91c4-4fa8-a105-7fc3d6f3817c,TCGA-PAAD,Pancreas,train
+d4a41a99-58cb-4edf-95eb-5ca03efe3923,396ff766-a383-4f42-bce3-f2f32b7f1151,TCGA-PAAD,Pancreas,test
+68d447a9-e596-4e29-9d66-85d3ceb0fb54,556baca9-03d6-48a3-9216-4fc441e99f90,TCGA-PAAD,Pancreas,train
+67c440ff-a78b-433c-b369-801315ceeb77,94cd2278-7c76-423b-a44b-564776211a07,TCGA-PAAD,Pancreas,train
+b607b5de-1800-44e0-9415-3d468b7828d3,7ebe2e36-4692-4b4b-a75d-b75972f664c2,TCGA-PAAD,Pancreas,test
+88ce03d6-d7d3-483f-9bcb-e98d963042f7,7240d5da-b54e-436b-8069-f2c9f516b75e,TCGA-PAAD,Pancreas,train
+1504ea57-c1f9-4138-b06b-0b8255fc0c07,3a3a8fe1-e35c-45d0-aa0b-4fefa9ee9183,TCGA-PAAD,Pancreas,train
+e8f9ca40-f975-4496-a14b-c7241734f57a,f0a4944c-d6cf-4163-a1ab-189803464b03,TCGA-PAAD,Pancreas,train
+c726579d-fcab-4b75-b800-80fdf49b4768,758b70f6-8064-4f43-aabe-e5f968fe2955,TCGA-PAAD,Pancreas,train
+6eb93b4b-586f-4197-8327-38662037da2c,56a1b8ff-a71c-4e5f-9c3c-d8162ff896aa,TCGA-PAAD,Pancreas,train
+a7f91a18-f137-4038-b847-a52f4da3df4d,1db061c0-9b28-4bf9-8ad2-0383c69b6800,TCGA-PAAD,Pancreas,train
+8d441ac8-b42d-4128-aed8-48bfe9741afa,5750a6ed-2516-456d-97d4-2f6486845ed8,TCGA-PAAD,Pancreas,train
+dd6617d2-803c-4a69-b284-af505dc4a854,8475c44d-e091-4c65-b1b4-9a77ae3c0e1d,TCGA-PAAD,Pancreas,train
+d87cf878-3fb2-4fe5-9f1c-381eae6f1c41,0fa89fbc-307a-48d5-adce-192556755c22,TCGA-PAAD,Pancreas,train
+ad71a80b-6269-492d-8c32-a8330dd6ae06,4387a2c2-8007-4735-a48c-34a2b476018e,TCGA-PAAD,Pancreas,test
+b3531dcf-7884-4877-83c1-21c883476876,81b6b844-d760-4146-9b01-1c4b2596eb77,TCGA-PAAD,Pancreas,train
+69f9e9dc-ffec-42bd-837f-ee47ea51a382,570f9947-1ce5-49c7-9619-49439df6c7a9,TCGA-PAAD,Pancreas,train
+bf33c315-02d5-4abd-94df-3982023bd743,f2313562-c894-486d-a9b6-ed362e12a32a,TCGA-PAAD,Pancreas,train
+4ef399db-8011-4cdd-8240-41b077ccb162,5aa57fff-4515-4076-8798-55015bb4f156,TCGA-PAAD,Pancreas,test
+7b43cea3-4c74-4d86-bca4-93902e7441bc,514d12b0-6f60-406e-bde9-a090e918ebff,TCGA-PAAD,Pancreas,train
+e84b6bb4-7f17-466d-85ca-a39ef937d765,638b1a6a-c222-414c-96bc-f259f0afb278,TCGA-PAAD,Pancreas,test
+66918831-ea82-4356-a174-bd87f4afd82d,0944ce65-a89a-4916-b90a-f674b334281e,TCGA-PAAD,Pancreas,test
+6b52b1b9-4816-481e-8d08-21a05eaf2ad2,d4f66f06-9289-45c1-b9eb-aaef991a4bb6,TCGA-PAAD,Pancreas,train
+a31f6eb4-fc03-468a-999e-dda54b08c82a,ff8dac97-42ff-4f48-81c4-50315ad8de58,TCGA-PAAD,Pancreas,train
+dd443600-dbc9-4043-86fb-a24836dd3bec,e4babd46-005a-4af3-8041-131648d9c2c6,TCGA-PAAD,Pancreas,test
+b24c9a6e-17b9-4564-9d05-5c45ed164784,459028fd-0cd8-4e6d-a668-71fd60bd0a37,TCGA-PAAD,Pancreas,train
+7c514c6c-493a-4e07-9783-2ee2f4135a1a,34303cdd-c31c-4b95-9965-2a5513dc322d,TCGA-LIHC,Liver,train
+7f9db452-b8f5-428b-9da6-c2db93a27ee1,bd627786-31a8-46d9-b3e2-7f489d50f608,TCGA-LIHC,Liver,train
+453a7959-7888-4b94-a5dc-fc0be23e761b,027322f0-d720-41f8-897c-a10e5c1424c5,TCGA-LIHC,Liver,train
+bb80be11-84ab-4067-a8e1-6473b6656094,c7f1b389-aec7-4993-8afb-b7a56064f8fc,TCGA-LIHC,Liver,test
+290d8406-bb23-4b76-8bc3-5d1e59fd2872,915f531b-8448-41c7-9dfb-9c83062b906e,TCGA-LIHC,Liver,train
+85beefca-5c48-44da-adbd-f2e65e98a494,bd48fa5e-0152-46f0-a4fa-8cf723ff2dcd,TCGA-LIHC,Liver,test
+cb180e7d-b7de-40f0-8ef2-16be9693f8b8,a6c0def6-7649-485a-a679-50dafb5eade5,TCGA-LIHC,Liver,train
+aaa86be6-9408-43c0-bbf8-4d2c6de1a6da,c6a74db2-cf97-4c7b-be8c-557ee27e1d43,TCGA-LIHC,Liver,train
+c1692182-1fdb-475d-8e38-a1d7573612f9,0ef95351-0133-4f34-a59c-90934fb161f8,TCGA-LIHC,Liver,train
+ed926791-7716-4970-a156-e4c479a5fe2b,496beef9-80d9-4734-a23d-334ae1b6aaab,TCGA-LIHC,Liver,train
+42f0e00e-c033-4568-bb18-aaf519ed7345,79df037c-7d37-4e6c-a654-57708a4f87aa,TCGA-LIHC,Liver,test
+4a9af61c-8e85-4351-96f4-3f56cbfdd5dd,431a72e1-ea03-4e40-89c4-2f02d454c897,TCGA-LIHC,Liver,train
+e0b6b550-0608-489a-b716-66f55b7e1e33,25e893ad-a0fd-45ae-9aa9-9bcd7c2ec8e5,TCGA-LIHC,Liver,test
+03f89ba3-4213-49b2-99cb-bf08d739c5a3,39e147c9-2acb-4ba8-a991-e43e1719b2d8,TCGA-LIHC,Liver,train
+4de0d4af-a399-4b1f-aef9-5ebdd48da3be,66c6f413-b7a8-4d7c-9e1d-c4fb257b9e5c,TCGA-LIHC,Liver,test
+e5b4ef8f-ccd2-4e87-a345-4cceaa379878,1ad7f17e-b3b8-40e9-aab8-5a17e0aec408,TCGA-LIHC,Liver,train
+3ef69bd1-dccd-4906-97a9-b960b9196a1d,6312d5b5-68ad-4d4f-a0a9-03d895ae30f9,TCGA-LIHC,Liver,train
+fd5625b4-2af7-4428-a184-046341b7814a,71681db9-fa90-4fe1-a497-67d501eb75f0,TCGA-LIHC,Liver,test
+4db8af07-7240-4fc4-b5fa-b1d2a2c488a1,527d2bc3-7fdd-4b08-839d-67e2f246db04,TCGA-LIHC,Liver,train
+865237fe-686c-4578-9738-0e2bea263de8,cf358fb8-866c-4780-a550-d6c1c30b8c63,TCGA-LIHC,Liver,train
+2409d0ee-b12e-432e-b706-48f9ea17438f,3dd7c93d-8194-44ee-8014-10dd81ef6441,TCGA-LIHC,Liver,train
+1cd59a9d-464e-4bd0-8cb2-2ef896b124d7,d680df09-368e-42b5-b540-45c41ed31042,TCGA-LIHC,Liver,train
+cd579894-c9df-496c-bbf6-69c6f214cb4c,877b9f6b-9b34-40ed-933f-8fef204edf21,TCGA-LIHC,Liver,test
+6a7f3c9b-9e38-4f15-9d2b-f9e6e8580a2a,af1e56af-410c-4cad-a4e8-1c6937f1a350,TCGA-LIHC,Liver,train
+75c76f64-39ca-4559-8401-3d574c59e01b,4c78b999-4797-4e19-8bc5-9ffd01cf768a,TCGA-LIHC,Liver,train
+2d54c401-9dc0-4fb3-957d-46d6aec0ea19,2c041473-eaaa-4b7c-9b2e-b9da3543ad18,TCGA-LIHC,Liver,train
+0247d61f-c677-4343-9487-149be902f141,ec4b4d34-2576-4412-b036-7460e64f4398,TCGA-LIHC,Liver,train
+0144c1be-08eb-4f72-8243-1dfbbd64fb17,870c86e7-d6e1-4f9d-bb0b-bd1c66d6bcde,TCGA-LIHC,Liver,test
+ea7fb982-9138-47fe-bf69-81c836f3ffdb,8c2783ef-aa41-44c9-be87-fa4c84108f1e,TCGA-LIHC,Liver,train
+7568d04d-87b5-4e6e-9f15-909cb7ac5672,3837c8ac-6c9e-499b-a4e7-d42c870bcb49,TCGA-LIHC,Liver,train
+011a6f99-910f-44ac-8043-4d2cf70e4abb,97472e71-66eb-434b-81b0-d727765f44cb,TCGA-LIHC,Liver,train
+d4bb63e9-a957-4482-9c0e-96d9cd30049b,23d8e6a0-fa79-4323-a0a6-2dea2a319667,TCGA-LIHC,Liver,train
+75ed6c46-66f9-4d89-a57f-3a88b4fa03f5,6bb5d506-8fca-43f3-90a6-03c915d7ede2,TCGA-LIHC,Liver,train
+385a31dd-b909-4d59-8fc3-8651b554a418,a8c2aa08-9156-4845-ad77-5e060858c757,TCGA-LIHC,Liver,test
+1d563ed4-4540-4063-9a06-0eaf5ead45d1,5d259f26-3bef-4fe4-948b-495183f5f8be,TCGA-LIHC,Liver,train
+20d5213a-c58f-4c00-9e76-26e30e96ff59,9fc30c21-2c78-4843-a658-fe84a64b8fad,TCGA-LIHC,Liver,train
+994019ed-18d8-44df-8a92-3143cd784417,1b428ada-eb3f-40c2-b4bf-1bbf6b61729d,TCGA-LIHC,Liver,test
+b7c09f0e-746b-4601-884b-10d30cceee92,2d1dc64d-27de-4c83-a7fa-88da5b48bf24,TCGA-LIHC,Liver,train
+1ebfb3cd-e461-4743-9982-6558b7229549,75030b63-59af-4705-86e7-3a431b7cf65a,TCGA-LIHC,Liver,train
+f19ce174-308f-45c7-b636-1af60876c75c,1bcf1762-7926-45f6-a367-d45fc3af7bc3,TCGA-LIHC,Liver,test
+35f51fdb-023e-49e5-978a-a288a0597abc,994347ba-3045-4ade-926f-06420fbd906c,TCGA-LIHC,Liver,train
+0ba73a85-27b9-4ba7-bd1a-ea97d8b554b6,c36f9ffe-515b-4895-b82a-aadc49fe3016,TCGA-LIHC,Liver,test
+c5462d23-b017-43d9-be70-256f12ba991e,ea214f79-0f6b-403f-8693-c844bf4b77cb,TCGA-LIHC,Liver,train
+ef8150ce-25a1-4ea5-a1a6-2f9fa47b6818,3d048a45-3d5d-4563-acc8-3c662861f18a,TCGA-LIHC,Liver,train
+aca49ec7-01b4-43ef-bc4b-50bd53f7211d,1c1e8987-676f-417b-b3b4-e0321367df55,TCGA-LIHC,Liver,test
+895413e1-109a-4919-aee6-3a8bacd0f620,34fd27ce-930a-4f29-8a6e-dae4949d92eb,TCGA-LIHC,Liver,train
+cbe355d3-f219-4033-b75c-e086e3d37525,efc3e5e4-0d8e-4bef-a259-29f8ed21684f,TCGA-LIHC,Liver,test
+3f08117c-e5bc-4514-b2fd-d1805fad5655,869f8a17-bced-4002-bd60-99df84a03b93,TCGA-LIHC,Liver,train
+1f0fe585-31e7-4783-9957-72910a4efe42,3c1f8b73-bad7-4649-b08e-c7afc647edf3,TCGA-ESCA,Oesophagus-Stomach,train
+ac646b39-c6f7-4068-ba62-aa0414705439,d7fe7004-6268-4dac-b145-ff76e678e77e,TCGA-STAD,Oesophagus-Stomach,test
+a1a650bb-86b3-45ce-96e5-9a8e42760245,aba9439a-ea8d-404f-9faf-eb71a306684d,TCGA-STAD,Oesophagus-Stomach,train
+a73a3e97-3c64-42b0-89e3-19d7df6bb7ce,8c4f5492-3567-4e12-8607-2cd65fab9baa,TCGA-ESCA,Oesophagus-Stomach,test
+1211ab80-7971-4650-8767-305d41273b6e,00ee3098-1b32-4e7a-81ea-993773587c41,TCGA-STAD,Oesophagus-Stomach,train
+bbd9700a-30b0-4c51-9b0d-e4fc5e23df40,19f61a54-2db5-4e2d-8572-f294d7a41486,TCGA-ESCA,Oesophagus-Stomach,train
+ee4f01b8-160f-4f6f-a931-12056483b9b7,48abe0ef-dfd5-4e36-a319-c4ec3165cba1,TCGA-STAD,Oesophagus-Stomach,test
+bd8f67e8-e2ee-46fe-bb92-4dc50d56e8f6,1a3e7ec6-c9be-4174-8799-72267eb8a7bf,TCGA-STAD,Oesophagus-Stomach,train
+b9f4a585-12c4-47f4-a798-4984ad145d6b,fd43a93a-a26d-427b-be04-466630f3d949,TCGA-ESCA,Oesophagus-Stomach,train
+9b18d3b5-d637-48ca-b410-d41624fa8363,bdc3899e-15ae-421f-829b-0e07fbd27c60,TCGA-STAD,Oesophagus-Stomach,train
+48ff062e-b31d-4ea4-847c-d51114536c02,1f505ffa-b551-44a5-8813-c44c2bfcb4d5,TCGA-STAD,Oesophagus-Stomach,train
+e84a5cbe-99d5-49ad-90e6-95085b8dfc30,a248bfe7-59af-43ec-8129-692f44b2b218,TCGA-ESCA,Oesophagus-Stomach,test
+5c1965ba-7280-448a-9028-822d47a94659,a4d36e09-5d8e-4006-855c-e466682b6813,TCGA-ESCA,Oesophagus-Stomach,train
+76dad991-f028-434f-9c77-477d807b169c,5034cc97-9eec-42fe-acf9-cdc5a10e6547,TCGA-STAD,Oesophagus-Stomach,train
+ff5f6ee4-7184-4fa9-b5d8-b93d8fbf2eb9,17f63789-2ee3-4cd9-9273-5fa73662db39,TCGA-STAD,Oesophagus-Stomach,train
+81a7163d-a584-45e9-8f3d-5af04e692200,f72a26e8-7f96-4d86-b37b-7dc35f681133,TCGA-STAD,Oesophagus-Stomach,train
+01cffd7f-4e9a-4de6-a9ce-3085e4b00026,2360c1e2-90f5-4737-9486-3f4590c37322,TCGA-STAD,Oesophagus-Stomach,train
+3f43ef5a-1d51-43cb-b351-90c9ccef0246,0e99c305-c69f-4fb4-84d6-29cac1cc9d39,TCGA-STAD,Oesophagus-Stomach,test
+fbac5414-9c12-4e0e-bf49-642e96c78ed9,0ac08ecf-4d70-48a4-9dfd-f44032551cb9,TCGA-ESCA,Oesophagus-Stomach,train
+102dffdc-a71d-4523-880e-8c892ae185b7,a3f03a0a-f251-4588-97bc-3403597a35ad,TCGA-STAD,Oesophagus-Stomach,test
+5a4de560-a00c-4d43-b290-36933fdfe64f,00fdf96d-c48a-47e0-b91d-576c52e6819c,TCGA-STAD,Oesophagus-Stomach,train
+c1879464-a959-4249-98e7-abccf9827cc6,06fd3086-0801-4d74-bced-4916efc544d2,TCGA-STAD,Oesophagus-Stomach,train
+81aa80c8-bb23-418e-882d-e4e175bda3b0,2dc154aa-c478-404b-a92e-86abcc8dbdb7,TCGA-STAD,Oesophagus-Stomach,test
+24c61596-6029-4afe-9e53-5c958b3562c1,52849c60-7e30-4ba4-9dae-be4adf031120,TCGA-STAD,Oesophagus-Stomach,test
+3d7ed646-5fd4-48bc-b202-79e650ae502d,09eacbfd-3f4a-4d2b-b7a7-c021535e2981,TCGA-ESCA,Oesophagus-Stomach,test
+1fe88304-347a-471d-8402-700bb757be2f,2b4f014f-74e9-4dda-a1ad-abcbd124fc44,TCGA-STAD,Oesophagus-Stomach,train
+8a68cab3-14a4-4346-aa56-5cdd7963e9e9,981066ec-eca6-4621-8979-e935279aa1ca,TCGA-ESCA,Oesophagus-Stomach,train
+8ba08885-0ad7-45d3-8e7a-82c237254311,b7d2401e-7d64-4c89-a74c-16d634cafe7f,TCGA-STAD,Oesophagus-Stomach,train
+c3398574-edc2-4d01-93f1-74208770f553,7a32847f-69bb-4592-8feb-cfd5d355ada9,TCGA-ESCA,Oesophagus-Stomach,train
+9b5b700e-7025-491d-b0b1-36a154d9437f,13e5a0ad-6d0c-4fb4-bf62-325f5c8ed329,TCGA-STAD,Oesophagus-Stomach,test
+c69a5fb5-6029-40f0-be84-7fb3e8bb5034,6969fe5a-5993-48e5-95c5-c5c7d3d08205,TCGA-ESCA,Oesophagus-Stomach,test
+871f4ef8-b891-4e46-87c4-7f6ed1695350,fe1ad544-3189-4495-86be-0c68f3234238,TCGA-STAD,Oesophagus-Stomach,train
+fb65a983-d33c-4713-a49d-5cb436598235,0ab29de2-eb9e-4a25-99de-5f543cfbdb53,TCGA-ESCA,Oesophagus-Stomach,test
+522d5f81-7454-4936-ba94-afdc539701f4,37e22429-efd7-4d6a-b79a-9d8c7be2170c,TCGA-STAD,Oesophagus-Stomach,train
+d6bc2b48-6921-4d61-aa46-eb00f6bdcbc2,c3cba26e-38c2-4569-afd6-6b045e604808,TCGA-STAD,Oesophagus-Stomach,train
+ed71ac2c-65d3-4cc1-9f31-0a88c87ed8e5,6f70e9f0-580b-4199-934b-dacd29fb28a0,TCGA-STAD,Oesophagus-Stomach,train
+52def9a7-5b09-42a6-849d-b9f9983dd3e5,263f67e0-0a28-42e6-b3f3-1ddd0d397220,TCGA-STAD,Oesophagus-Stomach,test
+f8056f03-0b69-4add-bc01-b9dcf1cd2cb0,d064c0bf-ecac-4069-aeae-4cc36bc87b38,TCGA-ESCA,Oesophagus-Stomach,test
+ee2c9abd-7d7f-4d23-8227-6ba60188520f,fdb40436-a545-40da-8c6b-2f8aff359ff6,TCGA-STAD,Oesophagus-Stomach,train
+de7edc65-f359-43b5-81c4-789b98d96509,1116ddae-76b0-48d6-869c-be65d8b09d35,TCGA-ESCA,Oesophagus-Stomach,train
+bf7f30b4-9e54-4000-bbfc-8dafa52c0227,6ffefb3f-3919-4fef-ab15-5d32d8f51d57,TCGA-STAD,Oesophagus-Stomach,train
+aab78854-2952-46cb-9286-83da438c6820,1dbe1e26-3bcd-45cf-990e-ad7c8754f4d4,TCGA-STAD,Oesophagus-Stomach,train
+128dde0c-a9de-44c1-97bc-0e4ea331412b,06ca7fc4-4ae0-47d5-9e83-f92ba42a957b,TCGA-ESCA,Oesophagus-Stomach,train
+c1c370f9-9e56-4b24-afd4-0ee927d9627c,8bb3facb-1933-4350-9f78-74537559e000,TCGA-STAD,Oesophagus-Stomach,train
+56680c23-f4dc-48d6-a12c-eb63e359bfc6,a58b6cd2-48f8-47d0-b97a-02a376f83e5c,TCGA-STAD,Oesophagus-Stomach,train
+8ab09c8e-8ac2-4e76-9227-58890b2265bb,1ca3c5e0-32b0-4467-8ec0-ca212e35d2b3,TCGA-STAD,Oesophagus-Stomach,train
+3d47a6e6-5a27-4f47-a3a7-80e58813e2fa,a0402de7-08ae-4528-9e77-289295ad8ef8,TCGA-STAD,Oesophagus-Stomach,train
+6393ac92-6947-45d5-b41c-0874bbce5897,da2e8310-f54a-477e-a1fb-3f5542452780,TCGA-STAD,Oesophagus-Stomach,train
+3bb64391-71a9-4881-9018-0803b4af5e60,ef3ce0e5-d2e8-4616-8b1a-a78c591cf235,TCGA-HNSC,Head and neck,train
+2d92ed5d-cc7e-4ef9-b9d1-aa0c5836b3b8,97c3c5dc-5540-4713-805e-4d98fd8c03ad,TCGA-HNSC,Head and neck,test
+6f1b3d7e-d9cf-4d2d-bd9a-04582256d38d,c1f286f6-d4a1-494a-88c8-ff8e2a3df2ce,TCGA-HNSC,Head and neck,train
+04b6b64a-63f5-40e7-bffd-fe3b6ca129f3,deefdd62-4d35-40c9-ad4c-0b593f35cff7,TCGA-HNSC,Head and neck,train
+18cfb61b-9f98-4a2a-addf-78accbde6189,ed46cc12-2edd-4c95-9814-54b5b6682fcd,TCGA-HNSC,Head and neck,train
+eba1eac2-0e03-4e60-af33-ba5e84757768,96163e94-4a14-4907-a57a-cfab4caf19a4,TCGA-HNSC,Head and neck,train
+c7274f51-ee42-4423-a779-93d92071b6cb,76214b90-c323-4fdc-92f4-1180abdb1380,TCGA-HNSC,Head and neck,train
+94ca42ab-ac26-4727-8287-9ead52f1f840,67eae8b3-3bd2-4e87-af78-ffe8221f318d,TCGA-HNSC,Head and neck,test
+14a81f42-2c16-4b91-b87a-f540e77d7c1c,277b02e9-ded5-4980-845d-af53690000ac,TCGA-HNSC,Head and neck,test
+8688568e-f910-4347-a77f-e8d5f702592a,b39d2880-6964-4c5b-b5a9-ab64e5cb31e8,TCGA-HNSC,Head and neck,train
+0f6cb43b-0e96-4753-8c53-0afef6aab792,5a03e2b6-4c8b-479a-9036-9859af031da4,TCGA-HNSC,Head and neck,train
+20dc43ab-4bcd-4ca1-878a-edfbdb513c6e,3ce5b304-6068-43ba-9e70-e4357d6d7a2a,TCGA-HNSC,Head and neck,train
+efd89210-26ea-47b2-972e-14c15777c29c,865c624a-d52d-4c53-9904-40014cb8cce7,TCGA-HNSC,Head and neck,train
+289d8920-60ac-40ed-80b7-aa6896fe54ef,03b57fee-55c7-4873-b7ef-e29abd98863a,TCGA-HNSC,Head and neck,test
+2c64af0c-c10a-426c-acc1-d896042ad342,ed61706c-7fc1-4c5f-b473-7b0888ac5b73,TCGA-HNSC,Head and neck,test
+4b30c181-eaf0-4296-b906-9dff2290cee9,a40bb4bc-9ee6-4a8b-8a33-3a4ed78f69a7,TCGA-HNSC,Head and neck,train
+032fabeb-4805-43fd-8c03-f65f3058902b,9180e195-dae9-4af9-90cf-71778bc9aefc,TCGA-HNSC,Head and neck,test
+f6cd1100-4eea-4467-8b66-315f02c0b6b5,54b295d4-6315-4416-bde7-a221859f965c,TCGA-HNSC,Head and neck,train
+18b6af16-d157-4b77-a924-8577db75bd2d,9ffa79fa-d2d8-48e1-8fd6-4b020ecf357c,TCGA-HNSC,Head and neck,train
+0f6e6650-35f9-46a6-bf1f-7b93b5c41ad4,4f5bc340-bdb5-418a-b3c4-96ac85e08b34,TCGA-HNSC,Head and neck,test
+0ca74519-c290-4263-aa39-8713b150c2f6,cd032ddb-55f2-4c77-8dcf-e4e630f7de6f,TCGA-HNSC,Head and neck,train
+abe19ca3-8932-431a-b4dd-058d19cc7929,677c9d22-e518-43ab-9668-a606c35a6eeb,TCGA-HNSC,Head and neck,train
+9be6a872-1e2b-425c-8a77-6e6384aff923,d3f786a6-5d72-4d6e-85fd-0c6ade9f6e95,TCGA-HNSC,Head and neck,train
+27b6d1f3-8663-4438-9b4a-c08b38708b83,730c3b27-24d5-4a80-b659-db54cd2bc4fa,TCGA-HNSC,Head and neck,train
+135193f5-b477-4535-b1a0-c72060619aed,a563109d-0990-4bdc-8bd7-6766d1eadbdc,TCGA-HNSC,Head and neck,train
+d8129704-4c62-414c-8168-917a3ae911a9,b9aac2a5-5ca9-4f57-ba02-b53904256467,TCGA-HNSC,Head and neck,train
+85eb2138-4503-4e0d-8b70-49e223096102,ac511727-185b-4ac0-b6c0-dc3a79657be6,TCGA-HNSC,Head and neck,test
+cb929c0c-d84a-4579-bf95-143bd66e1517,1f6167d9-c99d-4873-8d6e-e62a1c964135,TCGA-HNSC,Head and neck,train
+371a8cde-bffd-42f8-87e8-b61b7d12624b,6a82a217-f7a2-4697-98a6-6c6553e8fac1,TCGA-HNSC,Head and neck,train
+7074e212-37bc-4326-a369-ec4ce8cf091a,af31bf2c-8523-4376-bfa8-e2845848d651,TCGA-HNSC,Head and neck,train
+b9afd7df-3822-4619-81ff-a903994c8f92,e08e1d99-81e1-454a-9bda-cda92c9e22b4,TCGA-HNSC,Head and neck,train
+e3c68eac-4a54-4989-8952-4d26966c51e3,46e51eb2-0c5e-457b-af1a-8bac1b8a8bea,TCGA-HNSC,Head and neck,train
+354cbae1-d3f4-4e34-9a7b-ea27ed18446e,fa2d4258-3ee4-4d53-8ef2-9700b5cf38d6,TCGA-HNSC,Head and neck,train
+e2a819ea-64bf-46d4-96d5-76fcbc3baa97,6ea380ad-d73d-41b2-b448-2d224deec01b,TCGA-HNSC,Head and neck,train
+4094b7d5-b6af-4459-9757-8568f45a8418,89f91e36-fed8-4da3-8a35-c761d6f65285,TCGA-HNSC,Head and neck,test
+ef855dba-c81f-42ae-9f30-10854ba997c3,4eacd173-025a-442b-8bce-890ccfdca586,TCGA-HNSC,Head and neck,train
+43b021cb-73a4-41e5-bf7b-d0b4245701ea,de206681-3e27-4d4f-8669-aefb12b5b1e3,TCGA-HNSC,Head and neck,train
+425255e8-cd02-4ce9-8fcd-019024b97959,57212fda-fd32-4328-81dc-61f167970f89,TCGA-HNSC,Head and neck,train
+daa493a4-f511-49af-8d92-97a34ab133dd,1acda00d-04fb-4d71-99a4-996f92601827,TCGA-HNSC,Head and neck,test
+1356ae62-645b-4b29-af4e-2ce4290bd63f,4199c571-f20f-4873-afd3-5393f2f8d2db,TCGA-HNSC,Head and neck,test
+684ab643-1f92-4892-a7a7-5beb51ae12eb,7e0575ce-670b-4035-8a90-4d35279707b2,TCGA-HNSC,Head and neck,test
+b7e0d1e2-851b-4edd-bc66-6f83b97ff913,13f63218-0949-41e6-a661-c844414c45b5,TCGA-HNSC,Head and neck,test
+e26f68ff-a4ab-4fbe-8ca5-17ae08671358,765cc306-bdae-4caf-ad1e-35b8fe95c220,TCGA-HNSC,Head and neck,train
+5061d917-2286-493e-878a-fff978f80ac6,ed6ac43c-d921-4342-aeec-9ff8d8a31919,TCGA-HNSC,Head and neck,test
+403cdb58-6258-4446-b1fb-b855b063f32b,a8a391ba-e595-4a91-bd55-02b312e55427,TCGA-HNSC,Head and neck,train
+d13d46be-2a3e-4aa8-af39-47477212800d,63d646e2-60aa-4bd5-b2ed-6254c9c51be4,TCGA-HNSC,Head and neck,train
+fa37a90a-465d-4a9d-84aa-e1e01ec20e77,e0f4d67d-5ca3-4c21-9f52-04f660827d08,TCGA-HNSC,Head and neck,train
+419e0e4b-3c35-440a-b62b-f82b0dd17b0f,8e0e456e-85ee-4de5-8f0b-72393d6acde0,TCGA-HNSC,Head and neck,train
+6ce321e7-3015-4383-934d-d39cbca06ec7,ab540819-9531-4e99-868a-751649f25e6a,TCGA-PRAD,Prostate,test
+0bb1d600-dde1-4f49-b9f4-0d680f9b439a,bb8e6886-edc7-4127-a85b-c4f3769b6681,TCGA-PRAD,Prostate,test
+ac9355bf-88c9-4a1f-bcdf-8b90d6b88f3b,9938c4ad-748c-4086-9081-fac0aefad440,TCGA-PRAD,Prostate,train
+5cc565e1-b2a1-4c5c-9aec-13d3b7a0b64f,36b87d12-9f96-460f-a3b5-a4c08cbf5b07,TCGA-PRAD,Prostate,test
+78b6dc6f-ce5a-4862-a4a3-e1e07e78a57c,8e5b1d47-7d92-4d28-8186-4176ada96672,TCGA-PRAD,Prostate,test
+30dc13a8-e3f6-4aa5-b79f-66116cb5513d,a3cd3599-7c18-491d-be09-6fc7e526c9b1,TCGA-PRAD,Prostate,test
+a04c01d9-6560-4d04-acd8-7518856d778f,5313a055-c2d7-4cbd-a8c1-57ac85912d89,TCGA-PRAD,Prostate,train
+cc46402e-74f2-4567-8e86-bbb87bf9aea6,73b7d4bc-6b56-4ae8-be7f-074745563bee,TCGA-PRAD,Prostate,train
+1187a5a6-f503-441b-a452-2e832296eaa4,67cd72e2-a4cf-48e4-943e-406c252f056a,TCGA-PRAD,Prostate,train
+f74c8331-9b51-44c7-84c9-33d3cc69a3fc,721e76d0-4b1d-4e78-adb8-1344b8030062,TCGA-PRAD,Prostate,train
+d3b5e8ae-dff4-4e8e-9617-ffcd9a40c13a,0885eb03-de9f-46ba-9c53-fb69c67ab9f0,TCGA-PRAD,Prostate,test
+a08b181a-3456-4309-ac01-1b5cd6a816f1,38a2b705-d8a4-45ca-8bcd-96dbf93d8e4d,TCGA-PRAD,Prostate,train
+eca44ec6-efb2-47a1-bfcd-934550126b23,aa8b99fd-973f-465d-ae24-3421fe784687,TCGA-PRAD,Prostate,test
+80d4caf0-cff6-4d42-9e09-cb8b516d903b,6ef0fc2d-f274-4253-bec5-6dbd55953d76,TCGA-PRAD,Prostate,train
+2512ba5a-6b5f-47bf-8feb-3dfbc741bcbd,d4ffafdc-ee83-43df-aa3b-7326503c6438,TCGA-PRAD,Prostate,test
+bf2bfe96-b8cc-4e13-9bee-44b3980bdb80,98a9ce0e-4f02-4819-bc0c-c1a8d34e3db6,TCGA-PRAD,Prostate,train
+3cb22fed-f7e8-444d-abc9-6bbea0b8efd7,b7c8ca4c-8d9c-4c5b-99ee-2fcebe4f70e6,TCGA-PRAD,Prostate,train
+9fdaf539-d05e-4a0c-a696-79d1ee8b6621,610603d0-43fb-4a4e-b368-d143e6c61802,TCGA-PRAD,Prostate,train
+954c05ff-8ac8-4c94-b8d3-797f7d9222ea,ec3870c9-4930-4af7-b2eb-1e16c9ec9f14,TCGA-PRAD,Prostate,test
+0f204492-0ff0-4911-82c9-a8e8829f2abb,a1e64294-1264-498d-b18b-c9b4c729c2f2,TCGA-PRAD,Prostate,train
+3ebd6b39-471e-4327-ba2b-bdfc2113ce50,89c150cf-f60c-4f11-8f3e-384b0e0902f9,TCGA-PRAD,Prostate,train
+e2901558-1a90-44d2-b7f8-43ede6e979cd,bdd4fefa-512a-4720-9f9e-11eb3892fe3c,TCGA-PRAD,Prostate,train
+2eca121f-2224-4b74-a02e-9faac1e0bf79,181c6d37-9d8d-4ffa-827b-e3785450ff88,TCGA-PRAD,Prostate,train
+44203342-14dd-4baf-a3be-46a00906e7fb,9a8caef5-6543-4391-8a55-4999035693c5,TCGA-PRAD,Prostate,train
+316480f6-a07f-4398-af49-360605462b38,c3fd52fe-bdc2-4cca-91c7-590a192f80ed,TCGA-PRAD,Prostate,test
+6ee608ff-a647-4138-b777-97cfb0db9076,b5268f49-2710-4d17-a78b-4a05412e8375,TCGA-PRAD,Prostate,train
+ecdba639-480e-49b8-9409-49c358225bb0,6641a298-1dbd-445d-a4ab-95ceb98e1427,TCGA-PRAD,Prostate,train
+b3230858-929f-469e-8102-3fefd3f1c520,89a297be-ebb5-4b9f-8eda-0e548d14ad91,TCGA-PRAD,Prostate,test
+76546eff-5ad5-4c14-832c-1112a2b86ee6,084ac674-f4cf-4a4a-a6a2-687c05c272ea,TCGA-PRAD,Prostate,train
+de0bd7e5-9fbf-4bac-b1f5-7be654af30ca,7ce45134-5b1f-4ea7-ace9-7e463b034a43,TCGA-PRAD,Prostate,train
+40e4cee4-5c3f-43f9-b029-d181112d9ca6,75d22d59-dec8-4f59-86c8-36b5e9f4fb0d,TCGA-PRAD,Prostate,train
+93690f4d-24f2-4a0f-b326-6512ba62e107,53c43d14-2310-41e9-ac43-3cc298404338,TCGA-PRAD,Prostate,train
+3fa7fd68-e746-4a91-a341-c68deb63ad3f,12f225d0-cbff-44eb-9183-bacc7f33b090,TCGA-PRAD,Prostate,train
+8f7ba434-0c07-4ec6-9dd0-e4559fedd38e,bfb973eb-d42d-4900-a606-a381d2317555,TCGA-PRAD,Prostate,train
+dc36cb33-6646-4478-990f-d2f8acee8173,261c3d74-706e-4751-bd15-8f3c1a402ff0,TCGA-PRAD,Prostate,train
+0120d14d-e91c-4532-8853-da4f3669f540,d4ff9f1a-1d35-4ad6-9a36-059547081c7e,TCGA-PRAD,Prostate,test
+5b1a6ea9-1aad-433a-8ea7-4cdba44aa167,3acd8328-76f7-4f43-9660-394b95748c3d,TCGA-PRAD,Prostate,train
+c2f518ac-e332-4432-8881-84857e1e7a73,a8396f6d-53e2-4664-a3e2-df061d022108,TCGA-PRAD,Prostate,train
+1b4bfe44-849f-4787-95c4-cbf5aaf64ed1,7d0c6960-710f-42c7-889e-c3a7d4a30b3c,TCGA-PRAD,Prostate,train
+85bb7390-3de1-4e8c-b91d-e6de03fa7e5d,a5c77ab6-6e98-4a3d-81c8-f3d5fabd31d2,TCGA-PRAD,Prostate,train
+e68f1051-a552-4459-8f92-a1b345d818d5,433d1441-6d5b-4455-a731-65f172bb016d,TCGA-PRAD,Prostate,train
+2ffca75b-c176-47dc-b376-42637c291782,0d498226-e22a-44a4-9ef8-1da8e83fa55b,TCGA-PRAD,Prostate,train
+22211278-8083-4cc9-82a3-13d0b62b033c,84a5d5fc-7350-4846-a1bc-8bfadbcff8dc,TCGA-PRAD,Prostate,train
+6551a356-13b6-4283-b92d-d4761f671c3a,f947b0bc-bdac-44e8-b5b9-ffae4147740a,TCGA-PRAD,Prostate,train
+12edc685-3606-4a64-8394-2c95b22d1b2b,5447a0e0-80ca-40fb-8233-504fde51f22c,TCGA-PRAD,Prostate,test
+7a7437a3-c898-493f-bd8a-4fc661f10158,701991da-6deb-41df-b9cc-e5049a886b5b,TCGA-PRAD,Prostate,train
+b8cb29d5-8d06-4d82-b0ea-994e1ee9a042,4d5d61c4-2e64-422e-aba6-ec098f40eeec,TCGA-PRAD,Prostate,train
+8023f43d-8479-4a21-8ecb-c3b002f963ea,ff49e0f9-4007-4761-845e-b676b0fc9646,TCGA-PRAD,Prostate,test
