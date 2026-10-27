@@ -19,6 +19,7 @@
   },
   "threshold": 0.9956049379857056,
   "test": {
+    "threshold": 0.9956049379857056,
     "specificity_observed": 0.99825,
     "n_healthy": 4000,
     "by_tumor_fraction": [
@@ -26,61 +27,55 @@
         "tumor_fraction": 0.0003,
         "n": 336,
         "sensitivity": 0.0,
-        "sensitivity_naive": 0.020833333333333332,
         "auc": 0.522765625,
         "origin_top1": 0.1130952380952381,
         "origin_top2": 0.25,
-        "origin_top1_when_detected": null
+        "sensitivity_naive": 0.020833333333333332
       },
       {
         "tumor_fraction": 0.001,
         "n": 336,
         "sensitivity": 0.005952380952380952,
-        "sensitivity_naive": 0.017857142857142856,
         "auc": 0.6123206845238095,
         "origin_top1": 0.17261904761904762,
         "origin_top2": 0.3125,
-        "origin_top1_when_detected": 0.0
+        "sensitivity_naive": 0.017857142857142856
       },
       {
         "tumor_fraction": 0.003,
         "n": 336,
         "sensitivity": 0.06845238095238096,
-        "sensitivity_naive": 0.02976190476190476,
         "auc": 0.8307358630952381,
         "origin_top1": 0.25,
         "origin_top2": 0.41369047619047616,
-        "origin_top1_when_detected": 0.391304347826087
+        "sensitivity_naive": 0.02976190476190476
       },
       {
         "tumor_fraction": 0.01,
         "n": 336,
         "sensitivity": 0.7083333333333334,
-        "sensitivity_naive": 0.03869047619047619,
         "auc": 0.986297619047619,
         "origin_top1": 0.5654761904761905,
         "origin_top2": 0.7410714285714286,
-        "origin_top1_when_detected": 0.5630252100840336
+        "sensitivity_naive": 0.03869047619047619
       },
       {
         "tumor_fraction": 0.03,
         "n": 336,
         "sensitivity": 0.9970238095238095,
-        "sensitivity_naive": 0.08630952380952381,
         "auc": 0.9999561011904763,
         "origin_top1": 0.8690476190476191,
         "origin_top2": 0.9464285714285714,
-        "origin_top1_when_detected": 0.8686567164179104
+        "sensitivity_naive": 0.08630952380952381
       },
       {
         "tumor_fraction": 0.1,
         "n": 336,
         "sensitivity": 1.0,
-        "sensitivity_naive": 0.9434523809523809,
         "auc": 1.0,
         "origin_top1": 0.9613095238095238,
         "origin_top2": 0.9970238095238095,
-        "origin_top1_when_detected": 0.9613095238095238
+        "sensitivity_naive": 0.9434523809523809
       }
     ],
     "by_class_at_1pct": {

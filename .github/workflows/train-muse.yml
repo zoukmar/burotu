@@ -1,0 +1,65 @@
+name: Train Muse
+
+# Manual: Actions → Train Muse → Run workflow. Training runs on Modal GPUs;
+# this job only launches it, waits, and keeps the report as an artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      run_name:
+        description: Name of the run (used for the report file)
+        default: glimmer
+      model:
+        description: Hugging Face model id
+        default: meta-models/Muse-Glimmer-30B
+      steps:
+        description: Training steps
+        default: "1500"
+      eval_stride:
+        description: Score every n-th benchmark sample (1 = full benchmark, 20 = quick smoke run)
+        default: "1"
+      gpu:
+        description: Modal GPU
+        type: choice
+        options: [L40S, A100-80GB, H100]
+        default: L40S
+
+concurrency:
+  group: train-muse
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Modal
+        run: pip install "modal==1.6.2"
+
+      - name: Train on Modal
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+          BUROTU_GPU: ${{ inputs.gpu }}
+        run: |
+          modal run scripts/modal_muse.py \
+            --model "${{ inputs.model }}" \
+            --steps "${{ inputs.steps }}" \
+            --eval-stride "${{ inputs.eval_stride }}" \
+            --name "${{ inputs.run_name }}"
+
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: muse-report-${{ inputs.run_name }}
+          path: reports/muse_*.json
+          if-no-files-found: warn
