@@ -6,63 +6,112 @@
 
 <p align="center">
   <strong>50 cancers. One blood draw.</strong><br>
-  Multi-cancer early detection from cell-free DNA methylation, powered by Meta's Muse models.
+  Teaching Meta's Muse models to read the DNA that tumours leave in our blood.
 </p>
 
 <p align="center">
-  <a href="https://burotu.com">burotu.com</a> ·
-  <a href="#how-it-works">How it works</a> ·
-  <a href="#meta-models">Meta models</a> ·
+  <a href="https://burotu.com">Live demo</a> ·
+  <a href="#how-meta-models-power-burotu">Meta models</a> ·
+  <a href="#muse-glimmer-learns-to-read-methylation">Muse Glimmer adapter</a> ·
+  <a href="#benchmark">Benchmark</a> ·
   <a href="#quick-start">Quick start</a>
 </p>
 
 > [!IMPORTANT]
-> **Demonstration prototype** built for the Meta Global AI Developer Hackathon 2026 (indie track).
-> Burotu is not a medical device, is not clinically validated, has no CE marking and must not be
-> used to make any medical decision. Nothing is sold: payments run in test mode only.
+> **Demonstration prototype** built for the Meta Global AI Developer Hackathon 2026 (indie track,
+> *Push the Frontier*). Burotu is not a medical device, is not clinically validated, has no CE
+> marking and must not be used to make any medical decision. Nothing is sold: payments run in test
+> mode only.
 
-## Why
+## The idea
 
-Most cancers are found late, when symptoms appear. Screening exists for only a handful of them
-(breast, colorectal, cervical, sometimes lung), and each one needs its own exam. Yet tumours shed
-fragments of their DNA into the bloodstream from early on, and that DNA carries a chemical
-signature, **methylation**, that reveals both that it is cancerous and which tissue it comes from.
+Most cancers are found late, once symptoms appear. Screening exists for only a handful of them,
+and each one needs its own exam. Yet tumours shed fragments of their DNA into the bloodstream from
+early on, and that DNA carries a chemical signature, **methylation**, that reveals both *that* it
+is cancerous and *which tissue* it comes from.
 
-Burotu turns one blood draw into a search for those signatures.
+Language models already read text, code and images. Burotu asks a simple question: **can a Meta
+model learn to read methylation too?** We give Meta's open-weight **Muse Glimmer** a new input, a
+blood sample, and teach it to answer two questions: is there a cancer signal, and where does it
+most likely come from? **Muse Spark** then turns that answer into something a patient can
+understand.
 
-## How it works
+## How Meta models power Burotu
 
 ```
-Blood draw at a partner site ─► Partner lab ─► burotu-bmc file ─► Burotu ─► Plain-language report
-                                 targeted                          │
-                                 bisulfite                         ├─ 1. Data quality check ...... Muse Spark
-                                 sequencing                        ├─ 2. Cancer signal ........... dedicated classifier
-                                                                   ├─ 3. Tissue of origin ........ dedicated classifier
-                                                                   └─ 4. Report and Q&A .......... Muse Spark
+Blood draw ─► Partner lab ─► burotu-bmc file (read counts on 1,681 CpG sites)
+                                   │
+                                   ▼
+                   ┌───────────────────────────────────────┐
+                   │ Muse Spark · quality control          │  Is this lab file trustworthy?
+                   └───────────────────┬───────────────────┘
+                                       ▼
+                   ┌───────────────────────────────────────┐
+                   │ Muse Glimmer + methylation adapter    │  Cancer signal? Tissue of origin?
+                   │ (open weights, fine-tuned with LoRA)  │
+                   └───────────────────┬───────────────────┘
+                                       ▼
+                   ┌───────────────────────────────────────┐
+                   │ Muse Spark · report and Q&A           │  Plain language, EN / FR / ES
+                   └───────────────────────────────────────┘
 ```
 
-1. A partner collection site takes two tubes of blood.
-2. The partner lab isolates cell-free DNA from plasma and sequences a **targeted panel of 1,681
-   CpG sites**, chosen because they are almost never methylated in healthy blood.
-3. The lab returns a read-count file in the open [`burotu-bmc`](src/burotu/labformat.py) format.
-4. A dedicated classifier looks for a cancer signal and its likely tissue of origin.
-5. Muse Spark checks the data, then writes a report a patient can understand.
+| Step | Meta model | What it does | Status |
+| --- | --- | --- | --- |
+| Read the sample | **Muse Glimmer** (open weights, 30B) + methylation adapter + LoRA | Detects a cancer signal and ranks the likely tissues of origin | Training code next, GPU run pending |
+| Check lab data | **Muse Spark** (Meta Model API) | Reads coverage and lab metadata, flags files that cannot be trusted and says what to rerun | Client ready |
+| Explain the result | **Muse Spark** | Writes a careful report and answers follow-up questions, grounded in the model's output | Client ready |
 
-**Coverage.** The product targets 50 cancer types. The hackathon prototype starts with **8**:
-lung, colorectal, breast, pancreas, liver, oesophagus and stomach, head and neck, prostate.
+A gradient-boosted classifier runs alongside as the **benchmark and safety net**: every claim about
+Muse is measured against it on the same held-out data.
 
-## Meta models
+## Muse Glimmer learns to read methylation
 
-| Where | Model | Why a language model |
-| --- | --- | --- |
-| Lab file quality control | Muse Spark (Meta Model API) | Reads coverage statistics and lab metadata, explains what is wrong and what to rerun |
-| Patient and doctor report | Muse Spark | Turns probabilities and marker regions into clear, careful language in EN, FR or ES |
-| Questions on a result | Muse Spark | Answers follow-up questions grounded in the report |
+Feeding 1,681 numbers to a language model as text does not work well: the model reads digits, not
+biology. Burotu follows the recipe that taught language models to see images instead.
 
-The detection itself uses a tabular classifier: a language model is not the right tool to classify
-thousands of numeric methylation values, and we would rather say so than pretend. The
-[client](src/burotu/llm/client.py) speaks the OpenAI-compatible Meta Model API and falls back to a
-mock mode without a key, so everything runs offline.
+```
+read counts ─► binomial z-scores ─► methylation adapter (MLP) ─► 16 soft tokens
+  (1,681 CpG)    vs healthy blood                                      │
+                                                                       ▼
+                              "Cancer signal: yes. Most likely origin: colorectal (0.71) ..."
+                                                     ▲
+                              Muse Glimmer 30B, 4-bit, LoRA adapters ──┘
+```
+
+- **Adapter**: a small network projects the sample into a handful of embeddings that live in
+  Glimmer's token space, the same idea as vision projectors in multimodal models.
+- **Fine-tuning**: QLoRA on Glimmer (about 18 GB in 4-bit, one 80 GB GPU), adapter and LoRA
+  weights trained together.
+- **Training data**: tens of thousands of plasma samples simulated from the training split only.
+- **Evaluation**: the exact held-out people, tumours and threshold protocol used for the
+  benchmark below.
+- **Compute**: Modal serverless GPUs, through the hackathon's partner credits.
+
+If it works, the recipe is reusable: any open-weight Meta model could learn to read other omics
+data the same way.
+
+## Benchmark
+
+The bar Muse Glimmer has to clear. Simulated plasma built only from **held-out people and
+tumours**; the detection threshold is set on blood donors no model ever saw.
+
+<p align="center"><img src="docs/assets/baseline_sensitivity.png" alt="Sensitivity by tumour fraction" width="640"></p>
+
+| Tumour fraction in plasma | 0.3% | 1% | 3% | 10% |
+| --- | --- | --- | --- | --- |
+| Cancer signal detected, baseline | 7% | 71% | 99.7% | 100% |
+| Tissue of origin top-1, baseline | 25% | 57% | 87% | 96% |
+| Tissue of origin top-2, baseline | 41% | 74% | 95% | 99.7% |
+| Muse Glimmer + adapter | *pending* | *pending* | *pending* | *pending* |
+
+Specificity measured on unseen healthy donors: **99.8%** (target 99.5%).
+
+What these numbers do **not** say:
+- The plasma is simulated CpG by CpG; real tests also use read-level patterns.
+- On real patient plasma (Moss et al., measured on arrays rather than sequencing), the platform
+  shift is not corrected yet: every sample crosses the threshold and the healthy/cancer AUC is
+  only 0.62. Correcting it is on the roadmap.
 
 ## Data
 
@@ -74,41 +123,21 @@ All public, no patient data collected.
 | Healthy blood background, 164 adults | Hannum et al., *Mol Cell* 2013, GEO GSE40279 |
 | Real plasma for validation | Moss et al., *Nat Commun* 2018, GEO GSE122126 |
 
-Plasma samples are simulated by mixing real tumour profiles into real healthy blood at tumour
-fractions from 0.01 % to 10 %, then sampling sequencing reads. People and tumours are split into
-train and test **before** simulation and panel selection. Details in [docs/data.md](docs/data.md).
+Plasma is simulated by mixing real tumour profiles into real healthy blood at tumour fractions
+from 0.01% to 10%, then sampling sequencing reads. People and tumours are split into training and
+test sets **before** simulation and panel selection. Details in [docs/data.md](docs/data.md).
 
-## Results so far
-
-Baseline classifier (gradient boosting on per-CpG excess methylation), evaluated on simulated
-plasma built only from **held-out people and tumours**. The detection threshold is set on blood
-donors the model never saw.
-
-<p align="center"><img src="docs/assets/baseline_sensitivity.png" alt="Sensitivity by tumour fraction" width="640"></p>
-
-| Tumour fraction in plasma | 0.3% | 1% | 3% | 10% |
-| --- | --- | --- | --- | --- |
-| Cancer signal detected | 7% | 71% | 99.7% | 100% |
-| Tissue of origin, top-1 | 25% | 57% | 87% | 96% |
-| Tissue of origin, top-2 | 41% | 74% | 95% | 99.7% |
-
-Observed specificity on unseen healthy donors: **99.8%** (target 99.5%).
-
-What these numbers do **not** say:
-- The plasma is simulated CpG by CpG; real tests also use read-level patterns.
-- On real plasma (Moss et al., measured on arrays rather than sequencing), the platform shift
-  is not corrected yet: every sample crosses the threshold and the healthy/cancer AUC is only
-  0.62. Correcting the platform shift is the next step.
-
-This classifier is the yardstick for the next phase: **fine-tuning Meta's open-weight Muse
-Glimmer to read methylation directly**, and measuring whether it does better.
+**Coverage.** The product targets 50 cancer types. The prototype starts with **8**: lung,
+colorectal, breast, pancreas, liver, oesophagus and stomach, head and neck, prostate.
 
 ## The product
 
+A model alone does not reach patients, so Burotu ships as a product from day one:
+
 - **[burotu.com](https://burotu.com)**: one-page site in English, French and Spanish (picked from
-  the browser language, English by default), with booking at partner collection sites.
-- **admin.burotu.com**: tracking for every sample: request, confirmed appointment, blood drawn,
-  in the lab, analysed, report sent, with a timestamped history.
+  the browser language), with booking at partner collection sites.
+- **admin.burotu.com**: tracking for every sample, from request to blood draw, lab, analysis and
+  report, with a timestamped history.
 
 <p align="center"><img src="docs/assets/tracking.png" alt="Sample tracking" width="640"></p>
 
@@ -120,38 +149,40 @@ make check          # lint + tests, same as CI
 make dev            # http://localhost:8000 (site) · http://admin.localhost:8000 (tracking, password "dev")
 ```
 
-Data pipeline (about 5 GB downloaded from GDC and GEO):
+Data and benchmark (about 5 GB downloaded from GDC and GEO):
 
 ```bash
 make data           # TCGA tumours, whole blood, real plasma
 make reference      # targeted panel and train/test split
-make baseline       # baseline classifier and metrics (about 5 min on CPU)
+make baseline       # benchmark classifier and metrics (about 5 min on CPU)
 make demo-samples   # simulated lab files for the demo
 ```
 
-`make help` lists every command.
+Set `MODEL_API_KEY` to call Muse Spark through the Meta Model API. Without it, the
+[client](src/burotu/llm/client.py) runs in mock mode so everything works offline. `make help`
+lists every command.
 
 ## Repository
 
 ```
-src/burotu/        pipeline: data, panel, cfDNA simulator, Meta client, lab format
+src/burotu/        pipeline: data, panel, cfDNA simulator, models, Meta client, lab format
 src/burotu_web/    burotu.com (one-pager) and admin.burotu.com (tracking)
-tests/             pipeline, site, booking, tracking, security
+tests/             pipeline, models, site, booking, tracking, security
 deploy/            production compose, Caddy block, deploy script
 docs/              architecture, data and method, deployment
 .github/workflows  CI (lint, tests, image) and continuous deployment
 ```
 
-Every push to `main` runs the tests, publishes `ghcr.io/zoukmar/burotu-web:<sha>` and deploys it
-over SSH, with automatic rollback if the site does not answer. See
-[docs/deployment.md](docs/deployment.md).
+Every push to `main` runs the tests, publishes `ghcr.io/zoukmar/burotu-web:<sha>` and deploys it,
+with automatic rollback if the site does not answer. See [docs/deployment.md](docs/deployment.md).
 
 ## Roadmap
 
 - [x] Public data pipeline, targeted panel, cfDNA simulator
 - [x] burotu.com and sample tracking, continuous deployment
-- [x] Baseline classifier: cancer signal and tissue of origin on held-out simulated plasma
+- [x] Benchmark classifier on held-out simulated plasma
+- [ ] Methylation adapter and QLoRA fine-tuning of Muse Glimmer
+- [ ] Muse Glimmer vs benchmark on the same held-out data
+- [ ] Muse Spark quality control, patient report and Q&A
 - [ ] Platform correction and validation on real plasma
-- [ ] Fine-tune Muse Glimmer (open weights) to read methylation, compared against the baseline
-- [ ] Muse Spark quality control and patient report
 - [ ] From 8 to 50 cancer types
