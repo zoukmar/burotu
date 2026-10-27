@@ -84,3 +84,9 @@ def test_marketing_headline_and_honest_disclaimer(public):
 
 def test_doctor_is_optional(public):
     assert book(public, doctor="").status_code == 303
+
+
+def test_meta_models_section(public):
+    for lang, title in [("en", "Built on Meta&#39;s Muse models"), ("fr", "Construit sur les modèles Muse de Meta")]:
+        page = public.get(f"/{lang}/").text
+        assert 'id="meta"' in page and title in page and "Muse Glimmer" in page
