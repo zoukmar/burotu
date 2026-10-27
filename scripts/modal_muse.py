@@ -70,6 +70,7 @@ def main(
     n_tokens: int = 16,
     eval_stride: int = 1,
     name: str = "glimmer",
+    revision: str = "a4e59da52a7bc87ae7251dd5545c0dd437c44b68",  # revision pinned in Meta's QLoRA recipe
 ) -> None:
     args = {
         "model": model,
@@ -81,6 +82,7 @@ def main(
         "n_tokens": n_tokens,
         "eval_stride": eval_stride,
         "out": name,
+        "revision": revision if model == "meta-models/Muse-Glimmer-30B" else "",
     }
     print(f"Training on Modal ({GPU}): {json.dumps(args)}")
     report = train.remote(args)

@@ -113,6 +113,47 @@ p { margin: 0 0 1em; }
 .cpg-tumour { fill: var(--venous); stroke: var(--venous); animation: methylate .5s ease-out both; }
 .read-tumour line { stroke: #C9A3AC; }
 .reads figcaption { margin-top: 1.25rem; font-size: var(--step--1); color: var(--ink-soft); max-width: 60ch; }
+/* Staggered methylation in the hero (classes, not inline styles: the CSP forbids those). */
+.cpg-tumour.d0 { animation-delay: 0.40s; }
+.cpg-tumour.d1 { animation-delay: 0.45s; }
+.cpg-tumour.d2 { animation-delay: 0.50s; }
+.cpg-tumour.d3 { animation-delay: 0.55s; }
+.cpg-tumour.d4 { animation-delay: 0.60s; }
+.cpg-tumour.d5 { animation-delay: 0.65s; }
+.cpg-tumour.d6 { animation-delay: 0.70s; }
+.cpg-tumour.d7 { animation-delay: 0.75s; }
+.cpg-tumour.d8 { animation-delay: 0.80s; }
+.cpg-tumour.d9 { animation-delay: 0.85s; }
+.cpg-tumour.d10 { animation-delay: 0.90s; }
+.cpg-tumour.d11 { animation-delay: 0.95s; }
+.cpg-tumour.d12 { animation-delay: 1.00s; }
+.cpg-tumour.d13 { animation-delay: 1.05s; }
+.cpg-tumour.d14 { animation-delay: 1.10s; }
+.cpg-tumour.d15 { animation-delay: 1.15s; }
+.cpg-tumour.d16 { animation-delay: 1.20s; }
+.cpg-tumour.d17 { animation-delay: 1.25s; }
+.cpg-tumour.d18 { animation-delay: 1.30s; }
+.cpg-tumour.d19 { animation-delay: 1.35s; }
+.cpg-tumour.d20 { animation-delay: 1.40s; }
+.cpg-tumour.d21 { animation-delay: 1.45s; }
+.cpg-tumour.d22 { animation-delay: 1.50s; }
+.cpg-tumour.d23 { animation-delay: 1.55s; }
+.cpg-tumour.d24 { animation-delay: 1.60s; }
+.cpg-tumour.d25 { animation-delay: 1.65s; }
+.cpg-tumour.d26 { animation-delay: 1.70s; }
+.cpg-tumour.d27 { animation-delay: 1.75s; }
+.cpg-tumour.d28 { animation-delay: 1.80s; }
+.cpg-tumour.d29 { animation-delay: 1.85s; }
+.cpg-tumour.d30 { animation-delay: 1.90s; }
+.cpg-tumour.d31 { animation-delay: 1.95s; }
+.cpg-tumour.d32 { animation-delay: 2.00s; }
+.cpg-tumour.d33 { animation-delay: 2.05s; }
+.cpg-tumour.d34 { animation-delay: 2.10s; }
+.cpg-tumour.d35 { animation-delay: 2.15s; }
+.cpg-tumour.d36 { animation-delay: 2.20s; }
+.cpg-tumour.d37 { animation-delay: 2.25s; }
+.cpg-tumour.d38 { animation-delay: 2.30s; }
+.cpg-tumour.d39 { animation-delay: 2.35s; }
 @keyframes methylate {
   from { fill: var(--white); stroke: var(--ink); }
   to { fill: var(--venous); stroke: var(--venous); }
@@ -338,3 +379,28 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
   .meta-flow { grid-template-columns: 1fr; gap: 2rem; }
   .meta-flow::before { display: none; }
 }
+
+/* --- Lab result ------------------------------------------------------------- */
+.lab { margin-bottom: 1.25rem; }
+.lab-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.lab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem 2rem; margin: 1rem 0 1.5rem; }
+.lab-label { font-size: var(--step--1); color: var(--ink-soft); font-weight: 600; margin-bottom: .4rem; }
+.facts.compact { gap: .3rem; margin: .75rem 0 .5rem; }
+.facts.compact div { grid-template-columns: 8rem 1fr; }
+.badge.qc-pass { background: #E6F2EA; border-color: #BFDCC8; color: #1F5E35; }
+.badge.qc-warn { background: var(--plasma-soft); border-color: var(--plasma); }
+.badge.qc-fail { background: #FBEDEF; border-color: #EBC4CC; color: var(--venous); }
+.verdict { font-size: var(--step-2); font-weight: 700; margin-bottom: .3rem; }
+.verdict.is-signal { color: var(--venous); }
+.verdict.is-clear { color: var(--ink); }
+.origins { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.origins li { display: grid; grid-template-columns: 9rem 1fr 3rem; align-items: center; gap: .6rem; font-size: var(--step--1); }
+.origins .bar { width: 100%; height: .5rem; }
+.origins .bar .track { fill: var(--line); }
+.origins .bar .fill { fill: var(--venous); }
+.origins .pct { text-align: right; font-variant-numeric: tabular-nums; }
+.report blockquote { margin: .25rem 0 .5rem; padding: 1rem 1.25rem; background: var(--glass); border-left: 3px solid var(--venous); border-radius: 0 var(--radius) var(--radius) 0; line-height: 1.6; }
+.truth { margin-top: .75rem; padding: .5rem .75rem; background: var(--plasma-soft); border-radius: 4px; }
+.lab-form { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 1.25rem; margin-top: 1.25rem; }
+.lab-form .field input[type=file] { padding: .45rem; font-size: var(--step--1); }
+@media (max-width: 960px) { .lab-grid { grid-template-columns: 1fr; } }

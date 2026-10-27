@@ -1,0 +1,50 @@
+[
+  {
+    "sample_id": "BRT-DEMO-01",
+    "label": "Healthy",
+    "tumor_fraction": 0.0,
+    "depth": 500
+  },
+  {
+    "sample_id": "BRT-DEMO-02",
+    "label": "Colorectal",
+    "tumor_fraction": 0.03,
+    "depth": 500
+  },
+  {
+    "sample_id": "BRT-DEMO-03",
+    "label": "Lung",
+    "tumor_fraction": 0.03,
+    "depth": 500
+  },
+  {
+    "sample_id": "BRT-DEMO-04",
+    "label": "Healthy",
+    "tumor_fraction": 0.0,
+    "depth": 500
+  },
+  {
+    "sample_id": "BRT-DEMO-05",
+    "label": "Pancreas",
+    "tumor_fraction": 0.1,
+    "depth": 500
+  },
+  {
+    "sample_id": "BRT-DEMO-06",
+    "label": "Breast",
+    "tumor_fraction": 0.01,
+    "depth": 500
+  },
+  {
+    "sample_id": "BRT-DEMO-07",
+    "label": "Liver",
+    "tumor_fraction": 0.03,
+    "depth": 500
+  },
+  {
+    "sample_id": "BRT-DEMO-08",
+    "label": "Colorectal",
+    "tumor_fraction": 0.03,
+    "depth": 40
+  }
+]

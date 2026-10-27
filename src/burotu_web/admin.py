@@ -5,10 +5,15 @@ from __future__ import annotations
 import csv
 import hmac
 import io
+import json
 import re
 from datetime import date, datetime
+from functools import lru_cache
+from pathlib import Path
+from urllib.parse import quote
 
-from fastapi import APIRouter, Form, HTTPException, Request
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse, StreamingResponse
 
 from burotu_web.db import STATUS_KEYS
@@ -110,7 +115,83 @@ def booking_detail(request: Request, ref: str):
     b = db.get_booking(ref)
     if b is None:
         raise HTTPException(404)
-    return page(request, "booking.html", b=b, events=db.events(ref))
+    return page(
+        request,
+        "booking.html",
+        b=b,
+        events=db.events(ref),
+        analysis=db.latest_analysis(ref),
+        demo_samples=demo_samples(),
+        error=request.query_params.get("error"),
+    )
+
+
+# --- Lab results ----------------------------------------------------------------------
+
+DEMO_DIR = Path(__file__).resolve().parent / "demo_samples"
+MAX_LAB_FILE = 2 * 1024 * 1024
+
+
+@lru_cache(maxsize=1)
+def demo_samples() -> list[dict]:
+    path = DEMO_DIR / "manifest.json"
+    return json.loads(path.read_text()) if path.exists() else []
+
+
+@router.post("/bookings/{ref}/analyse")
+async def booking_analyse(
+    request: Request,
+    ref: str,
+    csrf: str = Form(""),
+    demo: str = Form(""),
+    lab_file: UploadFile | None = File(None),  # noqa: B008
+):
+    user = require_admin(request)
+    check_csrf(request, csrf)
+    db = request.app.state.db
+    b = db.get_booking(ref)
+    if b is None:
+        raise HTTPException(404)
+
+    def fail(msg: str) -> RedirectResponse:
+        return RedirectResponse(f"/bookings/{ref}?error={quote(msg)}#lab", status_code=303)
+
+    truth = None
+    if lab_file is not None and lab_file.filename:
+        raw = await lab_file.read(MAX_LAB_FILE + 1)
+        if len(raw) > MAX_LAB_FILE:
+            return fail("The lab file is larger than 2 MB.")
+        text, name = raw.decode("utf-8", errors="replace"), lab_file.filename
+    elif demo:
+        match = next((d for d in demo_samples() if d["sample_id"] == demo), None)
+        if match is None:
+            return fail("Unknown demo sample.")
+        text, name, truth = (DEMO_DIR / f"{demo}.tsv").read_text(), f"{demo}.tsv", match
+    else:
+        return fail("Choose a lab file or a demo sample.")
+
+    try:
+        from burotu.analysis.service import analyse
+        from burotu.labformat import LabFormatError, parse_lab_text
+    except ImportError:
+        return fail("Analysis is not installed on this server.")
+    try:
+        sample = parse_lab_text(text, name)
+    except LabFormatError as e:
+        return fail(f"This file cannot be read: {e}")
+
+    result = await run_in_threadpool(analyse, sample, b["lang"])
+    result["ground_truth"] = truth
+    detection = result["detection"]
+    engine = detection["engine"] if detection else "quality-control"
+    db.add_analysis(ref, engine, result, user)
+
+    if detection is None:
+        db.set_status(ref, b["status"], "Quality control failed: a new blood draw is needed.", actor=user)
+    elif b["status"] not in ("cancelled", "reported"):
+        verdict = "cancer signal detected" if detection["cancer_signal"] else "no cancer signal detected"
+        db.set_status(ref, "analysed", f"{verdict.capitalize()} ({detection['engine_label']}).", actor=user)
+    return RedirectResponse(f"/bookings/{ref}#lab", status_code=303)
 
 
 @router.post("/bookings/{ref}/status")

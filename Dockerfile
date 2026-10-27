@@ -1,11 +1,12 @@
 # syntax=docker/dockerfile:1.7
-# Burotu web image (burotu.com + admin.burotu.com). The ML pipeline is not included.
+# Burotu web image (burotu.com + admin.burotu.com). Includes lab-file analysis (benchmark
+# engine on CPU, Muse Glimmer through its Modal endpoint); the training pipeline is not included.
 
 FROM python:3.12-slim AS build
 WORKDIR /src
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip wheel --no-cache-dir --wheel-dir /wheels ".[web]"
+RUN pip wheel --no-cache-dir --wheel-dir /wheels ".[web,analysis]"
 
 FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -13,8 +14,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     BUROTU_DB_PATH=/data/site.db \
     BUROTU_SECURE_COOKIES=1
 
+# libgomp1: OpenMP runtime needed by LightGBM.
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
 RUN --mount=type=bind,from=build,source=/wheels,target=/wheels \
-    pip install --no-cache-dir --no-index --find-links=/wheels burotu[web] \
+    pip install --no-cache-dir --no-index --find-links=/wheels "burotu[web,analysis]" \
  && useradd --system --uid 10001 --home /nonexistent burotu \
  && mkdir -p /data && chown burotu /data
 

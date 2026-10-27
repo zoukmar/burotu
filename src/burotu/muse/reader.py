@@ -108,6 +108,20 @@ class MuseReader(nn.Module):
             mask[i, : len(seq)] = 1
         return embeds, mask, head_len
 
+    def _logits(self, embeds: torch.Tensor, mask: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
+        """Logits at the given sequence positions only.
+
+        Glimmer's vocabulary has 202,048 tokens: computing logits everywhere would cost
+        several GB per batch for positions we never read.
+        """
+        try:
+            return self.lm(inputs_embeds=embeds, attention_mask=mask, logits_to_keep=positions).logits
+        except TypeError:  # models without logits_to_keep
+            return self.lm(inputs_embeds=embeds, attention_mask=mask).logits[:, positions]
+
+    def _span(self, start: int, stop: int) -> torch.Tensor:
+        return torch.arange(start, stop, device=self.device)
+
     # --- Training ----------------------------------------------------------------
 
     def loss(self, features: torch.Tensor, labels: Sequence[str]) -> torch.Tensor:
@@ -117,10 +131,11 @@ class MuseReader(nn.Module):
         targets = torch.full(mask.shape, -100, dtype=torch.long, device=self.device)
         for i, tail in enumerate(tails):
             targets[i, head_len : head_len + len(tail)] = torch.tensor(tail, device=self.device)
-        logits = self.lm(inputs_embeds=embeds, attention_mask=mask).logits
-        # Position t predicts token t + 1.
+        # Position t predicts token t + 1: keep the logits that predict the answer tokens.
+        positions = self._span(head_len - 1, mask.shape[1] - 1)
+        logits = self._logits(embeds, mask, positions).float()
         return nn.functional.cross_entropy(
-            logits[:, :-1].float().reshape(-1, logits.shape[-1]), targets[:, 1:].reshape(-1), ignore_index=-100
+            logits.reshape(-1, logits.shape[-1]), targets[:, positions + 1].reshape(-1), ignore_index=-100
         )
 
     # --- Scoring ----------------------------------------------------------------------
@@ -128,16 +143,16 @@ class MuseReader(nn.Module):
     def _continuation_logprob(self, features: torch.Tensor, lead: list[int], option: list[int]) -> torch.Tensor:
         """Log-likelihood of `option` written after QUESTION + `lead`, for each sample."""
         embeds, mask, head_len = self._sequences(features, [lead + option] * len(features))
-        logp = torch.log_softmax(self.lm(inputs_embeds=embeds, attention_mask=mask).logits.float(), dim=-1)
         start = head_len + len(lead)
-        return sum(logp[:, start + j - 1, tok] for j, tok in enumerate(option))
+        logp = torch.log_softmax(self._logits(embeds, mask, self._span(start - 1, start - 1 + len(option))).float(), -1)
+        return sum(logp[:, j, tok] for j, tok in enumerate(option))
 
     @torch.no_grad()
     def cancer_score(self, features: torch.Tensor) -> torch.Tensor:
         """log P(" yes") - log P(" no"): higher means a stronger cancer signal."""
         if self._yes != self._no:  # usual case: one forward pass, compare the two next tokens
             embeds, mask, head_len = self._sequences(features, [[] for _ in range(len(features))])
-            logits = self.lm(inputs_embeds=embeds, attention_mask=mask).logits[:, head_len - 1].float()
+            logits = self._logits(embeds, mask, self._span(head_len - 1, head_len))[:, 0].float()
             logp = torch.log_softmax(logits, dim=-1)
             return (logp[:, self._yes] - logp[:, self._no]).cpu()
         yes = self._continuation_logprob(features, [], self._ids(prompts.YES))
