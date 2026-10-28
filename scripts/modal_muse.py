@@ -1,6 +1,6 @@
 """Fine-tune Muse Glimmer on Modal GPUs, then serve it to the tracking site.
 
-    modal run scripts/modal_muse.py                              # full Muse Glimmer run
+    modal run scripts/modal_muse.py::main                        # full Muse Glimmer run
     modal run scripts/modal_muse.py --steps 30 --eval-stride 20  # quick smoke run
     BUROTU_GPU=H100 modal run scripts/modal_muse.py              # pick another GPU
 

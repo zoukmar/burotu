@@ -63,7 +63,7 @@ jobs:
             modal run scripts/modal_muse.py::diagnose_run --name "${{ inputs.run_name }}"
             exit 0
           fi
-          modal run scripts/modal_muse.py \
+          modal run scripts/modal_muse.py::main \
             --model "${{ inputs.model }}" \
             --steps "${{ inputs.steps }}" \
             --eval-stride "${{ inputs.eval_stride }}" \
