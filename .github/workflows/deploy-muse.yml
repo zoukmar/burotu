@@ -58,7 +58,7 @@ jobs:
 
       - name: Warm up and check
         run: |
-          url=$(grep -oE 'https://[a-z0-9-]+--burotu-muse\.modal\.run' deploy.log | head -1)
+          url=$(grep -oE 'https://[a-z0-9-]+--burotu-muse(\.[a-z0-9-]+)?\.modal\.run' deploy.log | head -1)
           if [ -z "$url" ]; then echo "::error::Endpoint URL not found in the deploy output."; exit 1; fi
           echo "Waiting for the model to load (first start downloads and quantises Muse Glimmer)..."
           curl -sS --fail --retry 3 --max-time 900 "$url/health"; echo
