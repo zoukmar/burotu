@@ -53,6 +53,7 @@ class TrainConfig:
     seed: int = 0
     stage1_steps: int = 0  # first steps train the adapter only (LoRA frozen), as LLaVA-style models do
     min_tf: float = 0.0  # drop training cancers below this tumour fraction (0 = keep all)
+    eval_only: bool = False  # re-score an existing run (its trainable.pt) without training
     probe_every: int = 0  # every n steps, log the AUC on a fixed probe set (healthy vs cancers at 3-10%)
     out: str = "runs/latest"
 
@@ -277,8 +278,13 @@ def run(cfg: TrainConfig) -> dict:
         sub = benchmark.Cohort(small.meth[rows], small.total[rows], small.meta.iloc[rows].reset_index(drop=True))
         probe = (features_of(sub, featurizer), sub.labels != HEALTHY)
         log({"event": "probe", "auc_before_training": probe_auc(reader, probe, cfg.eval_batch)})
-    train(reader, features_of(fit, featurizer), fit.labels, cfg, log, probe)
-    reader.save_trainable(out / "trainable.pt")
+    if cfg.eval_only:
+        reader.load_trainable(out / "trainable.pt")
+        reader.eval()
+        log({"event": "eval_only", "weights": str(out / "trainable.pt")})
+    else:
+        train(reader, features_of(fit, featurizer), fit.labels, cfg, log, probe)
+        reader.save_trainable(out / "trainable.pt")
 
     c_score, _ = score(reader, features_of(calib, featurizer), calib.labels, cfg.eval_batch, with_origin=False)
     threshold = benchmark.threshold_at_specificity(c_score)
