@@ -77,6 +77,25 @@ def train(args: dict) -> dict:
     return report
 
 
+@app.function(gpu=GPU, volumes={"/runs": runs, "/cache": hf_cache}, timeout=3600)
+def diagnose(name: str) -> dict:
+    from pathlib import Path
+
+    from burotu.muse.diagnose import run as diagnose_run_dir
+
+    return diagnose_run_dir(Path(f"/runs/{name}"))
+
+
+@app.local_entrypoint()
+def diagnose_run(name: str = "glimmer") -> None:
+    """modal run scripts/modal_muse.py::diagnose_run --name glimmer"""
+    report = diagnose.remote(name)
+    out = ROOT / "reports" / f"muse_{name}_diagnosis.json"
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(json.dumps(report, indent=2))
+    print(json.dumps(report, indent=2))
+
+
 # The serving class needs the `burotu-muse` secret, so it is only defined when deploying
 # (the Deploy Muse workflow sets BUROTU_MUSE_SERVE=1); training runs never need it.
 SERVE = os.environ.get("BUROTU_MUSE_SERVE") == "1"
