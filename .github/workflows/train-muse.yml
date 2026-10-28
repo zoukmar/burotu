@@ -33,6 +33,7 @@ permissions:
 jobs:
   train:
     runs-on: ubuntu-latest
+    environment: production  # Modal secrets may live here or at repository level
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
