@@ -1,0 +1,519 @@
+{
+  "model": "meta-models/Muse-Glimmer-30B",
+  "config": {
+    "model": "meta-models/Muse-Glimmer-30B",
+    "load_4bit": true,
+    "steps": 1500,
+    "batch_size": 16,
+    "grad_accum": 1,
+    "lr_adapter": 0.001,
+    "lr_lora": 0.0002,
+    "lora_r": 16,
+    "n_tokens": 16,
+    "warmup": 50,
+    "eval_batch": 32,
+    "train_cohort": "fit_large",
+    "revision": "a4e59da52a7bc87ae7251dd5545c0dd437c44b68",
+    "eval_stride": 1,
+    "seed": 0,
+    "out": "/runs/glimmer"
+  },
+  "trainable_params": 215692584,
+  "train_samples": 28000,
+  "test": {
+    "threshold": 0.0,
+    "specificity_observed": 1.0,
+    "n_healthy": 4000,
+    "by_tumor_fraction": [
+      {
+        "tumor_fraction": 0.0003,
+        "n": 336,
+        "sensitivity": 0.0,
+        "auc": 0.5,
+        "origin_top1": 0.125,
+        "origin_top2": 0.25
+      },
+      {
+        "tumor_fraction": 0.001,
+        "n": 336,
+        "sensitivity": 0.0,
+        "auc": 0.5,
+        "origin_top1": 0.125,
+        "origin_top2": 0.25
+      },
+      {
+        "tumor_fraction": 0.003,
+        "n": 336,
+        "sensitivity": 0.0,
+        "auc": 0.5,
+        "origin_top1": 0.125,
+        "origin_top2": 0.25
+      },
+      {
+        "tumor_fraction": 0.01,
+        "n": 336,
+        "sensitivity": 0.0,
+        "auc": 0.5,
+        "origin_top1": 0.125,
+        "origin_top2": 0.25
+      },
+      {
+        "tumor_fraction": 0.03,
+        "n": 336,
+        "sensitivity": 0.0,
+        "auc": 0.5,
+        "origin_top1": 0.125,
+        "origin_top2": 0.25
+      },
+      {
+        "tumor_fraction": 0.1,
+        "n": 336,
+        "sensitivity": 0.0,
+        "auc": 0.5,
+        "origin_top1": 0.125,
+        "origin_top2": 0.25
+      }
+    ],
+    "by_class_at_1pct": {
+      "Breast": {
+        "sensitivity": 0.0,
+        "origin_top1": 0.0
+      },
+      "Colorectal": {
+        "sensitivity": 0.0,
+        "origin_top1": 0.0
+      },
+      "Head and neck": {
+        "sensitivity": 0.0,
+        "origin_top1": 0.0
+      },
+      "Liver": {
+        "sensitivity": 0.0,
+        "origin_top1": 0.0
+      },
+      "Lung": {
+        "sensitivity": 0.0,
+        "origin_top1": 0.0
+      },
+      "Oesophagus-Stomach": {
+        "sensitivity": 0.0,
+        "origin_top1": 1.0
+      },
+      "Pancreas": {
+        "sensitivity": 0.0,
+        "origin_top1": 0.0
+      },
+      "Prostate": {
+        "sensitivity": 0.0,
+        "origin_top1": 0.0
+      }
+    }
+  },
+  "real_plasma": {
+    "note": "Moss et al. 2018 cfDNA on EPIC arrays, 12 healthy and 15 cancer samples: a sanity check, not a performance figure. Model and threshold unchanged; only the healthy background differs.",
+    "whole_blood_background": {
+      "background": "whole blood",
+      "auc_cancer_vs_healthy": 0.5,
+      "detected_healthy": 0,
+      "detected_cancer": 0,
+      "n_healthy": 12,
+      "n_cancer": 15,
+      "origin_top1_correct": 0,
+      "n_known_origin": 11,
+      "samples": [
+        {
+          "title": "cfDNA_young_male_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_young_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_young_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_young_female_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_male_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_806",
+          "label": "Colorectal",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_684",
+          "label": "Colorectal",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_806_50ng",
+          "label": "Colorectal",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1",
+          "label": "Lung",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_CUP_1302",
+          "label": "Unknown primary",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_CUP_1149",
+          "label": "Unknown primary",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_CUP_1322",
+          "label": "Unknown primary",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_CUP_1936_1994",
+          "label": "Unknown primary",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1478",
+          "label": "Lung",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_2010",
+          "label": "Colorectal",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1040",
+          "label": "Breast",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1711",
+          "label": "Breast",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_3",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_4",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1438",
+          "label": "Breast",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_2244",
+          "label": "Lung",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1433",
+          "label": "Lung",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        }
+      ]
+    },
+    "recalibrated": {
+      "background": "healthy plasma controls, leave-one-donor-group-out",
+      "auc_cancer_vs_healthy": 0.5,
+      "detected_healthy": 0,
+      "detected_cancer": 0,
+      "n_healthy": 12,
+      "n_cancer": 15,
+      "origin_top1_correct": 0,
+      "n_known_origin": 11,
+      "samples": [
+        {
+          "title": "cfDNA_young_male_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_young_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_young_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_young_female_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_male_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_1",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_806",
+          "label": "Colorectal",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_684",
+          "label": "Colorectal",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_806_50ng",
+          "label": "Colorectal",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1",
+          "label": "Lung",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_CUP_1302",
+          "label": "Unknown primary",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_CUP_1149",
+          "label": "Unknown primary",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_CUP_1322",
+          "label": "Unknown primary",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_CUP_1936_1994",
+          "label": "Unknown primary",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_2",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1478",
+          "label": "Lung",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_2010",
+          "label": "Colorectal",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1040",
+          "label": "Breast",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1711",
+          "label": "Breast",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_3",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_4",
+          "label": "Healthy",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1438",
+          "label": "Breast",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_2244",
+          "label": "Lung",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1433",
+          "label": "Lung",
+          "cancer_score": 0.0,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        }
+      ]
+    }
+  },
+  "minutes": 67.2,
+  "gpu": "L40S"
+}

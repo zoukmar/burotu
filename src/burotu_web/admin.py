@@ -169,6 +169,37 @@ def booking_report_pdf(request: Request, ref: str, lang: str = ""):
     )
 
 
+@router.get("/models", response_class=HTMLResponse)
+def models_page(request: Request):
+    require_admin(request)
+    import os
+
+    from burotu_web import science
+
+    lang = admin_lang(request)
+    try:
+        from burotu.analysis.pdf import T as PDF_TEXT
+
+        market = {k: PDF_TEXT[lang][k] for k in ("m1", "m2", "m3", "m4")}
+    except ImportError:
+        market = {}
+    status = {
+        "muse": bool(os.environ.get("BUROTU_MUSE_URL") and os.environ.get("BUROTU_MUSE_TOKEN")),
+        "role": os.environ.get("BUROTU_MUSE_ROLE", "full"),
+        "spark": bool(os.environ.get("MODEL_API_KEY")),
+    }
+    return page(
+        request,
+        "models.html",
+        s=science.TEXT[lang],
+        runs=science.all_runs(),
+        chart=science.origin_chart(),
+        tfs=science.TFS,
+        status=status,
+        market=market,
+    )
+
+
 def tissue_name(cls: str, lang: str) -> str:
     try:
         from burotu.analysis.wording import tissue

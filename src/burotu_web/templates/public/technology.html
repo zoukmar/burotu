@@ -1,0 +1,111 @@
+{% extends "public/base.html" %}
+{% block title %}{{ s.title }} · Burotu{% endblock %}
+{% block path %}technology{% endblock %}
+{% block main %}
+<section class="hero hero-tech">
+  <div class="wrap">
+    <h1 class="hero-title"><span class="hero-line">{{ s.title }}</span></h1>
+    <p class="lead">{{ s.lead }}</p>
+  </div>
+</section>
+
+<section class="section" id="pipeline">
+  <div class="wrap">
+    <h2>{{ s.pipeline }}</h2>
+    <ol class="tech-steps">
+      {% for title, text in s.steps %}
+      <li class="{{ 'is-meta' if loop.index in (4, 5) else '' }}">
+        <span class="tech-n">{{ loop.index }}</span>
+        <h3>{{ title }}</h3>
+        <p>{{ text }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="section section-plasma" id="compare">
+  <div class="wrap">
+    <h2>{{ s.compare }}</h2>
+    <p class="section-lead">{{ s.compare_lead }}</p>
+    <figure class="tech-chart">
+      <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" role="img" aria-label="{{ s.compare }}">
+        {% for t_ in chart.ticks %}
+        <line class="grid" x1="{{ chart.left }}" x2="{{ chart.width - 6 }}" y1="{{ t_.y }}" y2="{{ t_.y }}"/>
+        <text class="tick" x="{{ chart.left - 8 }}" y="{{ t_.y + 4 }}" text-anchor="end">{{ t_.label }}</text>
+        {% endfor %}
+        {% for g in chart.groups %}
+          {% for b in g.bars %}
+          <rect class="bar-{{ b.name }}" x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="3"/>
+          <text class="val val-{{ b.name }}" x="{{ b.x + b.w / 2 }}" y="{{ b.y - 6 }}" text-anchor="middle">{{ b.label }}</text>
+          {% endfor %}
+          <text class="tick" x="{{ g.x }}" y="{{ chart.base + 20 }}" text-anchor="middle">{{ g.tf }}</text>
+        {% endfor %}
+      </svg>
+      <figcaption>
+        <span class="key key-classic">{{ s.classic }}</span>
+        <span class="key key-meta">{{ s.meta }}</span>
+        <span class="muted">· {{ s.tf_axis }}</span>
+      </figcaption>
+    </figure>
+
+    <h3 class="tech-h3">{{ s.signal_title }}</h3>
+    <p class="tech-p">{{ s.signal_text }}</p>
+    <div class="table-wrap">
+      <table class="table tech-table">
+        <thead><tr><th>{{ s.col_tf }}</th><th>{{ s.col_sens }}</th><th>{{ s.col_auc_c }}</th><th>{{ s.col_auc_m }}</th></tr></thead>
+        <tbody>
+          {% for tf in tfs %}
+          <tr><td>{{ '%g' % (tf * 100) }}%</td><td>{{ '%.0f' % (classic.by_tf[tf].sensitivity * 100) }}%</td><td>{{ '%.2f' % classic.by_tf[tf].auc }}</td><td>{{ '%.2f' % meta.by_tf[tf].auc }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="runs">
+  <div class="wrap">
+    <h2>{{ s.runs }}</h2>
+    <p class="section-lead">{{ s.runs_lead }}</p>
+    <ol class="tech-runs">
+      {% for r in runs %}
+      <li class="run-{{ r.role }}">
+        <p class="run-name">{{ s.run_names[r.id] }}</p>
+        <p class="run-note">{{ s.run_notes[r.id] }}</p>
+        <p class="run-figs muted small">AUC {{ '%.2f' % r.by_tf[0.01].auc }} · {{ '%.0f' % (r.by_tf[0.01].top1 * 100) }}% @ 1%{% if r.minutes and r.kind == 'meta' and r.id != 'glimmer-v2' %} · {{ '%.0f' % r.minutes }} min{% endif %}</p>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="section section-ink" id="plasma">
+  <div class="wrap">
+    <h2>{{ s.plasma }}</h2>
+    {% set rp = classic.real_plasma %}
+    <p class="section-lead">{{ s.plasma_text.format(auc=rp.auc, flagged=rp.healthy_flagged, n_healthy=rp.n_healthy, detected=rp.detected, n_cancer=rp.n_cancer) }}</p>
+  </div>
+</section>
+
+<section class="section" id="lessons">
+  <div class="wrap tech-two">
+    <div>
+      <h2>{{ s.lessons }}</h2>
+      <ol class="tech-list">{% for l in s.lesson_items %}<li>{{ l }}</li>{% endfor %}</ol>
+    </div>
+    <div>
+      <h2>{{ s.limits }}</h2>
+      <ul class="tech-list">{% for l in s.limit_items %}<li>{{ l }}</li>{% endfor %}</ul>
+      <p><a class="link" href="https://github.com/zoukmar/burotu">{{ s.repo }}: github.com/zoukmar/burotu</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-plasma">
+  <div class="wrap tech-cta">
+    <p class="lead">{{ t.hero_lead }}</p>
+    <a class="btn" href="/{{ lang }}/#book">{{ t.hero_cta }}</a>
+  </div>
+</section>
+{% endblock %}

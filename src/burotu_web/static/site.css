@@ -424,3 +424,53 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
 .badge.badge-signal { background: #FBEDEF; border-color: #EBC4CC; color: var(--venous); }
 .table tr.is-this td { background: var(--plasma-soft); }
 @media (max-width: 720px) { .compare-grid { grid-template-columns: 1fr; } .lang-switch { margin-left: auto; } }
+
+/* Technology page */
+.hero-tech { padding-bottom: 2.5rem; }
+.hero-tech .lead { max-width: 46rem; margin-top: 1rem; }
+.tech-steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+.tech-steps li { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.2rem; position: relative; }
+.tech-steps li.is-meta { border-color: #C7D3F4; background: #F5F8FF; }
+.tech-steps h3 { margin: .4rem 0 .35rem; font-size: 1.05rem; }
+.tech-steps p { color: var(--ink-soft); font-size: .95rem; line-height: 1.5; }
+.tech-n { display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; border: 1.5px solid var(--ink); font-weight: 700; font-size: .85rem; }
+.tech-steps li.is-meta .tech-n { background: var(--focus); border-color: var(--focus); color: var(--white); }
+.tech-chart { margin: 1.25rem 0 1.5rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1rem .75rem; }
+.tech-chart svg { width: 100%; height: auto; display: block; }
+.tech-chart .grid { stroke: var(--line); stroke-width: 1; }
+.tech-chart .tick { fill: var(--ink-soft); font-size: 12px; }
+.tech-chart .val { font-size: 12px; font-weight: 700; fill: var(--ink); }
+.tech-chart .bar-classic { fill: #9AA3B2; }
+.tech-chart .bar-meta { fill: var(--focus); }
+.tech-chart .val-meta { fill: var(--focus); }
+.tech-chart figcaption { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .9rem; margin-top: .5rem; }
+.key::before { content: ""; display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; margin-right: .4rem; vertical-align: -1px; }
+.key-classic::before { background: #9AA3B2; }
+.key-meta::before { background: var(--focus); }
+.tech-h3 { margin: 1.5rem 0 .4rem; font-size: 1.2rem; }
+.tech-p { max-width: 46rem; line-height: 1.6; margin-bottom: 1rem; }
+.tech-table { max-width: 46rem; background: var(--white); }
+.tech-runs { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.25rem; }
+.tech-runs li { border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; background: var(--white); border-top: 4px solid #9AA3B2; }
+.tech-runs li.run-failed { border-top-color: #C9CED6; opacity: .85; }
+.tech-runs li.run-tissue { border-top-color: var(--focus); box-shadow: 0 6px 24px rgba(45, 91, 215, .12); }
+.tech-runs li.run-experiment { border-top-color: #9DB2EA; }
+.run-name { font-weight: 700; margin-bottom: .35rem; }
+.run-note { color: var(--ink-soft); line-height: 1.45; margin-bottom: .5rem; }
+.tech-two { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+.tech-list { padding-left: 1.2rem; line-height: 1.6; }
+.tech-list li { margin-bottom: .6rem; }
+.tech-cta { display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+@media (max-width: 960px) { .tech-steps, .tech-runs { grid-template-columns: 1fr 1fr; } .tech-two { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .tech-steps, .tech-runs { grid-template-columns: 1fr; } }
+.small-lead { font-size: var(--step-0); margin-bottom: 1.25rem; }
+.status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.status-item { border: 1px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; border-left: 4px solid #9AA3B2; }
+.status-item.is-on { border-left-color: #2E8B57; }
+.status-item.is-off { border-left-color: #C9CED6; }
+.tech-steps.compact { grid-template-columns: repeat(3, 1fr); margin-top: .5rem; }
+.runs-table td.num { font-variant-numeric: tabular-nums; text-align: right; }
+.runs-table tr.run-tissue td { background: #F5F8FF; }
+.runs-table tr.run-failed td { color: var(--ink-soft); }
+@media (max-width: 960px) { .status-grid { grid-template-columns: 1fr; } }
+.section-ink .section-lead { color: rgba(255, 255, 255, .82); }

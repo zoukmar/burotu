@@ -137,3 +137,10 @@ def test_report_pdf_in_each_language(public, logged_admin):
 def test_report_pdf_needs_sign_in(public, admin):
     ref = _ref(public)
     assert admin.get(f"/bookings/{ref}/report.pdf", follow_redirects=False).status_code in (302, 303, 401)
+
+
+def test_models_page_lists_every_run(logged_admin):
+    r = logged_admin.get("/models")
+    assert r.status_code == 200
+    for name in ("Muse Glimmer v1", "Muse Glimmer v2", "Muse Glimmer v3", "Shield", "Galleri"):
+        assert name in r.text
