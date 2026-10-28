@@ -223,6 +223,17 @@ class ReaderAsModel:
         return score(self.reader, x, np.full(len(x), "cancer"), self.batch, with_origin=True)[1]
 
 
+def by_donor(scores: np.ndarray, meta) -> list[dict]:
+    """Healthy scores per blood donor, highest first: shows whether a few donors set the threshold."""
+    import pandas as pd
+
+    healthy = (meta["label"] == HEALTHY).to_numpy()
+    df = pd.DataFrame({"donor": meta["blood_donor"].to_numpy()[healthy], "score": scores[healthy]})
+    g = df.groupby("donor")["score"].agg(["count", "median", "max"]).sort_values("median", ascending=False)
+    return [{"donor": str(d), "n": int(r["count"]), "median": round(float(r["median"]), 3),
+             "max": round(float(r["max"]), 3)} for d, r in g.iterrows()]  # fmt: skip
+
+
 def save_for_serving(out: Path, cfg: TrainConfig, featurizer: Featurizer, panel, classes, threshold: float) -> None:
     """Everything burotu.muse.serve needs next to trainable.pt to answer like the benchmark."""
     np.save(out / "mu.npy", featurizer.mu.astype(np.float32))
@@ -313,6 +324,11 @@ def run(cfg: TrainConfig) -> dict:
     except FileNotFoundError as e:  # real plasma subset not available
         log({"event": "real_plasma_skipped", "reason": str(e)})
     report["minutes"] = round((time.time() - t0) / 60, 1)
+    np.savez_compressed(out / "scores.npz", calibration=c_score, test=t_score, test_origin=t_origin)
+    report["healthy_scores_by_donor"] = {
+        name: by_donor(score_arr, cohort.meta)
+        for name, score_arr, cohort in [("calibration", c_score, calib), ("test", t_score, test)]
+    }
     (out / "report.json").write_text(json.dumps(report, indent=2))
     log({"event": "done", "minutes": report["minutes"], "specificity": report["test"]["specificity_observed"]})
     return report
