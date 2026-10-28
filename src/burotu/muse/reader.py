@@ -168,7 +168,7 @@ class MuseReader(nn.Module):
             hook.remove()
         with torch.autocast(self.device.type, enabled=False):
             h = seen["h"][:, -1].float()
-            raw = h @ head.weight[[a, b]].float().T
+            raw = h @ self._head_rows(a, b).T
             cfg = getattr(self.lm.config, "text_config", self.lm.config)
             logits = raw * float(getattr(cfg, "output_multiplier", 1.0) or 1.0)
             cap = getattr(cfg, "final_logit_softcapping", None)
@@ -177,10 +177,29 @@ class MuseReader(nn.Module):
         return logits[:, 0] - logits[:, 1]
 
     @torch.no_grad()
+    def _head_rows(self, a: int, b: int) -> torch.Tensor:
+        """Rows `a` and `b` of the output head in float32, dequantised if it was loaded in 4 bits."""
+        cache = self.__dict__.setdefault("_rows_cache", {})
+        if (a, b) not in cache:
+            w = self.lm.get_output_embeddings().weight
+            if w.is_floating_point():
+                rows = w[[a, b]].float()
+            else:  # bitsandbytes Params4bit
+                from bitsandbytes.functional import dequantize_4bit
+
+                rows = dequantize_4bit(w.data, w.quant_state)[[a, b]].float()
+            cache[(a, b)] = rows
+        return cache[(a, b)]
+
+    @property
+    def head_precision(self) -> str:
+        w = self.lm.get_output_embeddings().weight
+        return str(w.dtype) if w.is_floating_point() else "4-bit (dequantised for scoring)"
+
+    @torch.no_grad()
     def cancer_score(self, features: torch.Tensor) -> torch.Tensor:
         """Yes-vs-no logit margin (before Glimmer's soft cap): higher means a stronger cancer signal."""
-        head_w = self.lm.get_output_embeddings().weight
-        if self._yes != self._no and head_w.is_floating_point():  # one pass, compare the two next tokens
+        if self._yes != self._no:  # usual case: one forward pass, compare the two next tokens
             embeds, mask, head_len = self._sequences(features, [[] for _ in range(len(features))])
             return self._next_token_margin(embeds, mask, head_len - 1, self._yes, self._no).cpu()
         yes = self._continuation_logprob(features, [], self._ids(prompts.YES))
