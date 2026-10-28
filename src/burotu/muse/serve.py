@@ -42,7 +42,9 @@ class MuseService:
             n_tokens=meta["n_tokens"],
         )
         lm, tokenizer = load_lm(cfg)
-        self.reader = MuseReader(lm, tokenizer, len(self.panel) + 3, self.classes, n_tokens=cfg.n_tokens)
+        self.reader = MuseReader(
+            lm, tokenizer, len(self.panel) + 3, self.classes, n_tokens=cfg.n_tokens, adapter_kwargs=meta.get("adapter")
+        )
         self.reader.load_trainable(run_dir / "trainable.pt")
         self.reader.eval()
         self._lock = threading.Lock()  # one GPU, one forward pass at a time

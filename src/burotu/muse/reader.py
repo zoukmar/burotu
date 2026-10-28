@@ -26,13 +26,32 @@ from torch import nn
 from burotu.muse import prompts
 
 
+class _Scale(nn.Module):
+    def __init__(self, factor: float):
+        super().__init__()
+        self.factor = factor
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return x * self.factor
+
+
 class MethylationAdapter(nn.Module):
     """Project a methylation feature vector into `n_tokens` embeddings of size `d_model`."""
 
-    def __init__(self, in_dim: int, d_model: int, n_tokens: int = 16, hidden: int = 1024, dropout: float = 0.1):
+    def __init__(
+        self,
+        in_dim: int,
+        d_model: int,
+        n_tokens: int = 16,
+        hidden: int = 1024,
+        dropout: float = 0.1,
+        input_norm: str = "layer",
+    ):
         super().__init__()
         self.n_tokens, self.d_model = n_tokens, d_model
-        self.norm_in = nn.LayerNorm(in_dim)
+        # "layer" rescales every sample to unit variance, which also blows up a healthy sample's
+        # small donor-specific wiggles; "fixed" keeps absolute magnitudes (the tumour signal).
+        self.norm_in = nn.LayerNorm(in_dim) if input_norm == "layer" else _Scale(0.5)
         self.net = nn.Sequential(
             nn.Linear(in_dim, hidden),
             nn.GELU(),
@@ -50,13 +69,21 @@ class MethylationAdapter(nn.Module):
 
 
 class MuseReader(nn.Module):
-    def __init__(self, lm: nn.Module, tokenizer, in_dim: int, classes: Sequence[str], n_tokens: int = 16):
+    def __init__(
+        self,
+        lm: nn.Module,
+        tokenizer,
+        in_dim: int,
+        classes: Sequence[str],
+        n_tokens: int = 16,
+        adapter_kwargs: dict | None = None,
+    ):
         super().__init__()
         self.lm = lm
         self.tokenizer = tokenizer
         self.classes = list(classes)
         embed = lm.get_input_embeddings()
-        self.adapter = MethylationAdapter(in_dim, embed.embedding_dim, n_tokens)
+        self.adapter = MethylationAdapter(in_dim, embed.embedding_dim, n_tokens, **(adapter_kwargs or {}))
         self.adapter.to(embed.weight.device)
         with torch.no_grad():
             # Measure what real token embeddings look like at the model's input (some models,
