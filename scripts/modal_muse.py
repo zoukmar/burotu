@@ -98,7 +98,9 @@ def diagnose_run(name: str = "glimmer") -> None:
 
 # The serving class needs the `burotu-muse` secret, so it is only defined when deploying
 # (the Deploy Muse workflow sets BUROTU_MUSE_SERVE=1); training runs never need it.
-SERVE = os.environ.get("BUROTU_MUSE_SERVE") == "1"
+# Inside Modal's containers the module is imported again without that variable, so the class
+# must also exist there (modal.is_local() is False in a container).
+SERVE = os.environ.get("BUROTU_MUSE_SERVE") == "1" or not modal.is_local()
 
 
 if SERVE:
