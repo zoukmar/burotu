@@ -17,6 +17,11 @@ on:
       eval_stride:
         description: Score every n-th benchmark sample (1 = full benchmark, 20 = quick smoke run)
         default: "1"
+      task:
+        description: train, or diagnose an existing run (run_name) for a few minutes of GPU
+        type: choice
+        options: [train, diagnose]
+        default: train
       gpu:
         description: Modal GPU
         type: choice
@@ -51,6 +56,10 @@ jobs:
           MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
           BUROTU_GPU: ${{ inputs.gpu }}
         run: |
+          if [ "${{ inputs.task }}" = diagnose ]; then
+            modal run scripts/modal_muse.py::diagnose_run --name "${{ inputs.run_name }}"
+            exit 0
+          fi
           modal run scripts/modal_muse.py \
             --model "${{ inputs.model }}" \
             --steps "${{ inputs.steps }}" \
