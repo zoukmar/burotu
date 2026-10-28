@@ -198,6 +198,15 @@ class Database:
             slots = [s for s in slots if s >= limit]
         return slots
 
+    def next_available_day(self, site_id: int, start: date, days: int = 30, now: datetime | None = None) -> date | None:
+        """First day from `start` with a free slot at this site, within `days` days."""
+        with self.connect() as con:
+            for i in range(days):
+                d = start + timedelta(days=i)
+                if self.available_slots(site_id, d, now, con):
+                    return d
+        return None
+
     # --- Bookings ----------------------------------------------------------------
 
     def create_booking(self, data: dict) -> str | None:

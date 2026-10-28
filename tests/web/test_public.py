@@ -90,3 +90,21 @@ def test_meta_models_section(public):
     for lang, title in [("en", "Built on Meta&#39;s Muse models"), ("fr", "Construit sur les modèles Muse de Meta")]:
         page = public.get(f"/{lang}/").text
         assert 'id="meta"' in page and title in page and "Muse Glimmer" in page
+
+
+def test_a_full_day_points_to_the_next_free_day(public):
+    from datetime import date, timedelta
+
+    past = (date.today() - timedelta(days=3)).isoformat()  # no times in the past
+    data = public.get(f"/api/slots?site=1&day={past}").json()
+    assert data["slots"] == [] and data["next_day"] is not None
+    assert date.fromisoformat(data["next_day"]) >= date.today()
+    nxt = public.get(f"/api/slots?site=1&day={data['next_day']}").json()
+    assert nxt["slots"] and nxt["next_day"] is None
+
+
+def test_a_missing_time_gets_its_own_message(public):
+    r = book(public, slot="")
+    assert r.status_code == 422
+    assert "Choose a time for your appointment." in r.text
+    assert "Fill in every field" not in r.text

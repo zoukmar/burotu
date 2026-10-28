@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 import re
-from datetime import date
+from datetime import date, timedelta
 
 from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
@@ -124,7 +124,12 @@ def api_slots(request: Request, site: int, day: str):
         d = date.fromisoformat(day)
     except ValueError as e:
         raise HTTPException(400, "invalid date") from e
-    return JSONResponse({"slots": request.app.state.db.available_slots(site, d)})
+    db = request.app.state.db
+    slots = db.available_slots(site, d)
+    nxt = None
+    if not slots:  # point to the first day after this one that still has a free time
+        nxt = db.next_available_day(site, max(d + timedelta(days=1), date.today()))
+    return JSONResponse({"slots": slots, "next_day": nxt.isoformat() if nxt else None})
 
 
 @router.get("/{lang}/", response_class=HTMLResponse)
@@ -174,8 +179,10 @@ def book_submit(
         "doctor": doctor.strip()[:120],
     }
     errors = []
-    if website or not all(v for k, v in form.items() if k not in OPTIONAL_FIELDS):
+    if website or not all(v for k, v in form.items() if k not in OPTIONAL_FIELDS | {"slot"}):
         errors.append(t["err_required"])
+    if not form["slot"]:
+        errors.append(t["err_slot_missing"])
     if form["email"] and not EMAIL_RE.match(form["email"]):
         errors.append(t["err_email"])
     if form["birth_year"] and not (form["birth_year"].isdigit() and 1920 <= int(form["birth_year"]) <= 2008):

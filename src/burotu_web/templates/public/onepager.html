@@ -131,7 +131,8 @@
   {% else %}
   <div class="wrap book-grid">
     <form class="book-form" id="book-form" method="post" action="/{{ lang }}/book#book" novalidate
-          data-msg-pick="{{ t.book_time_pick }}" data-msg-none="{{ t.book_time_none }}">
+          data-msg-pick="{{ t.book_time_pick }}" data-msg-none="{{ t.book_time_none }}"
+          data-msg-next="{{ t.book_next_day }}" data-lang="{{ lang }}">
       <h2 id="book-title">{{ t.book_title }}</h2>
       <p class="section-lead">{{ t.book_section_lead }}</p>
 
