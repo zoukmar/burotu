@@ -1,12 +1,12 @@
 {% extends "admin/base.html" %}
-{% block title %}Sign in{% endblock %}
+{% block title %}{{ _('Sign in') }}{% endblock %}
 {% block main %}
 <form class="login" method="post" action="/login">
-  <h1>Sign in to tracking</h1>
+  <h1>{{ _('Sign in to tracking') }}</h1>
   {% if error %}<div class="errors" role="alert"><p>{{ error }}</p></div>{% endif %}
   <input type="hidden" name="csrf" value="{{ csrf }}">
-  <label class="field">Username<input name="username" autocomplete="username" required autofocus></label>
-  <label class="field">Password<input type="password" name="password" autocomplete="current-password" required></label>
-  <button class="btn btn-block" type="submit">Sign in</button>
+  <label class="field">{{ _("Username") }}<input name="username" autocomplete="username" required autofocus></label>
+  <label class="field">{{ _("Password") }}<input type="password" name="password" autocomplete="current-password" required></label>
+  <button class="btn btn-block" type="submit">{{ _("Sign in") }}</button>
 </form>
 {% endblock %}

@@ -28,6 +28,7 @@ class QCReport:
     low_depth_share: float
     unknown_cpgs: int
     issues: list[str] = field(default_factory=list)
+    codes: list[str] = field(default_factory=list)  # coverage | depth | low_depth | unknown
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -43,20 +44,24 @@ def check(sample: LabSample, panel: list[str]) -> QCReport:
     low = float((depth < LOW_DEPTH).mean())
     unknown = len(set(sample.counts.index) - set(panel))
 
-    issues = []
+    issues, codes = [], []
     if coverage < MIN_COVERAGE:
+        codes.append("coverage")
         issues.append(f"Only {coverage:.0%} of the panel's CpG sites were read (expected at least {MIN_COVERAGE:.0%}).")
     if median < MIN_MEDIAN_DEPTH:
+        codes.append("depth")
         issues.append(f"Median read depth is {median:.0f}, below the {MIN_MEDIAN_DEPTH} needed for reliable detection.")
     if low > MAX_LOW_DEPTH_SHARE:
+        codes.append("low_depth")
         issues.append(f"{low:.0%} of CpG sites have fewer than {LOW_DEPTH} reads.")
     if unknown:
+        codes.append("unknown")
         issues.append(f"{unknown} CpG sites in the file are not part of the Burotu panel and were ignored.")
 
     if coverage < 0.8 or median < 100:
         status = "fail"
-    elif any(not i.endswith("were ignored.") for i in issues):
+    elif any(c != "unknown" for c in codes):
         status = "warn"
     else:
         status = "pass"
-    return QCReport(status, round(coverage, 4), round(median, 1), round(p10, 1), round(low, 4), unknown, issues)
+    return QCReport(status, round(coverage, 4), round(median, 1), round(p10, 1), round(low, 4), unknown, issues, codes)

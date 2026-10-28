@@ -14,7 +14,7 @@ dependencies = ["httpx>=0.27"]
 [project.optional-dependencies]
 ml = ["numpy>=2.0", "pandas>=2.2", "pyarrow>=15", "scikit-learn>=1.5", "lightgbm>=4.3"]
 # What the tracking site needs to analyse a lab file (benchmark engine + Muse Spark report).
-analysis = ["numpy>=2.0", "pandas>=2.2", "lightgbm>=4.3"]
+analysis = ["numpy>=2.0", "pandas>=2.2", "lightgbm>=4.3", "reportlab>=4.2"]
 web = [
   "fastapi>=0.115",
   "uvicorn[standard]>=0.30",
@@ -48,3 +48,6 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # translated site copy: typographic apo
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["B"]
 "src/burotu_web/i18n.py" = ["E501"]  # translated copy: one sentence per line
+"src/burotu_web/admin_i18n.py" = ["E501"]
+"src/burotu/analysis/wording.py" = ["E501"]
+"src/burotu/analysis/pdf.py" = ["E501"]

@@ -85,7 +85,10 @@ def test_analyse_a_demo_sample(public, logged_admin):
     r = logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
     assert r.status_code == 200
     page = r.text
-    assert "Lab result" in page and "Detected" in page and "Colorectal" in page
+    assert "Lab result" in page and "Signal detected" in page and "Colon and rectum" in page
+    assert "Classic model vs Meta model" in page and "Follow-up" in page
+    letter = page.split('id="letter"')[1].split("</blockquote>")[0]
+    assert "unusual methylation signal" in letter and "cancer" not in letter.lower()
     assert "Simulation ground truth: Colorectal" in page
     assert "Analysed" in page  # stage moved forward
 
@@ -103,3 +106,34 @@ def test_unreadable_upload_is_explained(public, logged_admin):
     files = {"lab_file": ("bad.tsv", b"not a lab file", "text/tab-separated-values")}
     page = logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token}, files=files).text
     assert "This file cannot be read" in page
+
+
+def test_tracking_speaks_french_and_spanish(public, logged_admin):
+    ref = _ref(public)
+    token = csrf(logged_admin, f"/bookings/{ref}")
+    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
+    r = logged_admin.get(f"/lang/fr?next=/bookings/{ref}", follow_redirects=True)
+    assert "Résultat du laboratoire" in r.text and "Signal détecté" in r.text and "Côlon et rectum" in r.text
+    r = logged_admin.get(f"/bookings/{ref}?letter=es")
+    letter = r.text.split('id="letter"')[1].split("</blockquote>")[0]
+    assert "señal de metilación inusual" in letter and "cáncer" not in letter.lower()
+    r = logged_admin.get("/lang/es?next=/", follow_redirects=True)
+    assert "Citas" in r.text
+    r = logged_admin.get("/lang/fr?next=//evil.example", follow_redirects=False)
+    assert r.headers["location"] == "/"
+
+
+def test_report_pdf_in_each_language(public, logged_admin):
+    ref = _ref(public)
+    assert logged_admin.get(f"/bookings/{ref}/report.pdf").status_code == 404  # nothing analysed yet
+    token = csrf(logged_admin, f"/bookings/{ref}")
+    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
+    for lang in ("en", "fr", "es"):
+        r = logged_admin.get(f"/bookings/{ref}/report.pdf?lang={lang}")
+        assert r.status_code == 200 and r.headers["content-type"] == "application/pdf"
+        assert r.content.startswith(b"%PDF") and len(r.content) > 3000
+
+
+def test_report_pdf_needs_sign_in(public, admin):
+    ref = _ref(public)
+    assert admin.get(f"/bookings/{ref}/report.pdf", follow_redirects=False).status_code in (302, 303, 401)

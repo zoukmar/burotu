@@ -1,25 +1,25 @@
 {% extends "admin/base.html" %}
 {% block title %}{{ b.ref }}{% endblock %}
 {% block main %}
-<p class="small"><a class="link" href="/">Bookings</a></p>
+<p class="small"><a class="link" href="/">{{ _("Bookings") }}</a></p>
 <div class="admin-head">
   <h1>{{ b.first_name }} {{ b.last_name }} <span class="muted">{{ b.ref }}</span></h1>
-  <span class="badge badge-{{ b.status }}">{{ STATUS_LABELS[b.status] }}</span>
+  <span class="badge badge-{{ b.status }}">{{ _(STATUS_LABELS[b.status]) }}</span>
 </div>
 
 {% if b.status != 'cancelled' %}
 {% set current = PIPELINE.index(b.status) %}
-<ol class="progress" aria-label="Progress">
+<ol class="progress" aria-label="{{ _('Progress') }}">
   {% for key in PIPELINE %}
-  <li class="{% if loop.index0 < current %}is-done{% elif loop.index0 == current %}is-current{% endif %}"{% if loop.index0 == current %} aria-current="step"{% endif %}>{{ STATUS_LABELS[key] }}</li>
+  <li class="{% if loop.index0 < current %}is-done{% elif loop.index0 == current %}is-current{% endif %}"{% if loop.index0 == current %} aria-current="step"{% endif %}>{{ _(STATUS_LABELS[key]) }}</li>
   {% endfor %}
 </ol>
 {% endif %}
 
 <section class="site-card lab" id="lab" aria-labelledby="lab-title">
   <div class="lab-head">
-    <h2 id="lab-title">Lab result</h2>
-    {% if analysis %}<span class="muted small">Analysed {{ analysis.at.replace('T', ' at ') }} by {{ analysis.actor }}, sample {{ analysis.sample_id }}</span>{% endif %}
+    <h2 id="lab-title">{{ _("Lab result") }}</h2>
+    {% if analysis %}<span class="muted small">{{ _("Analysed {when} by {who}, sample {sample}", when=analysis.at.replace('T', ' '), who=analysis.actor, sample=analysis.sample_id) }}</span>{% endif %}
   </div>
 
   {% if error %}<div class="errors" role="alert"><p>{{ error }}</p></div>{% endif %}
@@ -28,111 +28,177 @@
   {% set q = analysis.quality %}{% set d = analysis.detection %}
   <div class="lab-grid">
     <div>
-      <p class="lab-label">Quality control</p>
-      <p><span class="badge qc-{{ q.status }}">{{ {'pass': 'Passed', 'warn': 'Passed with warnings', 'fail': 'Failed'}[q.status] }}</span></p>
+      <p class="lab-label">{{ _("Quality control") }}</p>
+      <p><span class="badge qc-{{ q.status }}">{{ _({'pass': 'Passed', 'warn': 'Passed with warnings', 'fail': 'Failed'}[q.status]) }}</span></p>
       <dl class="facts compact">
-        <div><dt>Panel coverage</dt><dd>{{ '%.1f' % (q.panel_coverage * 100) }}%</dd></div>
-        <div><dt>Median depth</dt><dd>{{ '%.0f' % q.median_depth }} reads</dd></div>
-        <div><dt>Low-depth sites</dt><dd>{{ '%.1f' % (q.low_depth_share * 100) }}%</dd></div>
+        <div><dt>{{ _("Panel coverage") }}</dt><dd>{{ '%.1f' % (q.panel_coverage * 100) }}%</dd></div>
+        <div><dt>{{ _("Median depth") }}</dt><dd>{{ '%.0f' % q.median_depth }} {{ _("reads") }}</dd></div>
+        <div><dt>{{ _("Low-depth sites") }}</dt><dd>{{ '%.1f' % (q.low_depth_share * 100) }}%</dd></div>
       </dl>
-      {% for issue in q.issues %}<p class="small muted">{{ issue }}</p>{% endfor %}
+      {% for issue in qc_findings(q, alang) %}<p class="small muted">{{ issue[:1]|upper }}{{ issue[1:] }}.</p>{% endfor %}
     </div>
 
     <div>
-      <p class="lab-label">Cancer signal</p>
+      <p class="lab-label">{{ _("Signal") }}</p>
       {% if d %}
-      <p class="verdict {{ 'is-signal' if d.cancer_signal else 'is-clear' }}">{{ 'Detected' if d.cancer_signal else 'Not detected' }}</p>
-      <p class="small muted">Score {{ '%.4f' % d.score }}, threshold {{ '%.4f' % d.threshold }} (99.5% specificity)</p>
-      <p class="small">Engine: <strong>{{ d.engine_label }}</strong></p>
+      <p class="verdict {{ 'is-signal' if d.cancer_signal else 'is-clear' }}">{{ _('Signal detected') if d.cancer_signal else _('No signal detected') }}</p>
+      <p class="small muted">{{ _("Score {score}, threshold {threshold} (99.5% specificity)", score='%.4f' % d.score, threshold='%.4f' % d.threshold) }}</p>
+      <p class="small">{{ _("Engine") }}: <strong>{{ d.engine_label }}</strong></p>
       {% else %}
-      <p class="verdict">No result</p>
-      <p class="small muted">The sample did not pass quality control.</p>
+      <p class="verdict">{{ _("No result") }}</p>
+      <p class="small muted">{{ _("The sample did not pass quality control.") }}</p>
       {% endif %}
     </div>
 
     <div>
-      <p class="lab-label">Likely tissue of origin</p>
+      <p class="lab-label">{{ _("Tissue the signal resembles") }}</p>
       {% if d and d.cancer_signal %}
       <ol class="origins">
         {% for o in d.origin %}
-        <li><span>{{ o.class }}</span><svg class="bar" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><rect class="track" width="100" height="8" rx="4"/><rect class="fill" width="{{ '%.1f' % (o.probability * 100) }}" height="8" rx="4"/></svg><span class="pct">{{ '%.0f' % (o.probability * 100) }}%</span></li>
+        <li><span>{{ tissue(o.class, alang)|capitalize }}</span><svg class="bar" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><rect class="track" width="100" height="8" rx="4"/><rect class="fill" width="{{ '%.1f' % (o.probability * 100) }}" height="8" rx="4"/></svg><span class="pct">{{ '%.0f' % (o.probability * 100) }}%</span></li>
         {% endfor %}
       </ol>
       {% else %}
-      <p class="small muted">Only shown when a cancer signal is detected.</p>
+      <p class="small muted">{{ _("Only shown when a signal is detected.") }}</p>
       {% endif %}
     </div>
   </div>
 
-  <div class="report">
-    <p class="lab-label">Report for the patient</p>
-    <blockquote>{{ analysis.report.text }}</blockquote>
-    <p class="small muted">Written by {{ 'Muse Spark (Meta Model API)' if analysis.report.author.lower().startswith('muse') else 'a fixed template, Muse Spark not connected' if analysis.report.author == 'template' else analysis.report.author }}, in the language the patient booked in ({{ b.lang|upper }}).</p>
+  {% if analysis.models and analysis.models.classic %}
+  {% set c = analysis.models.classic %}{% set m = analysis.models.meta %}
+  <div class="compare" id="compare">
+    <p class="lab-label">{{ _("Classic model vs Meta model") }}</p>
+    <div class="compare-grid">
+      <div class="compare-col">
+        <p class="compare-name">{{ _("Classic model") }} <span class="muted small">{{ _("gradient boosting, raises the alarm") }}</span></p>
+        <dl class="facts compact">
+          <div><dt>{{ _("Signal") }}</dt><dd>{{ _('Signal detected') if c.cancer_signal else _('No signal detected') }}</dd></div>
+          <div><dt>{{ _("Signal score") }}</dt><dd>{{ '%.4f' % c.score }} / {{ '%.4f' % c.threshold }}</dd></div>
+          <div><dt>{{ _("Top tissue") }}</dt><dd>{{ tissue(c.origin[0].class, alang)|capitalize }} ({{ '%.0f' % (c.origin[0].probability * 100) }}%)</dd></div>
+        </dl>
+      </div>
+      <div class="compare-col is-meta">
+        <p class="compare-name">{{ _("Meta model") }} <span class="muted small">{{ _("Muse Glimmer 30B fine-tuned, names the tissue") }}</span></p>
+        {% if m %}
+        <dl class="facts compact">
+          <div><dt>{{ _("Signal") }}</dt><dd>{{ _('Signal detected') if m.cancer_signal else _('No signal detected') }}</dd></div>
+          <div><dt>{{ _("Signal score") }}</dt><dd>{{ '%.2f' % m.score }} / {{ '%.2f' % m.threshold }}</dd></div>
+          <div><dt>{{ _("Top tissue") }}</dt><dd>{{ tissue(m.origin[0].class, alang)|capitalize }} ({{ '%.0f' % (m.origin[0].probability * 100) }}%)</dd></div>
+        </dl>
+        {% else %}<p class="small muted">{{ _("Meta model not served: classic model only.") }}</p>{% endif %}
+      </div>
+    </div>
+    {% if m %}<p class="small">{{ _("The two models agree on the tissue.") if m.origin[0].class == c.origin[0].class else _("The two models differ on the tissue: the Meta model's answer is reported.") }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  {% set letters = analysis.reports or {b.lang: analysis.report} %}
+  {% set shown = letter_lang if letter_lang in letters else (b.lang if b.lang in letters else (letters|list)[0]) %}
+  {% set r = letters[shown] %}
+  <div class="report" id="letter">
+    <div class="report-head">
+      <p class="lab-label">{{ _("Letter for the patient") }}</p>
+      <nav class="tabs" aria-label="{{ _('Language') }}">
+        {% for l in ADMIN_LANGS if l in letters %}<a href="?letter={{ l }}#letter"{% if l == shown %} aria-current="true"{% endif %}>{{ l|upper }}{% if l == b.lang %} ·{% endif %}</a>{% endfor %}
+      </nav>
+      <a class="btn btn-small" href="/bookings/{{ b.ref }}/report.pdf?lang={{ shown }}">{{ _("Download PDF") }} ({{ shown|upper }})</a>
+    </div>
+    <blockquote lang="{{ shown }}">{{ r.text }}</blockquote>
+    <p class="small muted">
+      {% if r.author.lower().startswith('muse') %}{{ _("Written by Muse Spark (Meta Model API).") }}
+      {% elif r.author == 'template' %}{{ _("Written from a fixed template (Muse Spark not connected).") }}
+      {% else %}{{ _("Written from a fixed template ({why}).", why=r.author[10:-1]) }}{% endif %}
+      · {{ _("Patient's language") }}: {{ b.lang|upper }}
+    </p>
   </div>
   {% for n in analysis.notes %}<p class="small muted">{{ n }}</p>{% endfor %}
   {% if analysis.ground_truth %}
   {% set g = analysis.ground_truth %}
-  <p class="truth small">Simulation ground truth: {{ g.label }}{% if g.tumor_fraction %}, {{ '%g' % (g.tumor_fraction * 100) }}% tumour DNA{% endif %}{% if g.depth < 200 %}, under-sequenced on purpose ({{ g.depth }} reads per site){% endif %}.</p>
+  <p class="truth small">{{ _("Simulation ground truth") }}: {{ g.label }}{% if g.tumor_fraction %}, {{ _("{pct}% tumour DNA", pct='%g' % (g.tumor_fraction * 100)) }}{% endif %}{% if g.depth < 200 %}, {{ _("under-sequenced on purpose ({depth} reads per site)", depth=g.depth) }}{% endif %}.</p>
   {% endif %}
   {% endif %}
 
   <form class="lab-form" method="post" action="/bookings/{{ b.ref }}/analyse" enctype="multipart/form-data">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <label class="field">Lab file (burotu-bmc)<input type="file" name="lab_file" accept=".tsv,.txt"></label>
+    <label class="field">{{ _("Lab file (burotu-bmc)") }}<input type="file" name="lab_file" accept=".tsv,.txt"></label>
     {% if demo_samples %}
-    <label class="field">or a demo sample
+    <label class="field">{{ _("or a demo sample") }}
       <select name="demo">
-        <option value="">Choose…</option>
+        <option value="">{{ _("Choose…") }}</option>
         {% for s in demo_samples %}<option value="{{ s.sample_id }}">{{ s.sample_id }}</option>{% endfor %}
       </select>
     </label>
     {% endif %}
-    <button class="btn btn-small" type="submit">{{ 'Analyse again' if analysis else 'Analyse sample' }}</button>
+    <button class="btn btn-small" type="submit">{{ _('Analyse again') if analysis else _('Analyse sample') }}</button>
   </form>
+  <p class="small muted">{{ _("Analysis takes up to a minute: Muse Spark writes the letter in three languages.") }}</p>
 </section>
+
+{% if followup %}
+<section class="site-card" id="followup" aria-labelledby="followup-title">
+  <h2 id="followup-title">{{ _("Follow-up") }}</h2>
+  <p class="small muted">{% if followup|length > 1 %}{{ _("Every analysis for this patient, newest first.") }}{% else %}{{ _("First analysis for this patient.") }}{% endif %}</p>
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>{{ _("Date") }}</th><th>{{ _("Booking") }}</th><th>{{ _("Result") }}</th><th>{{ _("Signal score") }}</th><th>{{ _("Tissue") }}</th></tr></thead>
+    <tbody>
+    {% for f in followup %}
+    <tr{% if f.ref == b.ref %} class="is-this"{% endif %}>
+      <td>{{ f.at.replace('T', ' ')[:16] }}</td>
+      <td>{% if f.ref == b.ref %}{{ _("This booking") }}{% else %}<a class="link" href="/bookings/{{ f.ref }}">{{ f.ref }}</a>{% endif %}<br><span class="muted small">{{ f.sample_id }}</span></td>
+      <td>{% if f.signal is none %}<span class="badge qc-fail">{{ _("QC failed") }}</span>{% elif f.signal %}<span class="badge badge-signal">{{ _("Signal detected") }}</span>{% else %}<span class="badge qc-pass">{{ _("No signal detected") }}</span>{% endif %}</td>
+      <td>{% if f.score is not none %}{{ '%.4f' % f.score }}{% endif %}</td>
+      <td>{{ tissue(f.tissue, alang)|capitalize if f.tissue else '' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endif %}
 
 <div class="detail-grid">
   <section class="site-card">
-    <h2>Appointment</h2>
+    <h2>{{ _("Appointment") }}</h2>
     <dl class="facts">
-      <div><dt>Date</dt><dd>{{ b.day }} at {{ b.slot }}</dd></div>
-      <div><dt>Site</dt><dd>{{ b.site_name }}<br><span class="muted small">{{ b.address }}</span></dd></div>
-      <div><dt>Doctor</dt><dd>{{ b.doctor or "Not given" }}</dd></div>
-      <div><dt>Amount</dt><dd>{{ b.amount_cents|euros }} <span class="muted small">(test payment)</span></dd></div>
-      <div><dt>Booked on</dt><dd>{{ b.created_at.replace('T', ' at ') }}, site in {{ b.lang|upper }}</dd></div>
+      <div><dt>{{ _("Date") }}</dt><dd>{{ b.day }} {{ _("at") }} {{ b.slot }}</dd></div>
+      <div><dt>{{ _("Site") }}</dt><dd>{{ b.site_name }}<br><span class="muted small">{{ b.address }}</span></dd></div>
+      <div><dt>{{ _("Doctor") }}</dt><dd>{{ b.doctor or _("Not given") }}</dd></div>
+      <div><dt>{{ _("Amount") }}</dt><dd>{{ b.amount_cents|euros }} <span class="muted small">({{ _("test payment") }})</span></dd></div>
+      <div><dt>{{ _("Booked on") }}</dt><dd>{{ b.created_at.replace('T', ' ') }}, {{ _("site in {lang}", lang=b.lang|upper) }}</dd></div>
     </dl>
-    <h2>Patient</h2>
+    <h2>{{ _("Patient") }}</h2>
     <dl class="facts">
-      <div><dt>Born in</dt><dd>{{ b.birth_year }}</dd></div>
-      <div><dt>Email</dt><dd><a href="mailto:{{ b.email }}">{{ b.email }}</a></dd></div>
-      <div><dt>Phone</dt><dd><a href="tel:{{ b.phone }}">{{ b.phone }}</a></dd></div>
+      <div><dt>{{ _("Born in") }}</dt><dd>{{ b.birth_year }}</dd></div>
+      <div><dt>{{ _("Email") }}</dt><dd><a href="mailto:{{ b.email }}">{{ b.email }}</a></dd></div>
+      <div><dt>{{ _("Phone") }}</dt><dd><a href="tel:{{ b.phone }}">{{ b.phone }}</a></dd></div>
     </dl>
   </section>
 
   <div>
     <section class="site-card">
-      <h2>Move to the next stage</h2>
+      <h2>{{ _("Move to the next stage") }}</h2>
       <form method="post" action="/bookings/{{ b.ref }}/status" class="stack">
         <input type="hidden" name="csrf" value="{{ csrf }}">
-        <label class="field">Stage
+        <label class="field">{{ _("Stage") }}
           <select name="status">
             {% for s in STATUSES %}
-            <option value="{{ s.key }}"{% if b.status != 'cancelled' and s.key == PIPELINE[[current + 1, PIPELINE|length - 1]|min] %} selected{% elif b.status == 'cancelled' and s.key == 'cancelled' %} selected{% endif %}>{{ s.label }}</option>
+            <option value="{{ s.key }}"{% if b.status != 'cancelled' and s.key == PIPELINE[[current + 1, PIPELINE|length - 1]|min] %} selected{% elif b.status == 'cancelled' and s.key == 'cancelled' %} selected{% endif %}>{{ _(s.label) }}</option>
             {% endfor %}
           </select>
         </label>
-        <label class="field">Comment (optional)<input name="note" maxlength="1000" placeholder="For example: tube received at the lab, batch number"></label>
-        <button class="btn btn-small" type="submit">Save stage</button>
+        <label class="field">{{ _("Comment (optional)") }}<input name="note" maxlength="1000" placeholder="{{ _('For example: tube received at the lab, batch number') }}"></label>
+        <button class="btn btn-small" type="submit">{{ _("Save stage") }}</button>
       </form>
     </section>
 
     <section class="site-card">
-      <h2>History</h2>
+      <h2>{{ _("History") }}</h2>
       <ol class="timeline">
         {% for e in events|reverse %}
         <li>
-          <span class="badge badge-{{ e.status }}">{{ STATUS_LABELS[e.status] }}</span>
-          <span class="muted small">{{ e.at.replace('T', ' at ') }}, by {{ e.actor }}</span>
+          <span class="badge badge-{{ e.status }}">{{ _(STATUS_LABELS[e.status]) }}</span>
+          <span class="muted small">{{ e.at.replace('T', ' ') }}, {{ _("by {who}", who=e.actor) }}</span>
           {% if e.note %}<p>{{ e.note }}</p>{% endif %}
         </li>
         {% endfor %}
@@ -140,11 +206,11 @@
     </section>
 
     <section class="site-card">
-      <h2>Internal note</h2>
+      <h2>{{ _("Internal note") }}</h2>
       <form method="post" action="/bookings/{{ b.ref }}/note" class="stack">
         <input type="hidden" name="csrf" value="{{ csrf }}">
-        <label class="field">Only visible in tracking<textarea name="note" rows="3" maxlength="2000">{{ b.admin_note }}</textarea></label>
-        <button class="btn btn-small btn-ghost" type="submit">Save note</button>
+        <label class="field">{{ _("Only visible in tracking") }}<textarea name="note" rows="3" maxlength="2000">{{ b.admin_note }}</textarea></label>
+        <button class="btn btn-small btn-ghost" type="submit">{{ _("Save note") }}</button>
       </form>
     </section>
   </div>

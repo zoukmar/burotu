@@ -1,56 +1,56 @@
 {% extends "admin/base.html" %}
-{% block title %}Bookings{% endblock %}
+{% block title %}{{ _('Bookings') }}{% endblock %}
 {% block main %}
 <div class="admin-head">
-  <h1>Bookings</h1>
-  <a class="btn btn-small btn-ghost" href="/export.csv">Export CSV</a>
+  <h1>{{ _('Bookings') }}</h1>
+  <a class="btn btn-small btn-ghost" href="/export.csv">{{ _("Export CSV") }}</a>
 </div>
 
-<ol class="pipeline" aria-label="Samples by stage">
+<ol class="pipeline" aria-label="{{ _('Samples by stage') }}">
   {% for key in PIPELINE %}
   <li>
     <a href="/?status={{ key }}"{% if status == key %} aria-current="true"{% endif %}>
       <span class="pipeline-n">{{ stats[key] }}</span>
-      <span class="pipeline-l">{{ STATUS_LABELS[key] }}</span>
+      <span class="pipeline-l">{{ _(STATUS_LABELS[key]) }}</span>
     </a>
   </li>
   {% endfor %}
 </ol>
 <p class="kpi-line muted small">
-  {{ stats.total }} booking{{ 's' if stats.total != 1 }} in total{% if stats.cancelled %}, {{ stats.cancelled }} cancelled{% endif %}.
-  Test-mode revenue: {{ stats.revenue_cents|euros }}.
+  {{ _("{n} bookings in total", n=stats.total) }}{% if stats.cancelled %}, {{ _("{n} cancelled", n=stats.cancelled) }}{% endif %}.
+  {{ _("Test-mode revenue: {amount}.", amount=stats.revenue_cents|euros) }}
 </p>
 
 <form class="filters" method="get" action="/">
-  <label class="field">Search<input name="q" value="{{ q }}" placeholder="Reference, name or email"></label>
-  <label class="field">Stage
+  <label class="field">{{ _("Search") }}<input name="q" value="{{ q }}" placeholder="{{ _('Reference, name or email') }}"></label>
+  <label class="field">{{ _("Stage") }}
     <select name="status">
-      <option value="">All stages</option>
-      {% for s in STATUSES %}<option value="{{ s.key }}"{% if s.key == status %} selected{% endif %}>{{ s.label }}</option>{% endfor %}
+      <option value="">{{ _("All stages") }}</option>
+      {% for s in STATUSES %}<option value="{{ s.key }}"{% if s.key == status %} selected{% endif %}>{{ _(s.label) }}</option>{% endfor %}
     </select>
   </label>
-  <button class="btn btn-small" type="submit">Filter</button>
-  {% if q or status %}<a class="link small" href="/">Clear filters</a>{% endif %}
+  <button class="btn btn-small" type="submit">{{ _("Filter") }}</button>
+  {% if q or status %}<a class="link small" href="/">{{ _("Clear filters") }}</a>{% endif %}
 </form>
 
 {% if bookings %}
 <div class="table-wrap">
 <table class="table">
-  <thead><tr><th>Appointment</th><th>Patient</th><th>Site</th><th>Doctor</th><th>Stage</th></tr></thead>
+  <thead><tr><th>{{ _("Appointment") }}</th><th>{{ _("Patient") }}</th><th>{{ _("Site") }}</th><th>{{ _("Doctor") }}</th><th>{{ _("Stage") }}</th></tr></thead>
   <tbody>
   {% for b in bookings %}
   <tr class="status-{{ b.status }}{% if b.day < today %} past{% endif %}">
-    <td><a class="row-link" href="/bookings/{{ b.ref }}"><strong>{{ b.day }}</strong> at {{ b.slot }}</a><br><span class="muted small">{{ b.ref }}</span></td>
+    <td><a class="row-link" href="/bookings/{{ b.ref }}"><strong>{{ b.day }}</strong> {{ _("at") }} {{ b.slot }}</a><br><span class="muted small">{{ b.ref }}</span></td>
     <td>{{ b.first_name }} {{ b.last_name }} <span class="muted small">({{ b.birth_year }})</span><br><span class="small">{{ b.email }}</span></td>
     <td>{{ b.city }}<br><span class="muted small">{{ b.site_name }}</span></td>
-    <td>{{ b.doctor or "Not given" }}</td>
-    <td><span class="badge badge-{{ b.status }}">{{ STATUS_LABELS[b.status] }}</span></td>
+    <td>{{ b.doctor or _("Not given") }}</td>
+    <td><span class="badge badge-{{ b.status }}">{{ _(STATUS_LABELS[b.status]) }}</span></td>
   </tr>
   {% endfor %}
   </tbody>
 </table>
 </div>
 {% else %}
-<p class="empty">{% if q or status %}No booking matches these filters.{% else %}No bookings yet. Bookings made on burotu.com will show up here.{% endif %}</p>
+<p class="empty">{% if q or status %}{{ _("No booking matches these filters.") }}{% else %}{{ _("No bookings yet. Bookings made on burotu.com will show up here.") }}{% endif %}</p>
 {% endif %}
 {% endblock %}

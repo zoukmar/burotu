@@ -1,51 +1,51 @@
 {% extends "admin/base.html" %}
-{% block title %}Sites and hours{% endblock %}
+{% block title %}{{ _('Sites and hours') }}{% endblock %}
 {% block main %}
 {% set days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
-<div class="admin-head"><h1>Sites and hours</h1></div>
+<div class="admin-head"><h1>{{ _('Sites and hours') }}</h1></div>
 
 {% for s in sites %}
 <form class="site-card{% if not s.active %} inactive{% endif %}" method="post" action="/sites/{{ s.id }}">
   <input type="hidden" name="csrf" value="{{ csrf }}">
   <div class="fields">
-    <label class="field">Name<input name="name" value="{{ s.name }}" required></label>
-    <label class="field">City<input name="city" value="{{ s.city }}" required></label>
-    <label class="field wide">Address<input name="address" value="{{ s.address }}" required></label>
-    <label class="field">Opens at<input type="time" name="open_from" value="{{ s.open_from }}" required></label>
-    <label class="field">Closes at<input type="time" name="open_to" value="{{ s.open_to }}" required></label>
-    <label class="field">Slot length (min)<input type="number" name="slot_minutes" min="5" max="120" value="{{ s.slot_minutes }}"></label>
-    <label class="field">People per slot<input type="number" name="capacity" min="1" max="20" value="{{ s.capacity }}"></label>
+    <label class="field">{{ _("Name") }}<input name="name" value="{{ s.name }}" required></label>
+    <label class="field">{{ _("City") }}<input name="city" value="{{ s.city }}" required></label>
+    <label class="field wide">{{ _("Address") }}<input name="address" value="{{ s.address }}" required></label>
+    <label class="field">{{ _("Opens at") }}<input type="time" name="open_from" value="{{ s.open_from }}" required></label>
+    <label class="field">{{ _("Closes at") }}<input type="time" name="open_to" value="{{ s.open_to }}" required></label>
+    <label class="field">{{ _("Slot length (min)") }}<input type="number" name="slot_minutes" min="5" max="120" value="{{ s.slot_minutes }}"></label>
+    <label class="field">{{ _("People per slot") }}<input type="number" name="capacity" min="1" max="20" value="{{ s.capacity }}"></label>
   </div>
-  <fieldset class="days"><legend>Open on</legend>
-    {% for d in days %}<label><input type="checkbox" name="weekdays" value="{{ loop.index0 }}"{% if loop.index0|string in s.weekdays.split(',') %} checked{% endif %}> {{ d }}</label>{% endfor %}
+  <fieldset class="days"><legend>{{ _('Open on') }}</legend>
+    {% for d in days %}<label><input type="checkbox" name="weekdays" value="{{ loop.index0 }}"{% if loop.index0|string in s.weekdays.split(',') %} checked{% endif %}> {{ _(d) }}</label>{% endfor %}
   </fieldset>
   <div class="site-actions">
-    <label><input type="checkbox" name="active" value="1"{% if s.active %} checked{% endif %}> Shown on burotu.com</label>
-    <button class="btn btn-small" type="submit">Save site</button>
+    <label><input type="checkbox" name="active" value="1"{% if s.active %} checked{% endif %}> {{ _('Shown on burotu.com') }}</label>
+    <button class="btn btn-small" type="submit">{{ _("Save site") }}</button>
   </div>
 </form>
 {% endfor %}
 
 <div class="admin-split">
   <form class="site-card" method="post" action="/sites">
-    <h2>Add a site</h2>
+    <h2>{{ _('Add a site') }}</h2>
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <div class="fields">
-      <label class="field">Name<input name="name" required></label>
-      <label class="field">City<input name="city" required></label>
-      <label class="field wide">Address<input name="address" required></label>
+      <label class="field">{{ _("Name") }}<input name="name" required></label>
+      <label class="field">{{ _("City") }}<input name="city" required></label>
+      <label class="field wide">{{ _("Address") }}<input name="address" required></label>
     </div>
-    <button class="btn btn-small" type="submit">Add site</button>
+    <button class="btn btn-small" type="submit">{{ _("Add site") }}</button>
   </form>
 
   <div class="site-card">
-    <h2>Closures</h2>
+    <h2>{{ _('Closures') }}</h2>
     <form method="post" action="/closures" class="fields">
       <input type="hidden" name="csrf" value="{{ csrf }}">
-      <label class="field">Site<select name="site_id">{% for s in sites %}<option value="{{ s.id }}">{{ s.city }}, {{ s.name }}</option>{% endfor %}</select></label>
-      <label class="field">Day<input type="date" name="day" min="{{ today }}" required></label>
+      <label class="field">{{ _("Site") }}<select name="site_id">{% for s in sites %}<option value="{{ s.id }}">{{ s.city }}, {{ s.name }}</option>{% endfor %}</select></label>
+      <label class="field">{{ _("Day") }}<input type="date" name="day" min="{{ today }}" required></label>
       <input type="hidden" name="action" value="close">
-      <button class="btn btn-small" type="submit">Close this day</button>
+      <button class="btn btn-small" type="submit">{{ _("Close this day") }}</button>
     </form>
     {% if closures %}
     <ul class="closures">
@@ -54,12 +54,12 @@
         <form method="post" action="/closures">
           <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="site_id" value="{{ c.site_id }}">
           <input type="hidden" name="day" value="{{ c.day }}"><input type="hidden" name="action" value="open">
-          <button class="btn btn-small btn-ghost" type="submit">Reopen</button>
+          <button class="btn btn-small btn-ghost" type="submit">{{ _("Reopen") }}</button>
         </form>
       </li>
       {% endfor %}
     </ul>
-    {% else %}<p class="muted">No closures planned.</p>{% endif %}
+    {% else %}<p class="muted">{{ _("No closures planned.") }}</p>{% endif %}
   </div>
 </div>
 {% endblock %}

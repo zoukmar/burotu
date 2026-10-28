@@ -8,7 +8,7 @@ from functools import lru_cache
 
 from burotu.analysis import qc as qc_mod
 from burotu.analysis.engines import BaselineEngine, MuseEngine
-from burotu.analysis.report import write_report
+from burotu.analysis.report import write_reports
 from burotu.labformat import LabSample
 
 
@@ -23,35 +23,42 @@ def muse() -> MuseEngine | None:
 
 
 def analyse(sample: LabSample, lang: str = "en") -> dict:
+    """QC, then the signal and its likely tissue, then the letter in every language.
+
+    `models` keeps both answers side by side: the classic classifier, and Muse Glimmer
+    when it is served. `detection` is what Burotu reports: with BUROTU_MUSE_ROLE=origin,
+    the classifier's signal (99.8% specificity) and Muse Glimmer's tissue.
+    """
     panel = baseline().panel
     quality = qc_mod.check(sample, panel).to_dict()
-    detection, notes = None, []
+    detection, notes, models = None, [], {}
     if quality["status"] != "fail":
+        models["classic"] = baseline().analyse(sample).to_dict()
         engine = muse()
-        muse_result = None
         if engine is not None:
             try:
-                muse_result = engine.analyse(sample).to_dict()
+                models["meta"] = engine.analyse(sample).to_dict()
             except Exception as e:  # Muse unreachable: fall back, and say so
-                notes.append(f"Muse Glimmer was unavailable ({type(e).__name__}); the benchmark classifier answered.")
-        if muse_result is not None and os.environ.get("BUROTU_MUSE_ROLE", "full") == "origin":
-            # Hybrid: the benchmark classifier raises the alarm (its threshold holds 99.8% specificity),
-            # Muse Glimmer names the tissue of origin (where it beats the classifier at low tumour DNA).
-            detection = baseline().analyse(sample).to_dict()
-            detection["origin"] = muse_result["origin"]
+                notes.append(f"Muse Glimmer was unavailable ({type(e).__name__}); the classic model answered alone.")
+        meta = models.get("meta")
+        if meta is not None and os.environ.get("BUROTU_MUSE_ROLE", "full") == "origin":
+            detection = dict(models["classic"])
+            detection["origin"] = meta["origin"]
             detection["engine"] = "baseline+muse-glimmer"
-            detection["engine_label"] = "Benchmark classifier (cancer signal) + Muse Glimmer 30B (tissue of origin)"
-        elif muse_result is not None:
-            detection = muse_result
+            detection["engine_label"] = "Classic model (signal) + Muse Glimmer 30B (tissue)"
+        elif meta is not None:
+            detection = meta
         else:
-            detection = baseline().analyse(sample).to_dict()
-    report = write_report(quality, detection, lang)
+            detection = models["classic"]
+    reports = write_reports(quality, detection)
     return {
         "sample_id": sample.sample_id,
         "lab": sample.header.get("lab", ""),
         "analysed_at": datetime.now().isoformat(timespec="seconds"),
         "quality": quality,
         "detection": detection,
-        "report": report,
+        "models": models,
+        "reports": reports,
+        "report": reports.get(lang, reports["en"]),
         "notes": notes,
     }
