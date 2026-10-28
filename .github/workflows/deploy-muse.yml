@@ -52,6 +52,7 @@ jobs:
         env:
           BUROTU_GPU: ${{ inputs.gpu }}
           BUROTU_MUSE_RUN: ${{ inputs.run_name }}
+          BUROTU_MUSE_SERVE: "1"
         run: modal deploy scripts/modal_muse.py | tee deploy.log
 
       - name: Warm up and check
