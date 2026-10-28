@@ -309,6 +309,32 @@ class Database:
             ).fetchone()
         return None if row is None else {"at": row["at"], "actor": row["actor"], **json.loads(row["result_json"])}
 
+    def patient_analyses(self, email: str, limit: int = 20) -> list[dict]:
+        """Every analysis for this patient (same email, any booking), newest first, summarised."""
+        with self.connect() as con:
+            rows = con.execute(
+                """SELECT a.at, a.actor, a.result_json, b.ref FROM analyses a JOIN bookings b ON b.id=a.booking_id
+                   WHERE lower(b.email)=lower(?) ORDER BY a.id DESC LIMIT ?""",
+                (email, limit),
+            ).fetchall()
+        out = []
+        for r in rows:
+            res = json.loads(r["result_json"])
+            d = res.get("detection")
+            out.append(
+                {
+                    "ref": r["ref"],
+                    "at": r["at"],
+                    "sample_id": res.get("sample_id", ""),
+                    "qc": res.get("quality", {}).get("status", ""),
+                    "signal": None if d is None else bool(d["cancer_signal"]),
+                    "score": None if d is None else d["score"],
+                    "threshold": None if d is None else d["threshold"],
+                    "tissue": d["origin"][0]["class"] if d and d["cancer_signal"] and d.get("origin") else None,
+                }
+            )
+        return out
+
     def set_note(self, ref: str, note: str) -> None:
         with self.connect() as con:
             con.execute("UPDATE bookings SET admin_note=? WHERE ref=?", (note[:2000], ref))

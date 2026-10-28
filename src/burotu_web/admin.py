@@ -16,6 +16,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse, StreamingResponse
 
+from burotu_web.admin_i18n import ADMIN_LANGS, COOKIE, admin_lang, translator
 from burotu_web.db import STATUS_KEYS
 from burotu_web.security import LoginThrottle, check_csrf, client_ip, csrf_token
 from burotu_web.templating import templates
@@ -36,12 +37,30 @@ def require_admin(request: Request) -> str:
 
 
 def page(request: Request, name: str, status_code: int = 200, **ctx):
+    lang = admin_lang(request)
     return templates.TemplateResponse(
         request,
         f"admin/{name}",
-        {"csrf": csrf_token(request), "user": request.session.get("admin"), **ctx},
+        {
+            "csrf": csrf_token(request),
+            "user": request.session.get("admin"),
+            "alang": lang,
+            "ADMIN_LANGS": ADMIN_LANGS,
+            "_": translator(lang),
+            **ctx,
+        },
         status_code=status_code,
     )
+
+
+@router.get("/lang/{code}")
+def set_admin_lang(code: str, next: str = "/"):
+    """Remember the tracking language for this browser, then go back where we were."""
+    target = next if next.startswith("/") and not next.startswith("//") else "/"
+    resp = RedirectResponse(target, status_code=303)
+    if code in ADMIN_LANGS:
+        resp.set_cookie(COOKIE, code, max_age=365 * 24 * 3600, samesite="lax", httponly=True)
+    return resp
 
 
 @router.get("/robots.txt", response_class=PlainTextResponse)
@@ -69,13 +88,14 @@ def login(request: Request, csrf: str = Form(""), username: str = Form(""), pass
     throttle: LoginThrottle = request.app.state.throttle
     ip = client_ip(request)
     if throttle.blocked(ip):
-        return page(request, "login.html", 429, error="Too many attempts. Try again in 15 minutes.")
+        msg = translator(admin_lang(request))("Too many attempts. Try again in 15 minutes.")
+        return page(request, "login.html", 429, error=msg)
     if not settings.admin_password:
         return page(request, "login.html", 503, error="No admin password is configured (BUROTU_ADMIN_PASSWORD).")
     ok = hmac.compare_digest(username, settings.admin_user) & hmac.compare_digest(password, settings.admin_password)
     if not ok:
         throttle.fail(ip)
-        return page(request, "login.html", 401, error="Wrong username or password.")
+        return page(request, "login.html", 401, error=translator(admin_lang(request))("Wrong username or password."))
     throttle.reset(ip)
     request.session.clear()  # fresh session: prevents session fixation
     request.session["admin"] = username
@@ -115,15 +135,54 @@ def booking_detail(request: Request, ref: str):
     b = db.get_booking(ref)
     if b is None:
         raise HTTPException(404)
+    letter = request.query_params.get("letter", b["lang"])
     return page(
         request,
         "booking.html",
         b=b,
         events=db.events(ref),
         analysis=db.latest_analysis(ref),
+        followup=db.patient_analyses(b["email"]),
+        letter_lang=letter if letter in ADMIN_LANGS else "en",
         demo_samples=demo_samples(),
         error=request.query_params.get("error"),
+        tissue=tissue_name,
+        qc_findings=qc_text,
     )
+
+
+@router.get("/bookings/{ref}/report.pdf")
+def booking_report_pdf(request: Request, ref: str, lang: str = ""):
+    require_admin(request)
+    db = request.app.state.db
+    b = db.get_booking(ref)
+    analysis = db.latest_analysis(ref) if b is not None else None
+    if analysis is None:
+        raise HTTPException(404)
+    from burotu.analysis.pdf import build_pdf
+
+    lang = lang if lang in ADMIN_LANGS else b["lang"]
+    pdf = build_pdf(dict(b), analysis, db.patient_analyses(b["email"]), lang)
+    name = f"burotu-{ref}-{lang}.pdf"
+    return StreamingResponse(
+        io.BytesIO(pdf), media_type="application/pdf", headers={"Content-Disposition": f'inline; filename="{name}"'}
+    )
+
+
+def tissue_name(cls: str, lang: str) -> str:
+    try:
+        from burotu.analysis.wording import tissue
+    except ImportError:
+        return cls
+    return tissue(cls, lang)
+
+
+def qc_text(qc: dict, lang: str) -> list[str]:
+    try:
+        from burotu.analysis.wording import qc_findings
+    except ImportError:
+        return qc.get("issues", [])
+    return qc_findings(qc, lang) if "codes" in qc else qc.get("issues", [])
 
 
 # --- Lab results ----------------------------------------------------------------------
@@ -189,8 +248,8 @@ async def booking_analyse(
     if detection is None:
         db.set_status(ref, b["status"], "Quality control failed: a new blood draw is needed.", actor=user)
     elif b["status"] not in ("cancelled", "reported"):
-        verdict = "cancer signal detected" if detection["cancer_signal"] else "no cancer signal detected"
-        db.set_status(ref, "analysed", f"{verdict.capitalize()} ({detection['engine_label']}).", actor=user)
+        verdict = "Signal detected" if detection["cancer_signal"] else "No signal detected"
+        db.set_status(ref, "analysed", f"{verdict} ({detection['engine_label']}).", actor=user)
     return RedirectResponse(f"/bookings/{ref}#lab", status_code=303)
 
 
