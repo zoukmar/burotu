@@ -59,8 +59,11 @@ def run(run_dir: Path, n: int = 16) -> dict:
 
     lm, tok = load_lm(cfg)
     classes = meta["classes"] if meta else sorted(set(test.labels) - {HEALTHY})
-    reader = MuseReader(lm, tok, x.shape[1], classes, n_tokens=cfg.n_tokens)
-    fresh = MethylationAdapter(x.shape[1], reader.adapter.d_model, cfg.n_tokens).to(reader.device)
+    from burotu.muse.train import adapter_kwargs
+
+    reader = MuseReader(lm, tok, x.shape[1], classes, n_tokens=cfg.n_tokens, adapter_kwargs=adapter_kwargs(cfg))
+    fresh = MethylationAdapter(x.shape[1], reader.adapter.d_model, cfg.n_tokens, **adapter_kwargs(cfg))
+    fresh = fresh.to(reader.device)
     fresh.embed_scale.copy_(reader.adapter.embed_scale)
     fresh.eval()
     report: dict = {"run": str(run_dir), "embed_scale": float(reader.adapter.embed_scale)}

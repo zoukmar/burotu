@@ -53,6 +53,11 @@ class TrainConfig:
     seed: int = 0
     stage1_steps: int = 0  # first steps train the adapter only (LoRA frozen), as LLaVA-style models do
     min_tf: float = 0.0  # drop training cancers below this tumour fraction (0 = keep all)
+    adapter_hidden: int = 1024
+    adapter_dropout: float = 0.1
+    adapter_input_norm: str = "layer"  # "layer" (per-sample LayerNorm) or "fixed" (keeps magnitudes)
+    weight_decay: float = 0.01
+    weights_file: str = "trainable.pt"  # what eval-only loads, e.g. trainable_stage1.pt
     eval_only: bool = False  # re-score an existing run (its trainable.pt) without training
     probe_every: int = 0  # every n steps, log the AUC on a fixed probe set (healthy vs cancers at 3-10%)
     out: str = "runs/latest"
@@ -123,16 +128,23 @@ def batched(n: int, size: int):
 # --- Training ---------------------------------------------------------------------------
 
 
-def probe_auc(reader: MuseReader, probe: tuple[torch.Tensor, np.ndarray] | None, batch: int) -> float | None:
-    if probe is None:
+Probe = dict[str, tuple[torch.Tensor, np.ndarray]]
+
+
+def probe_auc(reader: MuseReader, probes: Probe | None, batch: int) -> dict | None:
+    """AUC per probe set: `seen` uses training donors, `unseen` healthy people never trained on."""
+    if not probes:
         return None
     from sklearn.metrics import roc_auc_score
 
     was_training = reader.training
     reader.eval()
-    s, _ = score(reader, probe[0], np.full(len(probe[0]), HEALTHY), batch, with_origin=False)
+    out = {}
+    for name, (x, y) in probes.items():
+        s, _ = score(reader, x, np.full(len(x), HEALTHY), batch, with_origin=False)
+        out[name] = round(float(roc_auc_score(y, s)), 4)
     reader.train(was_training)
-    return round(float(roc_auc_score(probe[1], s)), 4)
+    return out
 
 
 def train(
@@ -141,7 +153,8 @@ def train(
     labels: np.ndarray,
     cfg: TrainConfig,
     log,
-    probe: tuple[torch.Tensor, np.ndarray] | None = None,
+    probe: Probe | None = None,
+    checkpoint: Path | None = None,
 ) -> None:
     lora_params = [p for p in reader.lm.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(
@@ -149,7 +162,7 @@ def train(
             {"params": reader.adapter.parameters(), "lr": cfg.lr_adapter},
             {"params": lora_params, "lr": cfg.lr_lora},
         ],
-        weight_decay=0.01,
+        weight_decay=cfg.weight_decay,
     )
     base_lrs = [g["lr"] for g in opt.param_groups]
     rng = np.random.default_rng(cfg.seed)
@@ -173,6 +186,9 @@ def train(
         torch.nn.utils.clip_grad_norm_([*reader.adapter.parameters(), *lora_params], 1.0)
         opt.step()
         opt.zero_grad(set_to_none=True)
+        if step == cfg.stage1_steps < cfg.steps and checkpoint is not None:
+            reader.save_trainable(checkpoint)  # adapter-only model, evaluable later with weights_file
+            log({"event": "checkpoint", "step": step, "path": str(checkpoint)})
         probe_now = bool(cfg.probe_every) and (step % cfg.probe_every == 0 or step == cfg.steps)
         if step == 1 or step % 25 == 0 or step == cfg.steps or probe_now:
             entry = {"step": step, "loss": round(total, 4), "lr_scale": round(f, 3)}
@@ -223,6 +239,14 @@ class ReaderAsModel:
         return score(self.reader, x, np.full(len(x), "cancer"), self.batch, with_origin=True)[1]
 
 
+def adapter_kwargs(cfg: TrainConfig) -> dict:
+    return {"hidden": cfg.adapter_hidden, "dropout": cfg.adapter_dropout, "input_norm": cfg.adapter_input_norm}
+
+
+def _rows(cohort: benchmark.Cohort, rows: np.ndarray) -> benchmark.Cohort:
+    return benchmark.Cohort(cohort.meth[rows], cohort.total[rows], cohort.meta.iloc[rows].reset_index(drop=True))
+
+
 def by_donor(scores: np.ndarray, meta) -> list[dict]:
     """Healthy scores per blood donor, highest first: shows whether a few donors set the threshold."""
     import pandas as pd
@@ -243,6 +267,7 @@ def save_for_serving(out: Path, cfg: TrainConfig, featurizer: Featurizer, panel,
         "load_4bit": cfg.load_4bit,
         "lora_r": cfg.lora_r,
         "n_tokens": cfg.n_tokens,
+        "adapter": adapter_kwargs(cfg),
         "panel": list(panel),
         "classes": list(classes),
         "threshold": float(threshold),
@@ -272,7 +297,7 @@ def run(cfg: TrainConfig) -> dict:
 
     lm, tokenizer = load_lm(cfg)
     in_dim = len(ref.panel) + 3
-    reader = MuseReader(lm, tokenizer, in_dim, classes, n_tokens=cfg.n_tokens)
+    reader = MuseReader(lm, tokenizer, in_dim, classes, n_tokens=cfg.n_tokens, adapter_kwargs=adapter_kwargs(cfg))
     trainable = sum(p.numel() for p in reader.parameters() if p.requires_grad)
     log(
         {
@@ -290,19 +315,28 @@ def run(cfg: TrainConfig) -> dict:
         log({"event": "min_tf", "kept": int(keep.sum())})
     probe = None
     if cfg.probe_every:
-        # Fixed probe from the small `fit` cohort (training donors, never the test cohort).
+        # Cancers at 3-10% from the small `fit` cohort (training donors), against healthy samples
+        # from training donors (`seen`) or from calibration donors never trained on (`unseen`):
+        # the second one shows whether the model learns tumours or memorises donors.
         small = benchmark.load_cohort("fit", ref)
         tf = small.meta["tumor_fraction"].to_numpy()
-        rows = np.r_[np.flatnonzero(small.labels == HEALTHY)[:64], np.flatnonzero(tf >= 0.03)[:64]]
-        sub = benchmark.Cohort(small.meth[rows], small.total[rows], small.meta.iloc[rows].reset_index(drop=True))
-        probe = (features_of(sub, featurizer), sub.labels != HEALTHY)
+        cancers = np.flatnonzero(tf >= 0.03)[:64]
+        seen = np.flatnonzero(small.labels == HEALTHY)[:64]
+        unseen = np.flatnonzero(calib.labels == HEALTHY)[:: max(1, len(calib) // 128)][:128]
+        x_cancer = features_of(_rows(small, cancers), featurizer)
+
+        def probe_set(cohort: benchmark.Cohort, healthy: np.ndarray):
+            x = torch.cat([features_of(_rows(cohort, healthy), featurizer), x_cancer])
+            return x, np.r_[np.zeros(len(healthy)), np.ones(len(cancers))]
+
+        probe = {"seen": probe_set(small, seen), "unseen": probe_set(calib, unseen)}
         log({"event": "probe", "auc_before_training": probe_auc(reader, probe, cfg.eval_batch)})
     if cfg.eval_only:
-        reader.load_trainable(out / "trainable.pt")
+        reader.load_trainable(out / cfg.weights_file)
         reader.eval()
-        log({"event": "eval_only", "weights": str(out / "trainable.pt")})
+        log({"event": "eval_only", "weights": str(out / cfg.weights_file)})
     else:
-        train(reader, features_of(fit, featurizer), fit.labels, cfg, log, probe)
+        train(reader, features_of(fit, featurizer), fit.labels, cfg, log, probe, out / "trainable_stage1.pt")
         reader.save_trainable(out / "trainable.pt")
 
     c_score, _ = score(reader, features_of(calib, featurizer), calib.labels, cfg.eval_batch, with_origin=False)
