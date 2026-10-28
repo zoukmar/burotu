@@ -39,7 +39,10 @@ def _answer_logits(reader: MuseReader, x: torch.Tensor) -> torch.Tensor:
     out = reader.lm(inputs_embeds=embeds, attention_mask=mask, output_hidden_states=True)
     h = out.hidden_states[-1][:, head_len - 1].float()
     head = reader.lm.get_output_embeddings()
-    return h @ head.weight.float().T if hasattr(head, "weight") else out.logits[:, head_len - 1].float()
+    with torch.autocast("cuda", enabled=False):  # true float32 logits, not bf16
+        if hasattr(head, "weight") and head.weight.dtype in (torch.float32, torch.bfloat16, torch.float16):
+            return (h @ head.weight.float().T).float()
+        return out.logits[:, head_len - 1].float()
 
 
 def run(run_dir: Path, n: int = 16) -> dict:
