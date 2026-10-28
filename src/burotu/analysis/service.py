@@ -28,12 +28,22 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
     detection, notes = None, []
     if quality["status"] != "fail":
         engine = muse()
+        muse_result = None
         if engine is not None:
             try:
-                detection = engine.analyse(sample).to_dict()
+                muse_result = engine.analyse(sample).to_dict()
             except Exception as e:  # Muse unreachable: fall back, and say so
                 notes.append(f"Muse Glimmer was unavailable ({type(e).__name__}); the benchmark classifier answered.")
-        if detection is None:
+        if muse_result is not None and os.environ.get("BUROTU_MUSE_ROLE", "full") == "origin":
+            # Hybrid: the benchmark classifier raises the alarm (its threshold holds 99.8% specificity),
+            # Muse Glimmer names the tissue of origin (where it beats the classifier at low tumour DNA).
+            detection = baseline().analyse(sample).to_dict()
+            detection["origin"] = muse_result["origin"]
+            detection["engine"] = "baseline+muse-glimmer"
+            detection["engine_label"] = "Benchmark classifier (cancer signal) + Muse Glimmer 30B (tissue of origin)"
+        elif muse_result is not None:
+            detection = muse_result
+        else:
             detection = baseline().analyse(sample).to_dict()
     report = write_report(quality, detection, lang)
     return {
