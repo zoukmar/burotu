@@ -263,7 +263,15 @@ def run(cfg: TrainConfig) -> dict:
     in_dim = len(ref.panel) + 3
     reader = MuseReader(lm, tokenizer, in_dim, classes, n_tokens=cfg.n_tokens)
     trainable = sum(p.numel() for p in reader.parameters() if p.requires_grad)
-    log({"event": "model", "model": cfg.model, "trainable_params": trainable, "load_s": round(time.time() - t0)})
+    log(
+        {
+            "event": "model",
+            "model": cfg.model,
+            "trainable_params": trainable,
+            "output_head": reader.head_precision,
+            "load_s": round(time.time() - t0),
+        }
+    )
 
     if cfg.min_tf > 0:
         keep = (fit.labels == HEALTHY) | (fit.meta["tumor_fraction"].to_numpy() >= cfg.min_tf)
