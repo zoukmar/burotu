@@ -55,3 +55,13 @@ def test_trainable_weights_roundtrip(reader, tmp_path):
     assert not torch.allclose(before, reader.cancer_score(x))
     reader.load_trainable(tmp_path / "w.pt")
     assert torch.allclose(before, reader.cancer_score(x), atol=1e-5)
+
+
+def test_float32_margin_matches_the_model_logits(reader):
+    """The float32 yes/no margin must equal the model's own logit difference."""
+    x = torch.randn(3, 12)
+    embeds, mask, head_len = reader._sequences(x, [[], [], []])
+    with torch.no_grad():
+        margin = reader._next_token_margin(embeds, mask, head_len - 1, 10, 20)
+        logits = reader._logits(embeds, mask, reader._span(head_len - 1, head_len))[:, 0].float()
+    assert torch.allclose(margin, logits[:, 10] - logits[:, 20], atol=1e-4)

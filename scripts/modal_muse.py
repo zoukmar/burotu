@@ -138,6 +138,7 @@ def main(
     stage1_steps: int = 0,
     min_tf: float = 0.0,
     probe_every: int = 0,
+    eval_only: bool = False,
     lr_adapter: float = 1e-3,
     lr_lora: float = 2e-4,
     revision: str = "a4e59da52a7bc87ae7251dd5545c0dd437c44b68",  # revision pinned in Meta's QLoRA recipe
@@ -155,6 +156,7 @@ def main(
         "stage1_steps": stage1_steps,
         "min_tf": min_tf,
         "probe_every": probe_every,
+        "eval_only": eval_only,
         "lr_adapter": lr_adapter,
         "lr_lora": lr_lora,
         "revision": revision if model == "meta-models/Muse-Glimmer-30B" else "",

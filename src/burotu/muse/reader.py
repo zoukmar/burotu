@@ -147,14 +147,38 @@ class MuseReader(nn.Module):
         logp = torch.log_softmax(self._logits(embeds, mask, self._span(start - 1, start - 1 + len(option))).float(), -1)
         return sum(logp[:, j, tok] for j, tok in enumerate(option))
 
+    def _next_token_margin(self, embeds: torch.Tensor, mask: torch.Tensor, pos: int, a: int, b: int) -> torch.Tensor:
+        """logit(a) - logit(b) for the token after `pos`, computed in float32.
+
+        Glimmer returns bf16 logits squeezed by a tanh soft cap, so confident answers land
+        on the same few representable values and tie. Ties at the top break the threshold
+        set at 99.5% specificity. We capture the final hidden state going into the output
+        head and redo the last step (projection, output multiplier, soft cap) in float32.
+        """
+        head = self.lm.get_output_embeddings()
+        seen: dict = {}
+        hook = head.register_forward_hook(lambda _m, inp, _out: seen.__setitem__("h", inp[0]))
+        try:
+            self._logits(embeds, mask, self._span(pos, pos + 1))
+        finally:
+            hook.remove()
+        with torch.autocast(self.device.type, enabled=False):
+            h = seen["h"][:, -1].float()
+            raw = h @ head.weight[[a, b]].float().T
+            cfg = getattr(self.lm.config, "text_config", self.lm.config)
+            logits = raw * float(getattr(cfg, "output_multiplier", 1.0) or 1.0)
+            cap = getattr(cfg, "final_logit_softcapping", None)
+            if cap:
+                logits = cap * torch.tanh(logits / cap)
+        return logits[:, 0] - logits[:, 1]
+
     @torch.no_grad()
     def cancer_score(self, features: torch.Tensor) -> torch.Tensor:
         """log P(" yes") - log P(" no"): higher means a stronger cancer signal."""
-        if self._yes != self._no:  # usual case: one forward pass, compare the two next tokens
+        head_w = self.lm.get_output_embeddings().weight
+        if self._yes != self._no and head_w.is_floating_point():  # one pass, compare the two next tokens
             embeds, mask, head_len = self._sequences(features, [[] for _ in range(len(features))])
-            logits = self._logits(embeds, mask, self._span(head_len - 1, head_len))[:, 0].float()
-            logp = torch.log_softmax(logits, dim=-1)
-            return (logp[:, self._yes] - logp[:, self._no]).cpu()
+            return self._next_token_margin(embeds, mask, head_len - 1, self._yes, self._no).cpu()
         yes = self._continuation_logprob(features, [], self._ids(prompts.YES))
         no = self._continuation_logprob(features, [], self._ids(prompts.NO))
         return (yes - no).cpu()
