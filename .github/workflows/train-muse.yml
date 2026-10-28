@@ -23,7 +23,7 @@ on:
       task:
         description: train, or diagnose an existing run (run_name) for a few minutes of GPU
         type: choice
-        options: [train, diagnose]
+        options: [train, diagnose, logs]
         default: train
       gpu:
         description: Modal GPU
@@ -59,6 +59,11 @@ jobs:
           MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
           BUROTU_GPU: ${{ inputs.gpu }}
         run: |
+          if [ "${{ inputs.task }}" = logs ]; then
+            modal app list || true
+            timeout 90 modal app logs burotu-muse || true
+            exit 0
+          fi
           if [ "${{ inputs.task }}" = diagnose ]; then
             modal run scripts/modal_muse.py::diagnose_run --name "${{ inputs.run_name }}"
             exit 0
