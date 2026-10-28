@@ -135,6 +135,11 @@ def main(
     n_tokens: int = 16,
     eval_stride: int = 1,
     name: str = "glimmer",
+    stage1_steps: int = 0,
+    min_tf: float = 0.0,
+    probe_every: int = 0,
+    lr_adapter: float = 1e-3,
+    lr_lora: float = 2e-4,
     revision: str = "a4e59da52a7bc87ae7251dd5545c0dd437c44b68",  # revision pinned in Meta's QLoRA recipe
 ) -> None:
     args = {
@@ -147,6 +152,11 @@ def main(
         "n_tokens": n_tokens,
         "eval_stride": eval_stride,
         "out": name,
+        "stage1_steps": stage1_steps,
+        "min_tf": min_tf,
+        "probe_every": probe_every,
+        "lr_adapter": lr_adapter,
+        "lr_lora": lr_lora,
         "revision": revision if model == "meta-models/Muse-Glimmer-30B" else "",
     }
     if model != "tiny":
