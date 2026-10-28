@@ -85,7 +85,7 @@ def write_report(qc: dict, detection: dict | None, lang: str, client: MetaClient
                 {"role": "user", "content": json.dumps(payload)},
             ],
             temperature=0.3,
-            max_tokens=600,
+            max_tokens=6000,  # Muse Spark reasons first; reasoning tokens count against this budget
         )
         return {"text": resp.text.strip(), "author": resp.model}
     except Exception as e:  # never block a result on the report
