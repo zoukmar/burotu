@@ -105,9 +105,9 @@ if SERVE:
 
     @app.cls(
         gpu=GPU,
-        image=image.env({"BUROTU_MUSE_RUN": RUN}),
         volumes={"/runs": runs, "/cache": hf_cache},
-        secrets=[modal.Secret.from_name("burotu-muse")],
+        # The run name travels as a secret: image.env() after add_local_dir would force a rebuild step.
+        secrets=[modal.Secret.from_name("burotu-muse"), modal.Secret.from_dict({"BUROTU_MUSE_RUN": RUN})],
         scaledown_window=15 * 60,  # stay warm through a demo, then scale to zero
         timeout=600,
     )
