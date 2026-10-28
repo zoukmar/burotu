@@ -17,6 +17,9 @@ on:
       eval_stride:
         description: Score every n-th benchmark sample (1 = full benchmark, 20 = quick smoke run)
         default: "1"
+      extra:
+        description: Extra training options, e.g. --stage1-steps 300 --min-tf 0.03 --probe-every 50
+        default: ""
       task:
         description: train, or diagnose an existing run (run_name) for a few minutes of GPU
         type: choice
@@ -64,7 +67,7 @@ jobs:
             --model "${{ inputs.model }}" \
             --steps "${{ inputs.steps }}" \
             --eval-stride "${{ inputs.eval_stride }}" \
-            --name "${{ inputs.run_name }}"
+            --name "${{ inputs.run_name }}" ${{ inputs.extra }}
 
       - name: Keep the report
         if: always()
