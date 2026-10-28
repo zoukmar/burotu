@@ -67,3 +67,19 @@ def test_template_never_states_a_diagnosis():
 def test_bad_lab_files_are_rejected(text):
     with pytest.raises(LabFormatError):
         parse_lab_text(text)
+
+
+def test_hybrid_role_takes_origin_from_muse_and_signal_from_baseline(monkeypatch):
+    from burotu.analysis import service
+    from burotu.analysis.engines import Detection
+
+    class FakeMuse:
+        def analyse(self, sample):
+            origin = [{"class": "Lung", "probability": 0.9}]
+            return Detection("muse-glimmer", "Muse", False, -5.0, 0.0, origin)
+
+    monkeypatch.setattr(service, "muse", lambda: FakeMuse())
+    monkeypatch.setenv("BUROTU_MUSE_ROLE", "origin")
+    d = service.analyse(read_lab_file(DEMO / "BRT-DEMO-02.tsv"), "en")["detection"]
+    assert d["cancer_signal"] is True  # from the benchmark classifier
+    assert d["origin"][0]["class"] == "Lung" and d["engine"] == "baseline+muse-glimmer"
