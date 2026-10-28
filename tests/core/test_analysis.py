@@ -83,3 +83,13 @@ def test_hybrid_role_takes_origin_from_muse_and_signal_from_baseline(monkeypatch
     d = service.analyse(read_lab_file(DEMO / "BRT-DEMO-02.tsv"), "en")["detection"]
     assert d["cancer_signal"] is True  # from the benchmark classifier
     assert d["origin"][0]["class"] == "Lung" and d["engine"] == "baseline+muse-glimmer"
+
+
+def test_answer_text_handles_parts_and_empty_answers():
+    from burotu.llm.client import _answer_text
+
+    assert _answer_text({"choices": [{"message": {"content": "Bonjour"}}]}) == "Bonjour"
+    parts = {"choices": [{"message": {"content": [{"type": "text", "text": "Bon"}, {"type": "text", "text": "jour"}]}}]}
+    assert _answer_text(parts) == "Bonjour"
+    with pytest.raises(ValueError, match="finish_reason=length"):
+        _answer_text({"choices": [{"message": {"content": None}, "finish_reason": "length"}]})

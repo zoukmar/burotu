@@ -93,7 +93,7 @@ class MetaClient:
                 r.raise_for_status()
                 data = r.json()
                 return LLMResponse(
-                    text=data["choices"][0]["message"]["content"],
+                    text=_answer_text(data),
                     model=data.get("model", self.model),
                     mock=False,
                     usage=data.get("usage"),
@@ -108,6 +108,21 @@ class MetaClient:
                     raise
                 time.sleep(2**attempt)
         raise RuntimeError(f"Meta Model API unavailable after {retries} attempts: {last}")
+
+
+def _answer_text(data: dict) -> str:
+    """The answer text, whether `content` is a string or a list of parts.
+
+    Muse Spark reasons before answering, and reasoning tokens count against
+    max_completion_tokens: a budget that is too small leaves an empty answer.
+    """
+    choice = data["choices"][0]
+    content = choice.get("message", {}).get("content")
+    if isinstance(content, list):
+        content = "".join(p.get("text", "") for p in content if isinstance(p, dict))
+    if not content or not content.strip():
+        raise ValueError(f"empty answer (finish_reason={choice.get('finish_reason')}); raise max_tokens")
+    return content
 
 
 def _default_mock(messages: list[dict[str, str]], json_mode: bool) -> str:
