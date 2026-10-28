@@ -10,7 +10,7 @@ of input into the token space, and the language model learns to reason over it.
 
 Scoring is done from the model's own probabilities, so it can be compared with any
 classifier on the same benchmark:
-  * cancer score  = log P(" yes") - log P(" no") right after QUESTION;
+  * cancer score  = " yes" vs " no" logit margin right after QUESTION (before the soft cap);
   * tissue origin = softmax over the log-likelihood of each class name.
 """
 
@@ -147,13 +147,17 @@ class MuseReader(nn.Module):
         logp = torch.log_softmax(self._logits(embeds, mask, self._span(start - 1, start - 1 + len(option))).float(), -1)
         return sum(logp[:, j, tok] for j, tok in enumerate(option))
 
-    def _next_token_margin(self, embeds: torch.Tensor, mask: torch.Tensor, pos: int, a: int, b: int) -> torch.Tensor:
-        """logit(a) - logit(b) for the token after `pos`, computed in float32.
+    def _next_token_margin(
+        self, embeds: torch.Tensor, mask: torch.Tensor, pos: int, a: int, b: int, capped: bool = False
+    ) -> torch.Tensor:
+        """Margin between tokens `a` and `b` after `pos`, in float32 and before any soft cap.
 
-        Glimmer returns bf16 logits squeezed by a tanh soft cap, so confident answers land
-        on the same few representable values and tie. Ties at the top break the threshold
-        set at 99.5% specificity. We capture the final hidden state going into the output
-        head and redo the last step (projection, output multiplier, soft cap) in float32.
+        Glimmer squeezes its logits with a tanh soft cap (20 * tanh(x / 20)) and returns
+        them in bf16. Confident answers then saturate to the same value, healthy and cancer
+        alike, and ties at the top make a 99.5%-specificity threshold unreachable. The
+        margin before the cap keeps the same order and stays continuous, so we capture the
+        final hidden state going into the output head and project it ourselves.
+        `capped=True` reproduces the model's own logit difference (used in tests).
         """
         head = self.lm.get_output_embeddings()
         seen: dict = {}
@@ -168,13 +172,13 @@ class MuseReader(nn.Module):
             cfg = getattr(self.lm.config, "text_config", self.lm.config)
             logits = raw * float(getattr(cfg, "output_multiplier", 1.0) or 1.0)
             cap = getattr(cfg, "final_logit_softcapping", None)
-            if cap:
+            if cap and capped:
                 logits = cap * torch.tanh(logits / cap)
         return logits[:, 0] - logits[:, 1]
 
     @torch.no_grad()
     def cancer_score(self, features: torch.Tensor) -> torch.Tensor:
-        """log P(" yes") - log P(" no"): higher means a stronger cancer signal."""
+        """Yes-vs-no logit margin (before Glimmer's soft cap): higher means a stronger cancer signal."""
         head_w = self.lm.get_output_embeddings().weight
         if self._yes != self._no and head_w.is_floating_point():  # one pass, compare the two next tokens
             embeds, mask, head_len = self._sequences(features, [[] for _ in range(len(features))])

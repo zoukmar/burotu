@@ -62,6 +62,6 @@ def test_float32_margin_matches_the_model_logits(reader):
     x = torch.randn(3, 12)
     embeds, mask, head_len = reader._sequences(x, [[], [], []])
     with torch.no_grad():
-        margin = reader._next_token_margin(embeds, mask, head_len - 1, 10, 20)
+        margin = reader._next_token_margin(embeds, mask, head_len - 1, 10, 20, capped=True)
         logits = reader._logits(embeds, mask, reader._span(head_len - 1, head_len))[:, 0].float()
     assert torch.allclose(margin, logits[:, 10] - logits[:, 20], atol=1e-4)
