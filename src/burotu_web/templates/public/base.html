@@ -9,8 +9,8 @@
 <meta property="og:title" content="Burotu">
 <meta property="og:description" content="{{ t.hero_lead }}">
 <meta property="og:type" content="website">
-<link rel="canonical" href="https://burotu.com/{{ lang }}/">
-{% for l in LANGS %}<link rel="alternate" hreflang="{{ l }}" href="https://burotu.com/{{ l }}/">
+<link rel="canonical" href="https://burotu.com/{{ lang }}/{% block path %}{% endblock %}">
+{% for l in LANGS %}<link rel="alternate" hreflang="{{ l }}" href="https://burotu.com/{{ l }}/{{ self.path() }}">
 {% endfor %}<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
@@ -26,18 +26,19 @@
     burotu
   </a>
   <nav class="nav" aria-label="Main">
-    <a href="#how">{{ t.nav_how }}</a>
-    <a href="#science">{{ t.nav_science }}</a>
-    <a href="#meta">{{ t.nav_meta }}</a>
-    <a href="#offer">{{ t.nav_price }}</a>
-    <a href="#faq">{{ t.nav_faq }}</a>
+    <a href="/{{ lang }}/#how">{{ t.nav_how }}</a>
+    <a href="/{{ lang }}/#science">{{ t.nav_science }}</a>
+    <a href="/{{ lang }}/#meta">{{ t.nav_meta }}</a>
+    <a href="/{{ lang }}/#offer">{{ t.nav_price }}</a>
+    <a href="/{{ lang }}/#faq">{{ t.nav_faq }}</a>
+    <a href="/{{ lang }}/technology"{% if page == 'technology' %} aria-current="page"{% endif %}>{{ tech_nav }}</a>
   </nav>
   <div class="topbar-end">
     <details class="lang">
       <summary aria-label="{{ t.lang_label }}">{{ lang|upper }}</summary>
-      <ul>{% for l in LANGS %}<li><a href="/{{ l }}/" hreflang="{{ l }}" lang="{{ l }}"{% if l == lang %} aria-current="true"{% endif %}>{{ LANG_NAMES[l] }}</a></li>{% endfor %}</ul>
+      <ul>{% for l in LANGS %}<li><a href="/{{ l }}/{{ self.path() }}" hreflang="{{ l }}" lang="{{ l }}"{% if l == lang %} aria-current="true"{% endif %}>{{ LANG_NAMES[l] }}</a></li>{% endfor %}</ul>
     </details>
-    <a class="btn btn-small" href="#book">{{ t.nav_book }}</a>
+    <a class="btn btn-small" href="/{{ lang }}/#book">{{ t.nav_book }}</a>
   </div>
 </header>
 <main id="main">{% block main %}{% endblock %}</main>

@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ _("Models") }}{% endblock %}
+{% block main %}
+<div class="admin-head"><h1>{{ _("Models") }}</h1><a class="btn btn-small btn-ghost" href="https://burotu.com/{{ alang }}/technology">{{ _("Public page") }}</a></div>
+<p class="section-lead small-lead">{{ s.lead }}</p>
+
+<section class="site-card">
+  <h2>{{ _("What is running now") }}</h2>
+  <div class="status-grid">
+    <div class="status-item is-on"><p class="lab-label">{{ _("Signal") }}</p><p><strong>{{ s.run_names.baseline }}</strong></p><p class="small muted">{{ _("Runs on the tracking server (CPU).") }}</p></div>
+    <div class="status-item {{ 'is-on' if status.muse else 'is-off' }}"><p class="lab-label">{{ _("Tissue") }}</p><p><strong>{{ s.run_names['glimmer-v2'] if status.muse else _("Classic model") }}</strong></p><p class="small muted">{{ _("Served on a Modal L40S GPU, scales to zero.") if status.muse else _("Muse Glimmer not configured on this server.") }}{% if status.muse %} · {{ _("Role") }}: {{ status.role }}{% endif %}</p></div>
+    <div class="status-item {{ 'is-on' if status.spark else 'is-off' }}"><p class="lab-label">{{ _("Letters") }}</p><p><strong>{{ 'Muse Spark 1.3' if status.spark else _("Fixed template") }}</strong></p><p class="small muted">{{ _("Meta Model API, in English, French and Spanish.") if status.spark else _("No Meta Model API key on this server.") }}</p></div>
+  </div>
+</section>
+
+<section class="site-card">
+  <h2>{{ s.pipeline }}</h2>
+  <ol class="tech-steps compact">
+    {% for title, text in s.steps %}<li class="{{ 'is-meta' if loop.index in (4, 5) else '' }}"><span class="tech-n">{{ loop.index }}</span><h3>{{ title }}</h3><p>{{ text }}</p></li>{% endfor %}
+  </ol>
+</section>
+
+<section class="site-card">
+  <h2>{{ s.compare }}</h2>
+  <p class="small muted">{{ s.compare_lead }}</p>
+  <figure class="tech-chart">
+    <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}" role="img" aria-label="{{ s.compare }}">
+      {% for t_ in chart.ticks %}<line class="grid" x1="{{ chart.left }}" x2="{{ chart.width - 6 }}" y1="{{ t_.y }}" y2="{{ t_.y }}"/><text class="tick" x="{{ chart.left - 8 }}" y="{{ t_.y + 4 }}" text-anchor="end">{{ t_.label }}</text>{% endfor %}
+      {% for g in chart.groups %}{% for b in g.bars %}<rect class="bar-{{ b.name }}" x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="3"/><text class="val val-{{ b.name }}" x="{{ b.x + b.w / 2 }}" y="{{ b.y - 6 }}" text-anchor="middle">{{ b.label }}</text>{% endfor %}<text class="tick" x="{{ g.x }}" y="{{ chart.base + 20 }}" text-anchor="middle">{{ g.tf }}</text>{% endfor %}
+    </svg>
+    <figcaption><span class="key key-classic">{{ s.classic }}</span><span class="key key-meta">{{ s.meta }}</span><span class="muted">· {{ s.tf_axis }}</span></figcaption>
+  </figure>
+  <p class="small">{{ s.signal_text }}</p>
+</section>
+
+<section class="site-card">
+  <h2>{{ s.runs }}</h2>
+  <p class="small muted">{{ s.runs_lead }} {{ _("Test cohort: 6,016 simulated plasma samples from 49 people and tumours no model was trained on.") }}</p>
+  {% for metric, label, fmt in [('sensitivity', _("Signal found at the 99.5% specificity threshold"), 'pct'), ('auc', _("AUC, healthy vs tumour DNA"), 'auc'), ('top1', _("Tissue right first time"), 'pct'), ('top2', _("Tissue in the top two"), 'pct')] %}
+  <h3 class="tech-h3">{{ label }}</h3>
+  <div class="table-wrap">
+  <table class="table runs-table">
+    <thead><tr><th>{{ _("Run") }}</th>{% for tf in tfs %}<th>{{ '%g' % (tf * 100) }}%</th>{% endfor %}{% if loop.first %}<th>{{ _("Specificity") }}</th>{% endif %}</tr></thead>
+    <tbody>
+    {% for r in runs %}
+      <tr class="run-row run-{{ r.role }}">
+        <td><strong>{{ s.run_names[r.id] }}</strong><br><span class="small muted">{{ s.run_notes[r.id] }}</span></td>
+        {% set best = runs|map(attribute='by_tf')|list %}
+        {% for tf in tfs %}{% set v = r.by_tf[tf][metric] %}<td class="num">{{ ('%.0f%%' % (v * 100)) if fmt == 'pct' else ('%.3f' % v) }}</td>{% endfor %}
+        {% if loop.first %}{% endif %}{% if metric == 'sensitivity' %}<td class="num">{{ '%.2f%%' % (r.specificity * 100) }}</td>{% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endfor %}
+
+  <h3 class="tech-h3">{{ s.plasma }}</h3>
+  <div class="table-wrap">
+  <table class="table runs-table">
+    <thead><tr><th>{{ _("Run") }}</th><th>AUC</th><th>{{ _("Healthy flagged") }}</th><th>{{ _("Tumour samples found") }}</th><th>{{ _("Tissue right") }}</th><th>{{ _("Trainable parameters") }}</th></tr></thead>
+    <tbody>
+    {% for r in runs %}{% set p = r.real_plasma %}
+      <tr class="run-row run-{{ r.role }}"><td><strong>{{ s.run_names[r.id] }}</strong></td><td class="num">{{ '%.2f' % p.auc }}</td><td class="num">{{ p.healthy_flagged }} / {{ p.n_healthy }}</td><td class="num">{{ p.detected }} / {{ p.n_cancer }}</td><td class="num">{{ p.origin }} / {{ p.n_origin }}</td><td class="num">{{ '{:,}'.format(r.trainable_params) if r.trainable_params else '-' }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="small muted">{{ _("Real plasma: background calibrated on healthy controls, leaving out the donor scored.") }}</p>
+</section>
+
+<div class="admin-split">
+  <section class="site-card">
+    <h2>{{ s.lessons }}</h2>
+    <ol class="tech-list">{% for l in s.lesson_items %}<li>{{ l }}</li>{% endfor %}</ol>
+  </section>
+  <section class="site-card">
+    <h2>{{ s.limits }}</h2>
+    <ul class="tech-list">{% for l in s.limit_items %}<li>{{ l }}</li>{% endfor %}</ul>
+  </section>
+</div>
+
+<section class="site-card">
+  <h2>{{ _("Other tests") }}</h2>
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>{{ _("Test") }}</th><th>{{ _("Looks for") }}</th><th>{{ _("Status, October 2026") }}</th></tr></thead>
+    <tbody>
+      {% for k in ('m1', 'm2', 'm3', 'm4') %}{% set m = market[k] %}<tr{% if k == 'm4' %} class="is-this"{% endif %}><td>{{ m[0] }}</td><td>{{ m[1] }}</td><td>{{ m[2] }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="small muted">{{ _("Sources") }}: <a class="link" href="https://ascopost.com/news/july-2024/guardant-health-s-shield-blood-test-approved-by-the-fda-as-a-primary-screening-option-for-colorectal-cancer">ASCO Post, July 2024 (Shield)</a> · <a class="link" href="https://grail.com/press-releases/fda-advisory-committee-votes-in-favor-of-approval-of-grails-galleri-multi-cancer-early-detection-test/">GRAIL, September 2026 (Galleri)</a></p>
+</section>
+{% endblock %}

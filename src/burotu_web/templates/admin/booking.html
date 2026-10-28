@@ -43,7 +43,7 @@
       {% if d %}
       <p class="verdict {{ 'is-signal' if d.cancer_signal else 'is-clear' }}">{{ _('Signal detected') if d.cancer_signal else _('No signal detected') }}</p>
       <p class="small muted">{{ _("Score {score}, threshold {threshold} (99.5% specificity)", score='%.4f' % d.score, threshold='%.4f' % d.threshold) }}</p>
-      <p class="small">{{ _("Engine") }}: <strong>{{ d.engine_label }}</strong></p>
+      <p class="small">{{ _("Engine") }}: <strong>{{ _(d.engine_label) }}</strong></p>
       {% else %}
       <p class="verdict">{{ _("No result") }}</p>
       <p class="small muted">{{ _("The sample did not pass quality control.") }}</p>

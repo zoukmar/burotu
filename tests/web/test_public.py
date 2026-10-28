@@ -108,3 +108,10 @@ def test_a_missing_time_gets_its_own_message(public):
     assert r.status_code == 422
     assert "Choose a time for your appointment." in r.text
     assert "Fill in every field" not in r.text
+
+
+def test_technology_page_in_three_languages(public):
+    for lang, word in (("en", "Under the hood"), ("fr", "Sous le capot"), ("es", "Bajo el capó")):
+        r = public.get(f"/{lang}/technology")
+        assert r.status_code == 200 and word in r.text
+        assert "Muse Glimmer" in r.text and "70%" in r.text  # Glimmer's tissue accuracy at 1%

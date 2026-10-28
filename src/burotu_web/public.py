@@ -15,6 +15,7 @@ from burotu_web.templating import templates
 
 router = APIRouter()
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+TECH_NAV = {"en": "Technology", "fr": "Technologie", "es": "Tecnología"}
 OPTIONAL_FIELDS = {"doctor"}  # no prescription needed: the doctor is optional
 
 
@@ -98,6 +99,7 @@ def render_page(request: Request, lang: str, *, form=None, errors=None, booking=
             "form": form or {},
             "errors": errors or [],
             "booking": booking,
+            "tech_nav": TECH_NAV[lang],
         },
         status_code=status_code,
     )
@@ -140,6 +142,29 @@ def home(request: Request, lang: str, booked: str | None = None):
     if booked and request.session.get("last_booking") == booked:
         booking = request.app.state.db.get_booking(booked)
     return render_page(request, lang, booking=booking)
+
+
+@router.get("/{lang}/technology", response_class=HTMLResponse)
+def technology(request: Request, lang: str):
+    from burotu_web import science
+
+    lang = need_lang(lang)
+    return templates.TemplateResponse(
+        request,
+        "public/technology.html",
+        {
+            "lang": lang,
+            "t": T[lang],
+            "s": science.TEXT[lang],
+            "tech_nav": science.TEXT[lang]["nav"],
+            "page": "technology",
+            "runs": science.all_runs(),
+            "chart": science.origin_chart(),
+            "classic": science.run_metrics("baseline"),
+            "meta": science.run_metrics("glimmer-v2"),
+            "tfs": science.TFS,
+        },
+    )
 
 
 @router.get("/{lang}/book")
