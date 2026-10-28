@@ -78,9 +78,12 @@ def load_cohort(name: str, ref: Reference | None = None, cache_dir: Path = BENCH
     split, n_healthy, n_per_class, cfg, tfs = COHORTS[name]
     source = {"fit": fit_ref, "fit_large": fit_ref, "calibration": calib_ref, "test": ref}[name]
     meth, total, meta = simulate_cohort(source, split, n_healthy, n_per_class, cfg, tf_values=tfs)
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(npz, meth=meth.astype(np.uint16), total=total.astype(np.uint16))
-    meta.to_csv(csv, index=False)
+    try:
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(npz, meth=meth.astype(np.uint16), total=total.astype(np.uint16))
+        meta.to_csv(csv, index=False)
+    except OSError:  # read-only data dir (e.g. a Modal mount): same seed, same cohort next time
+        pass
     return Cohort(meth, total, meta)
 
 

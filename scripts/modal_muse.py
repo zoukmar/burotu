@@ -51,6 +51,17 @@ runs = modal.Volume.from_name("burotu-runs", create_if_missing=True)
 hf_cache = modal.Volume.from_name("burotu-hf-cache", create_if_missing=True)
 
 
+@app.function(volumes={"/cache": hf_cache}, cpu=4, memory=8192, timeout=2 * 3600)
+def download(model: str, revision: str) -> str:
+    """Fetch the base model into the cache volume on a CPU machine, so GPU time is not spent downloading."""
+    from huggingface_hub import snapshot_download
+
+    patterns = ["*.json", "*.safetensors", "*.model", "*.txt", "*.jinja"]
+    path = snapshot_download(model, revision=revision or None, allow_patterns=patterns)
+    hf_cache.commit()
+    return path
+
+
 @app.function(gpu=GPU, volumes={"/runs": runs, "/cache": hf_cache}, timeout=6 * 3600)
 def train(args: dict) -> dict:
     from burotu.muse.train import TrainConfig, run
@@ -66,26 +77,33 @@ def train(args: dict) -> dict:
     return report
 
 
-@app.cls(
-    gpu=GPU,
-    image=image.env({"BUROTU_MUSE_RUN": RUN}),
-    volumes={"/runs": runs, "/cache": hf_cache},
-    secrets=[modal.Secret.from_name("burotu-muse")],
-    scaledown_window=15 * 60,  # stay warm through a demo, then scale to zero
-    timeout=600,
-)
-class Detector:
-    @modal.enter()
-    def load(self) -> None:
-        from burotu.muse.serve import MuseService
+# The serving class needs the `burotu-muse` secret, so it is only defined when deploying
+# (the Deploy Muse workflow sets BUROTU_MUSE_SERVE=1); training runs never need it.
+SERVE = os.environ.get("BUROTU_MUSE_SERVE") == "1"
 
-        self.service = MuseService(f"/runs/{os.environ['BUROTU_MUSE_RUN']}")
 
-    @modal.asgi_app(label="burotu-muse")
-    def web(self):
-        from burotu.muse.serve import make_app
+if SERVE:
 
-        return make_app(self.service, os.environ["BUROTU_MUSE_TOKEN"])
+    @app.cls(
+        gpu=GPU,
+        image=image.env({"BUROTU_MUSE_RUN": RUN}),
+        volumes={"/runs": runs, "/cache": hf_cache},
+        secrets=[modal.Secret.from_name("burotu-muse")],
+        scaledown_window=15 * 60,  # stay warm through a demo, then scale to zero
+        timeout=600,
+    )
+    class Detector:
+        @modal.enter()
+        def load(self) -> None:
+            from burotu.muse.serve import MuseService
+
+            self.service = MuseService(f"/runs/{os.environ['BUROTU_MUSE_RUN']}")
+
+        @modal.asgi_app(label="burotu-muse")
+        def web(self):
+            from burotu.muse.serve import make_app
+
+            return make_app(self.service, os.environ["BUROTU_MUSE_TOKEN"])
 
 
 @app.local_entrypoint()
@@ -112,6 +130,9 @@ def main(
         "out": name,
         "revision": revision if model == "meta-models/Muse-Glimmer-30B" else "",
     }
+    if model != "tiny":
+        print(f"Caching {model} on a CPU machine (skipped when already cached)...")
+        print(download.remote(model, args["revision"]))
     print(f"Training on Modal ({GPU}): {json.dumps(args)}")
     report = train.remote(args)
     out = ROOT / "reports" / f"muse_{name}.json"
