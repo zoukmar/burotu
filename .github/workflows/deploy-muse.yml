@@ -26,6 +26,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production  # Modal secrets may live here or at repository level
     timeout-minutes: 30
     env:
       MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
