@@ -4,10 +4,10 @@ from pathlib import Path
 import pytest
 
 from burotu.analysis import qc
-from burotu.analysis.engines import BaselineEngine
 from burotu.analysis.report import template_report
 from burotu.analysis.service import analyse
-from burotu.labformat import LabFormatError, parse_lab_text, read_lab_file
+from burotu.core.labformat import LabFormatError, parse_lab_text, read_lab_file
+from burotu.models.classic.engine import BaselineEngine
 
 DEMO = Path(__file__).resolve().parents[2] / "src" / "burotu_web" / "demo_samples"
 MANIFEST = {m["sample_id"]: m for m in json.loads((DEMO / "manifest.json").read_text())}
@@ -71,7 +71,7 @@ def test_bad_lab_files_are_rejected(text):
 
 def test_hybrid_role_takes_origin_from_muse_and_signal_from_baseline(monkeypatch):
     from burotu.analysis import service
-    from burotu.analysis.engines import Detection
+    from burotu.models.base import Detection
 
     class FakeMuse:
         def analyse_all(self, sample):
@@ -148,9 +148,9 @@ def test_offline_answers_and_lab_notes_fall_back(monkeypatch):
 
 
 def test_explanation_counts_lit_marker_sites():
-    from burotu.analysis.engines import BaselineEngine
-    from burotu.analysis.explain import rank_position
-    from burotu.labformat import read_lab_file
+    from burotu.core.labformat import read_lab_file
+    from burotu.models.classic.engine import BaselineEngine
+    from burotu.models.classic.explain import rank_position
     from burotu_web.admin import DEMO_DIR
 
     engine = BaselineEngine()

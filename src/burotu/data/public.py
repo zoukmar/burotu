@@ -109,11 +109,9 @@ def fetch(gse: str, panel: list[str]) -> pd.DataFrame:
 
 
 def main(argv: list[str]) -> None:
-    import json
+    from burotu.models.base import panel as base_panel
 
-    from burotu.analysis.engines import ASSETS
-
-    panel = json.loads((ASSETS / "baseline" / "meta.json").read_text())["panel"]
+    panel = base_panel()
     for gse in argv or list(DATASETS):
         beta = fetch(gse, panel)
         print(

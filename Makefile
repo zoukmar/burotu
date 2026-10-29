@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 PY ?= python3
 
-.PHONY: help install data reference baseline demo-samples dev lint format test check docker
+.PHONY: help install data public-data reference baseline logreg models evaluate demo-samples dev lint format test check docker
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1m%-14s\033[0m %s\n", $$1, $$2}'
@@ -16,9 +16,20 @@ data: ## Download public data (TCGA, GEO)
 reference: ## Build the targeted panel and train/test split
 	$(PY) -m burotu.data.reference
 
-baseline: ## Train, evaluate and export the baseline classifier (reports/baseline.json, site assets)
-	$(PY) scripts/train_baseline.py
-	$(PY) scripts/export_baseline.py
+public-data: ## Download the open real-plasma and healthy-blood sets from GEO, cut to the panel
+	$(PY) -m burotu.data.public
+
+baseline: ## Train, evaluate and export the classic model (reports/baseline.json, site assets)
+	$(PY) -m burotu.models.classic.train
+	$(PY) -m burotu.models.classic.export
+
+logreg: ## Train and export the logistic-regression ensembles (reports/logreg.json, site assets)
+	$(PY) -m burotu.models.logreg.train
+
+models: baseline logreg ## Train every CPU model (Muse Glimmer and CpGPT train on Modal)
+
+evaluate: ## Score the CPU models on the open real-plasma datasets (reports/public_plasma.json)
+	$(PY) -m burotu.evaluation.public_plasma
 
 demo-samples: ## Generate simulated lab files for the demo
 	$(PY) scripts/make_demo_samples.py

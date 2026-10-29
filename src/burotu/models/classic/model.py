@@ -16,7 +16,7 @@ from pathlib import Path
 import lightgbm as lgb
 import numpy as np
 
-from burotu.model.features import Featurizer
+from burotu.core.features import Featurizer
 
 TARGET_SPECIFICITY = 0.995
 
@@ -101,5 +101,18 @@ class BaselineModel:
 
     @staticmethod
     def load(path: str | Path) -> BaselineModel:
+        """Load a pickled model, including ones saved before the models/ reorganisation."""
         with open(path, "rb") as f:
-            return pickle.load(f)
+            return _Unpickler(f).load()
+
+
+# Module paths before the code moved to burotu.models (October 2026), for older pickles.
+_MOVED = {
+    "burotu.model.baseline": "burotu.models.classic.model",
+    "burotu.model.features": "burotu.core.features",
+}
+
+
+class _Unpickler(pickle.Unpickler):
+    def find_class(self, module: str, name: str):
+        return super().find_class(_MOVED.get(module, module), name)

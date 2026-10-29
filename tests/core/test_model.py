@@ -1,7 +1,7 @@
 import numpy as np
 
-from burotu.model.baseline import BaselineModel
-from burotu.model.features import Featurizer
+from burotu.core.features import Featurizer
+from burotu.models.classic.model import BaselineModel
 
 
 def _cohort(rng, n_per_label=60, n_cpg=50):
@@ -48,3 +48,20 @@ def test_baseline_separates_signal_and_origin(tmp_path):
 
     model.save(tmp_path / "m.pkl")
     assert BaselineModel.load(tmp_path / "m.pkl").threshold == model.threshold
+
+
+def test_registry_lists_every_model_package_with_a_card():
+    from burotu.models.base import MODELS_DIR
+    from burotu.models.registry import models
+
+    ids = {m.id for m in models()}
+    assert {"classic", "logreg", "glimmer", "cpgpt", "consensus"} <= ids
+    for m in models():
+        assert m.status in {"live", "training", "ready", "experiment"}
+        if m.id != "spark":
+            assert (MODELS_DIR / m.id / "README.md").exists(), m.id
+        for w in m.weights:
+            kind, _, where = w.partition(":")
+            assert kind in {"git", "hf", "modal"}
+            if kind == "git" and m.status == "live":
+                assert (MODELS_DIR.parents[2] / where).exists(), where
