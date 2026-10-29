@@ -391,6 +391,44 @@ TR: dict[str, dict[str, str]] = {
     },
 }
 
+# "Why this result" panel on a booking (burotu.analysis.explain).
+TR["fr"].update(
+    {
+        "Why this result": "Pourquoi ce résultat",
+        "No signal: the split by tissue is only shown when a signal is detected.": "Pas de signal : la répartition par tissu n'est affichée que lorsqu'un signal est détecté.",
+        "Rank among healthy people": "Rang parmi les personnes saines",
+        "of {n} simulated healthy samples score lower than this one. A signal is raised above 99.5%.": "des {n} prélèvements sains simulés ont un score plus bas que celui-ci. Un signal est levé au-delà de 99,5 %.",
+        "Lit sites": "Sites allumés",
+        "sites carry more methylated DNA than 99.5% of healthy samples do at that site. A healthy sample shows {p50} (median), up to {p99}.": "sites portent plus d'ADN méthylé que 99,5 % des prélèvements sains à cet endroit. Un prélèvement sain en montre {p50} (médiane), jusqu'à {p99}.",
+        "Weight in the classic model's decision: tissue marker sites {a}, other sites {b}.": "Poids dans la décision du modèle classique : sites marqueurs de tissu {a}, autres sites {b}.",
+        "Tissue by tissue": "Tissu par tissu",
+        "Marker sites lit": "Sites marqueurs allumés",
+        "Above healthy?": "Au-dessus du sain ?",
+        "Yes": "Oui",
+        "No": "Non",
+        "healthy up to {n}": "sain : jusqu'à {n}",
+        "Each tissue has up to 150 marker sites: methylated in that tissue's tumour DNA, quiet in blood and in the other tissues. The grey part of the bar is the most a healthy sample shows. When only a little tumour DNA is in the blood, few sites light up: the model adds up weak evidence spread over thousands of sites, so the counts can stay at healthy levels even when a signal is detected. The Meta model returns its top three tissues only.": "Chaque tissu a jusqu'à 150 sites marqueurs : méthylés dans l'ADN tumoral de ce tissu, silencieux dans le sang et dans les autres tissus. La partie grise de la barre est le maximum observé chez une personne saine. Quand il y a peu d'ADN tumoral dans le sang, peu de sites s'allument : le modèle additionne des indices faibles répartis sur des milliers de sites, donc les comptes peuvent rester au niveau sain même quand un signal est détecté. Le modèle Meta ne renvoie que ses trois premiers tissus.",
+    }
+)
+TR["es"].update(
+    {
+        "Why this result": "Por qué este resultado",
+        "No signal: the split by tissue is only shown when a signal is detected.": "Sin señal: el desglose por tejido solo se muestra cuando se detecta una señal.",
+        "Rank among healthy people": "Posición entre personas sanas",
+        "of {n} simulated healthy samples score lower than this one. A signal is raised above 99.5%.": "de las {n} muestras sanas simuladas puntúan por debajo de esta. Se emite una señal por encima del 99,5 %.",
+        "Lit sites": "Sitios encendidos",
+        "sites carry more methylated DNA than 99.5% of healthy samples do at that site. A healthy sample shows {p50} (median), up to {p99}.": "sitios tienen más ADN metilado que el 99,5 % de las muestras sanas en ese punto. Una muestra sana muestra {p50} (mediana), hasta {p99}.",
+        "Weight in the classic model's decision: tissue marker sites {a}, other sites {b}.": "Peso en la decisión del modelo clásico: sitios marcadores de tejido {a}, otros sitios {b}.",
+        "Tissue by tissue": "Tejido por tejido",
+        "Marker sites lit": "Sitios marcadores encendidos",
+        "Above healthy?": "¿Por encima de lo sano?",
+        "Yes": "Sí",
+        "No": "No",
+        "healthy up to {n}": "sano: hasta {n}",
+        "Each tissue has up to 150 marker sites: methylated in that tissue's tumour DNA, quiet in blood and in the other tissues. The grey part of the bar is the most a healthy sample shows. When only a little tumour DNA is in the blood, few sites light up: the model adds up weak evidence spread over thousands of sites, so the counts can stay at healthy levels even when a signal is detected. The Meta model returns its top three tissues only.": "Cada tejido tiene hasta 150 sitios marcadores: metilados en el ADN tumoral de ese tejido, silenciosos en la sangre y en los demás tejidos. La parte gris de la barra es lo máximo que muestra una muestra sana. Cuando hay poco ADN tumoral en la sangre, se encienden pocos sitios: el modelo suma indicios débiles repartidos en miles de sitios, así que los recuentos pueden quedarse en niveles sanos aunque se detecte una señal. El modelo Meta solo devuelve sus tres primeros tejidos.",
+    }
+)
+
 
 def translator(lang: str) -> Callable[..., str]:
     table = TR.get(lang, {})

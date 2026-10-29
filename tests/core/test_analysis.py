@@ -137,3 +137,19 @@ def test_offline_answers_and_lab_notes_fall_back(monkeypatch):
     notes = failed["qc_notes"]
     assert set(notes) == {"en", "fr", "es"} and "re-sequence" in notes["en"]["text"]
     assert qc_notes({"status": "pass"}) == {}
+
+
+def test_explanation_counts_lit_marker_sites():
+    from burotu.analysis.engines import BaselineEngine
+    from burotu.analysis.explain import rank_position
+    from burotu.labformat import read_lab_file
+    from burotu_web.admin import DEMO_DIR
+
+    engine = BaselineEngine()
+    kidney = engine.explain(read_lab_file(DEMO_DIR / "BRT-DEMO-05.tsv"))  # kidney, 10% tumour DNA
+    healthy = engine.explain(read_lab_file(DEMO_DIR / "BRT-DEMO-01.tsv"))
+    assert kidney["healthy_rank"] > 0.995 > healthy["healthy_rank"]
+    assert kidney["lit"] > kidney["healthy_lit"]["p99"] >= healthy["lit"]
+    best = max(kidney["tissues"], key=lambda t: t["lit"] - t["healthy_max"])
+    assert best["class"] == "Kidney" and best["lit"] > best["healthy_max"]
+    assert 0 < rank_position(0.5, 3000) < rank_position(0.995, 3000) < rank_position(1.0, 3000) <= 1.0

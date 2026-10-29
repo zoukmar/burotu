@@ -485,3 +485,33 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
 .coverage-table { background: var(--white); }
 .coverage-table td:first-child { white-space: nowrap; width: 14rem; }
 .coverage-missing { margin-top: 1rem; color: var(--ink-soft); line-height: 1.6; max-width: 60rem; }
+
+/* Why this result (admin) */
+.why { border-top: 1px solid var(--line); padding-top: 1.1rem; margin-bottom: 1.25rem; display: grid; gap: .8rem; }
+.why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
+.why-block { border: 1px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; background: var(--white); display: grid; gap: .35rem; align-content: start; }
+.why-block h3, .why-h { font-size: var(--step--1); margin: 0; }
+.why-big { font-size: 1.9rem; font-weight: 700; line-height: 1.1; margin: 0; font-variant-numeric: tabular-nums; }
+.why-scale { width: 100%; height: 1.4rem; }
+.why-scale .track { fill: var(--line); }
+.why-scale .cut { stroke: var(--venous); stroke-width: 1.5; }
+.why-scale .dot { fill: var(--ink); stroke: var(--white); stroke-width: 1.5; }
+.why-scale .dot.is-signal { fill: var(--venous); }
+.why-axis { display: flex; justify-content: space-between; margin: 0; }
+.why-table td { vertical-align: middle; }
+.why-lit { display: grid; grid-template-columns: minmax(5rem, 9rem) auto; gap: .5rem; align-items: center; }
+.why-lit .bar { width: 100%; height: .5rem; }
+.why-lit .track { fill: var(--line); }
+.why-lit .healthy { fill: #B9C2C8; }
+.why-lit .fill { fill: #7C8A93; }
+.why-lit .fill.is-above { fill: var(--venous); }
+.badge.is-ok { background: #FBE3DF; color: #9A2A1C; }
+.badge.is-ko { background: var(--line); color: var(--ink); }
+.why-scale .zone { fill: #E9B9B1; }
+.why-axis { position: relative; height: 1.1rem; display: block; }
+.why-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.why-axis span:nth-child(1) { left: 2.5%; transform: none; }
+.why-axis span:nth-child(2) { left: 30.1%; }
+.why-axis span:nth-child(3) { left: 65%; }
+.why-axis span:nth-child(4) { left: 84%; }
+.why-axis .is-cut { color: var(--venous); font-weight: 600; }

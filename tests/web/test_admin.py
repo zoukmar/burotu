@@ -87,6 +87,8 @@ def test_analyse_a_demo_sample(public, logged_admin):
     page = r.text
     assert "Lab result" in page and "Signal detected" in page and "Kidney" in page
     assert "Classic model vs Meta model" in page and "Follow-up" in page
+    why = page.split('id="why"')[1].split("</table>")[0]
+    assert "Rank among healthy people" in why and "Marker sites lit" in why and "Kidney" in why
     letter = page.split('id="letter"')[1].split("</blockquote>")[0]
     assert "unusual methylation signal" in letter and "cancer" not in letter.lower()
     assert "Simulation ground truth: Kidney" in page

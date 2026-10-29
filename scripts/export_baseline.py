@@ -14,6 +14,8 @@ import json
 
 import numpy as np
 
+from burotu.analysis.explain import build_explainer, build_markers
+from burotu.benchmark import load_cohort
 from burotu.config import ROOT
 from burotu.data.reference import Reference
 from burotu.model.baseline import BaselineModel
@@ -31,6 +33,18 @@ def main() -> None:
     np.save(OUT / "mu.npy", model.featurizer.mu.astype(np.float32))
     meta = {"panel": ref.panel, "classes": model.classes, "threshold": model.threshold}
     (OUT / "meta.json").write_text(json.dumps(meta))
+
+    # Explanation assets: marker sites per tissue, and how many sites light up in healthy people.
+    classes = ref.tumor_meta.set_index("file_id").loc[ref.tumor_train.columns, "cancer_class"]
+    markers = build_markers(ref.blood_train, ref.tumor_train, classes, ref.panel)
+    calib = load_cohort("calibration")
+    healthy = ~calib.meta["is_cancer"].to_numpy(bool)
+    x = model.featurizer.transform(calib.meth[healthy], calib.total[healthy])
+    scores = model.detector.predict_proba(x)[:, 1]
+    explainer = build_explainer(x[:, : len(ref.panel)], scores, markers)
+    (OUT / "explain.json").write_text(json.dumps(explainer))
+    print("markers per tissue:", {k: len(v) for k, v in markers.items()})
+    print("most lit markers in a healthy sample (p99):", explainer["healthy_lit_p99"])
     print(f"exported to {OUT.relative_to(ROOT)}")
 
 
