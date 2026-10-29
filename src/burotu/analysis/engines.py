@@ -61,6 +61,23 @@ class BaselineEngine:
         self.featurizer = Featurizer(mu=np.load(directory / "mu.npy"))
         self.detector = lgb.Booster(model_str=gzip.decompress((directory / "detector.txt.gz").read_bytes()).decode())
         self.origin = lgb.Booster(model_str=gzip.decompress((directory / "origin.txt.gz").read_bytes()).decode())
+        explain = directory / "explain.json"
+        self.explainer = None
+        if explain.exists():
+            from burotu.analysis.explain import Explainer
+
+            self.explainer = Explainer(explain)
+
+    def explain(self, sample: LabSample) -> dict | None:
+        """Plain counts behind the classic model's answer (see burotu.analysis.explain)."""
+        if self.explainer is None:
+            return None
+        meth, total = counts_on_panel(sample, self.panel)
+        x = self.featurizer.transform(meth, total)
+        score = float(self.detector.predict(x)[0])
+        contrib = np.asarray(self.detector.predict(x, pred_contrib=True))[0]
+        proba = np.asarray(self.origin.predict(x))[0]
+        return self.explainer.explain(x[0, : len(self.panel)], total[0], contrib, score, self.classes, proba)
 
     def analyse(self, sample: LabSample) -> Detection:
         meth, total = counts_on_panel(sample, self.panel)

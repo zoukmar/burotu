@@ -94,7 +94,11 @@ T = {
             "Signals from many tissues",
             "Backed by an FDA advisory panel in September 2026, not yet approved",
         ),
-        "m4": ("Burotu (blood, methylation)", "8 tissues today, 50 targeted", "Demonstration prototype, not validated"),
+        "m4": (
+            "Burotu (blood, methylation)",
+            "20 tissues today, 50 targeted",
+            "Demonstration prototype, not validated",
+        ),
         "sources": "Sources",
         "footer": "Burotu is a demonstration prototype, not a medical device. This document is not a medical result.",
         "page": "Page",
@@ -166,7 +170,7 @@ T = {
         ),
         "m4": (
             "Burotu (sang, méthylation)",
-            "8 tissus aujourd'hui, 50 visés",
+            "20 tissus aujourd'hui, 50 visés",
             "Prototype de démonstration, non validé",
         ),
         "sources": "Sources",
@@ -239,7 +243,7 @@ T = {
             "Señales de muchos tejidos",
             "Respaldado por un comité asesor de la FDA en septiembre de 2026, aún no aprobado",
         ),
-        "m4": ("Burotu (sangre, metilación)", "8 tejidos hoy, 50 previstos", "Prototipo de demostración, no validado"),
+        "m4": ("Burotu (sangre, metilación)", "20 tejidos hoy, 50 previstos", "Prototipo de demostración, no validado"),
         "sources": "Fuentes",
         "footer": "Burotu es un prototipo de demostración, no un dispositivo médico. Este documento no es un "
         "resultado médico.",

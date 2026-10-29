@@ -31,9 +31,10 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
     """
     panel = baseline().panel
     quality = qc_mod.check(sample, panel).to_dict()
-    detection, notes, models = None, [], {}
+    detection, notes, models, explain = None, [], {}, None
     if quality["status"] != "fail":
         models["classic"] = baseline().analyse(sample).to_dict()
+        explain = baseline().explain(sample)
         engine = muse()
         if engine is not None:
             try:
@@ -61,6 +62,7 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
         "quality": quality,
         "detection": detection,
         "models": models,
+        "explain": explain,
         "reports": reports,
         "report": reports.get(lang, reports["en"]),
         "notes": notes,

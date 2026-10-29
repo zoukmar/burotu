@@ -19,11 +19,11 @@ def engine():
 
 
 def test_exported_baseline_matches_the_panel(engine):
-    assert len(engine.panel) == len(engine.featurizer.mu) == 1681
-    assert len(engine.classes) == 8 and 0 < engine.threshold < 1
+    assert len(engine.panel) == len(engine.featurizer.mu) == 3148
+    assert len(engine.classes) == 20 and 0 < engine.threshold < 1
 
 
-@pytest.mark.parametrize("sid", ["BRT-DEMO-01", "BRT-DEMO-02", "BRT-DEMO-05"])
+@pytest.mark.parametrize("sid", ["BRT-DEMO-01", "BRT-DEMO-05", "BRT-DEMO-07", "BRT-DEMO-09"])
 def test_demo_samples_are_called_correctly(engine, sid):
     sample = read_lab_file(DEMO / f"{sid}.tsv")
     truth = MANIFEST[sid]
@@ -44,7 +44,7 @@ def test_quality_control_stops_an_under_sequenced_sample(engine):
 
 def test_service_falls_back_to_a_template_report_without_a_key(monkeypatch):
     monkeypatch.delenv("MODEL_API_KEY", raising=False)
-    result = analyse(read_lab_file(DEMO / "BRT-DEMO-02.tsv"), "fr")
+    result = analyse(read_lab_file(DEMO / "BRT-DEMO-05.tsv"), "fr")
     assert result["report"]["author"] == "template"
     assert "prototype de démonstration" in result["report"]["text"]
 
@@ -80,7 +80,7 @@ def test_hybrid_role_takes_origin_from_muse_and_signal_from_baseline(monkeypatch
 
     monkeypatch.setattr(service, "muse", lambda: FakeMuse())
     monkeypatch.setenv("BUROTU_MUSE_ROLE", "origin")
-    d = service.analyse(read_lab_file(DEMO / "BRT-DEMO-02.tsv"), "en")["detection"]
+    d = service.analyse(read_lab_file(DEMO / "BRT-DEMO-05.tsv"), "en")["detection"]
     assert d["cancer_signal"] is True  # from the benchmark classifier
     assert d["origin"][0]["class"] == "Lung" and d["engine"] == "baseline+muse-glimmer"
 
@@ -96,7 +96,7 @@ def test_answer_text_handles_parts_and_empty_answers():
 
 
 def _analysis():
-    return analyse(read_lab_file(DEMO / "BRT-DEMO-02.tsv"), "en")
+    return analyse(read_lab_file(DEMO / "BRT-DEMO-05.tsv"), "en")
 
 
 def test_question_is_answered_from_the_result_only():
@@ -107,10 +107,10 @@ def test_question_is_answered_from_the_result_only():
 
     def handler(messages):
         seen["payload"] = messages[-1]["content"]
-        return "The signal most resembles tissue from the colon and rectum. Your doctor decides what comes next."
+        return "The signal most resembles tissue from the kidney. Your doctor decides what comes next."
 
     out = answer(_analysis(), "What does this mean?", "en", client=MetaClient(mock=True, mock_handler=handler))
-    assert out["text"].startswith("The signal") and "colon and rectum" in seen["payload"]
+    assert out["text"].startswith("The signal") and "kidney" in seen["payload"]
     assert "cancer" not in seen["payload"].lower()
 
 
@@ -122,7 +122,7 @@ def test_an_answer_naming_a_disease_is_rewritten_then_replaced():
 
     def always_bad(messages):
         calls.append(1)
-        return "You may have colorectal cancer."
+        return "You may have kidney cancer."
 
     out = answer(_analysis(), "Is it cancer?", "fr", client=MetaClient(mock=True, mock_handler=always_bad))
     assert len(calls) == 2 and out["text"] == FALLBACK["fr"]
@@ -137,3 +137,19 @@ def test_offline_answers_and_lab_notes_fall_back(monkeypatch):
     notes = failed["qc_notes"]
     assert set(notes) == {"en", "fr", "es"} and "re-sequence" in notes["en"]["text"]
     assert qc_notes({"status": "pass"}) == {}
+
+
+def test_explanation_counts_lit_marker_sites():
+    from burotu.analysis.engines import BaselineEngine
+    from burotu.analysis.explain import rank_position
+    from burotu.labformat import read_lab_file
+    from burotu_web.admin import DEMO_DIR
+
+    engine = BaselineEngine()
+    kidney = engine.explain(read_lab_file(DEMO_DIR / "BRT-DEMO-05.tsv"))  # kidney, 10% tumour DNA
+    healthy = engine.explain(read_lab_file(DEMO_DIR / "BRT-DEMO-01.tsv"))
+    assert kidney["healthy_rank"] > 0.995 > healthy["healthy_rank"]
+    assert kidney["lit"] > kidney["healthy_lit"]["p99"] >= healthy["lit"]
+    best = max(kidney["tissues"], key=lambda t: t["lit"] - t["healthy_max"])
+    assert best["class"] == "Kidney" and best["lit"] > best["healthy_max"]
+    assert 0 < rank_position(0.5, 3000) < rank_position(0.995, 3000) < rank_position(1.0, 3000) <= 1.0
