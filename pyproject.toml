@@ -29,7 +29,7 @@ dev = ["burotu[ml,web,analysis]", "pytest>=8", "ruff>=0.6"]
 where = ["src"]
 
 [tool.setuptools.package-data]
-burotu = ["analysis/assets/baseline/*"]
+burotu = ["analysis/assets/*/*"]
 burotu_web = ["templates/**/*.html", "static/*", "demo_samples/*", "model_reports/*"]
 
 [tool.pytest.ini_options]
