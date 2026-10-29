@@ -9,6 +9,7 @@ portable model to src/burotu/analysis/assets/logreg/ and the report to reports/l
 from __future__ import annotations
 
 import json
+import os
 import time
 
 import numpy as np
@@ -26,7 +27,8 @@ OUT = ROOT / "src" / "burotu" / "analysis" / "assets" / "logreg"
 def main() -> None:
     t0 = time.time()
     ref = Reference.load()
-    fit, calib, test = (benchmark.load_cohort(n, ref) for n in ("fit", "calibration", "test"))
+    fit_name = os.environ.get("BUROTU_FIT_COHORT", "fit")
+    fit, calib, test = (benchmark.load_cohort(n, ref) for n in (fit_name, "calibration", "test"))
     featurizer = Featurizer.from_blood(ref.blood_train.to_numpy(np.float32))
     model = LogRegEnsemble.fit(featurizer, fit.meth, fit.total, fit.labels, HEALTHY)
     model.calibrate(calib.meth, calib.total, TARGET_SPECIFICITY)
@@ -48,8 +50,9 @@ def main() -> None:
         "test": result,
         "real_plasma": realplasma.report(model, ref.panel),
     }
-    model.save(OUT)
-    (ROOT / "reports" / "logreg.json").write_text(json.dumps(report, indent=2))
+    tag = os.environ.get("BUROTU_RUN_TAG", "")
+    model.save(OUT if not tag else ROOT / "models" / f"logreg{tag}")
+    (ROOT / "reports" / f"logreg{tag}.json").write_text(json.dumps(report, indent=2))
     print(f"observed specificity: {result['specificity_observed']:.4f}")
     for r in result["by_tumor_fraction"]:
         print(

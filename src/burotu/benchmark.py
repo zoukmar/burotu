@@ -38,6 +38,8 @@ COHORTS = {
     "fit_large": ("train", 12000, 2000, SimConfig(seed=11, tf_min=3e-4), None),
     # Same as fit_large, but half the healthy backgrounds are pseudo-donors (mixes of 2-3 donors).
     "fit_mix": ("train", 12000, 1000, SimConfig(seed=21, tf_min=3e-4, mix_donors=3), None),
+    # Same as fit_mix, with 3,400 more healthy blood donors from open GEO cohorts (burotu.data.public).
+    "fit_donors": ("train", 12000, 1000, SimConfig(seed=31, tf_min=3e-4, mix_donors=3), None),
     "calibration": ("train", 3000, 0, SimConfig(seed=2), None),
     "test": ("test", 4000, 42, SimConfig(seed=3), TEST_TFS),
 }
@@ -78,7 +80,13 @@ def load_cohort(name: str, ref: Reference | None = None, cache_dir: Path = BENCH
     ref = ref or Reference.load()
     fit_ref, calib_ref = split_donors(ref)
     split, n_healthy, n_per_class, cfg, tfs = COHORTS[name]
-    source = {"fit": fit_ref, "fit_large": fit_ref, "fit_mix": fit_ref, "calibration": calib_ref, "test": ref}[name]
+    if name == "fit_donors":
+        from burotu.data.public import extra_blood_donors
+
+        extra = extra_blood_donors(ref.panel, fit_ref.blood_train.median(axis=1))
+        fit_ref = dataclasses.replace(fit_ref, blood_train=pd.concat([fit_ref.blood_train, extra], axis=1))
+    sources = {"fit": fit_ref, "fit_large": fit_ref, "fit_mix": fit_ref, "fit_donors": fit_ref}
+    source = {**sources, "calibration": calib_ref, "test": ref}[name]
     meth, total, meta = simulate_cohort(source, split, n_healthy, n_per_class, cfg, tf_values=tfs)
     try:
         cache_dir.mkdir(parents=True, exist_ok=True)
