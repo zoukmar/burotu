@@ -82,14 +82,14 @@ def _ref(public):
 def test_analyse_a_demo_sample(public, logged_admin):
     ref = _ref(public)
     token = csrf(logged_admin, f"/bookings/{ref}")
-    r = logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
+    r = logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-05"})
     assert r.status_code == 200
     page = r.text
-    assert "Lab result" in page and "Signal detected" in page and "Colon and rectum" in page
+    assert "Lab result" in page and "Signal detected" in page and "Kidney" in page
     assert "Classic model vs Meta model" in page and "Follow-up" in page
     letter = page.split('id="letter"')[1].split("</blockquote>")[0]
     assert "unusual methylation signal" in letter and "cancer" not in letter.lower()
-    assert "Simulation ground truth: Colorectal" in page
+    assert "Simulation ground truth: Kidney" in page
     assert "Analysed" in page  # stage moved forward
 
 
@@ -111,9 +111,9 @@ def test_unreadable_upload_is_explained(public, logged_admin):
 def test_tracking_speaks_french_and_spanish(public, logged_admin):
     ref = _ref(public)
     token = csrf(logged_admin, f"/bookings/{ref}")
-    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
+    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-05"})
     r = logged_admin.get(f"/lang/fr?next=/bookings/{ref}", follow_redirects=True)
-    assert "Résultat du laboratoire" in r.text and "Signal détecté" in r.text and "Côlon et rectum" in r.text
+    assert "Résultat du laboratoire" in r.text and "Signal détecté" in r.text and "Rein" in r.text
     r = logged_admin.get(f"/bookings/{ref}?letter=es")
     letter = r.text.split('id="letter"')[1].split("</blockquote>")[0]
     assert "señal de metilación inusual" in letter and "cáncer" not in letter.lower()
@@ -127,7 +127,7 @@ def test_report_pdf_in_each_language(public, logged_admin):
     ref = _ref(public)
     assert logged_admin.get(f"/bookings/{ref}/report.pdf").status_code == 404  # nothing analysed yet
     token = csrf(logged_admin, f"/bookings/{ref}")
-    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
+    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-05"})
     for lang in ("en", "fr", "es"):
         r = logged_admin.get(f"/bookings/{ref}/report.pdf?lang={lang}")
         assert r.status_code == 200 and r.headers["content-type"] == "application/pdf"
@@ -149,7 +149,7 @@ def test_models_page_lists_every_run(logged_admin):
 def test_ask_a_question_about_the_result(public, logged_admin):
     ref = _ref(public)
     token = csrf(logged_admin, f"/bookings/{ref}")
-    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
+    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-05"})
     token = csrf(logged_admin, f"/bookings/{ref}")
     data = {"csrf": token, "question": "Should I repeat the test?", "lang": "fr", "audience": "patient"}
     page = logged_admin.post(f"/bookings/{ref}/ask", data=data).text

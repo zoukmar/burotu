@@ -160,8 +160,9 @@ def technology(request: Request, lang: str):
             "page": "technology",
             "runs": science.all_runs(),
             "chart": science.origin_chart(),
-            "classic": science.run_metrics("baseline"),
-            "meta": science.run_metrics("glimmer-v2"),
+            "classic": science.run_metrics(science.COMPARE[0]),
+            "meta": science.run_metrics(science.COMPARE[1]),
+            "current": science.run_metrics("baseline"),
             "tfs": science.TFS,
         },
     )

@@ -25,7 +25,7 @@
   },
   {
     "sample_id": "BRT-DEMO-05",
-    "label": "Pancreas",
+    "label": "Kidney",
     "tumor_fraction": 0.1,
     "depth": 500
   },
@@ -37,7 +37,7 @@
   },
   {
     "sample_id": "BRT-DEMO-07",
-    "label": "Liver",
+    "label": "Brain",
     "tumor_fraction": 0.03,
     "depth": 500
   },
@@ -46,5 +46,17 @@
     "label": "Colorectal",
     "tumor_fraction": 0.03,
     "depth": 40
+  },
+  {
+    "sample_id": "BRT-DEMO-09",
+    "label": "Pancreas",
+    "tumor_fraction": 0.03,
+    "depth": 500
+  },
+  {
+    "sample_id": "BRT-DEMO-10",
+    "label": "Skin",
+    "tumor_fraction": 0.01,
+    "depth": 500
   }
 ]
