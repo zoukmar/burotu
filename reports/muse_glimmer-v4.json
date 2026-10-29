@@ -1,0 +1,1038 @@
+{
+  "model": "meta-models/Muse-Glimmer-30B",
+  "config": {
+    "model": "meta-models/Muse-Glimmer-30B",
+    "load_4bit": true,
+    "steps": 1500,
+    "batch_size": 16,
+    "grad_accum": 1,
+    "lr_adapter": 0.001,
+    "lr_lora": 5e-05,
+    "lora_r": 16,
+    "n_tokens": 16,
+    "warmup": 50,
+    "eval_batch": 32,
+    "train_cohort": "fit_mix",
+    "revision": "a4e59da52a7bc87ae7251dd5545c0dd437c44b68",
+    "eval_stride": 1,
+    "seed": 0,
+    "stage1_steps": 500,
+    "min_tf": 0.0,
+    "adapter_hidden": 1024,
+    "adapter_dropout": 0.1,
+    "adapter_input_norm": "layer",
+    "weight_decay": 0.01,
+    "weights_file": "trainable.pt",
+    "eval_only": false,
+    "probe_every": 100,
+    "out": "/runs/glimmer-v4"
+  },
+  "trainable_params": 215692584,
+  "train_samples": 28000,
+  "test": {
+    "threshold": 20.982751846313477,
+    "specificity_observed": 0.99675,
+    "n_healthy": 4000,
+    "by_tumor_fraction": [
+      {
+        "tumor_fraction": 0.0003,
+        "n": 336,
+        "sensitivity": 0.005952380952380952,
+        "auc": 0.4836949404761905,
+        "origin_top1": 0.13690476190476192,
+        "origin_top2": 0.27380952380952384
+      },
+      {
+        "tumor_fraction": 0.001,
+        "n": 336,
+        "sensitivity": 0.01488095238095238,
+        "auc": 0.5981934523809523,
+        "origin_top1": 0.17559523809523808,
+        "origin_top2": 0.31845238095238093
+      },
+      {
+        "tumor_fraction": 0.003,
+        "n": 336,
+        "sensitivity": 0.050595238095238096,
+        "auc": 0.7933020833333334,
+        "origin_top1": 0.31845238095238093,
+        "origin_top2": 0.47619047619047616
+      },
+      {
+        "tumor_fraction": 0.01,
+        "n": 336,
+        "sensitivity": 0.41964285714285715,
+        "auc": 0.9816793154761905,
+        "origin_top1": 0.6755952380952381,
+        "origin_top2": 0.8214285714285714
+      },
+      {
+        "tumor_fraction": 0.03,
+        "n": 336,
+        "sensitivity": 0.4880952380952381,
+        "auc": 0.9875528273809524,
+        "origin_top1": 0.8988095238095238,
+        "origin_top2": 0.9672619047619048
+      },
+      {
+        "tumor_fraction": 0.1,
+        "n": 336,
+        "sensitivity": 0.44345238095238093,
+        "auc": 0.9839092261904762,
+        "origin_top1": 0.9553571428571429,
+        "origin_top2": 0.9880952380952381
+      }
+    ],
+    "by_class_at_1pct": {
+      "Breast": {
+        "sensitivity": 0.5,
+        "origin_top1": 0.5952380952380952
+      },
+      "Colorectal": {
+        "sensitivity": 0.19047619047619047,
+        "origin_top1": 0.6190476190476191
+      },
+      "Head and neck": {
+        "sensitivity": 0.30952380952380953,
+        "origin_top1": 0.7380952380952381
+      },
+      "Liver": {
+        "sensitivity": 0.2619047619047619,
+        "origin_top1": 0.9523809523809523
+      },
+      "Lung": {
+        "sensitivity": 0.6190476190476191,
+        "origin_top1": 0.42857142857142855
+      },
+      "Oesophagus-Stomach": {
+        "sensitivity": 0.5952380952380952,
+        "origin_top1": 0.5476190476190477
+      },
+      "Pancreas": {
+        "sensitivity": 0.6904761904761905,
+        "origin_top1": 0.6428571428571429
+      },
+      "Prostate": {
+        "sensitivity": 0.19047619047619047,
+        "origin_top1": 0.8809523809523809
+      }
+    }
+  },
+  "real_plasma": {
+    "note": "Moss et al. 2018 cfDNA on EPIC arrays, 12 healthy and 15 cancer samples: a sanity check, not a performance figure. Model and threshold unchanged; only the healthy background differs.",
+    "whole_blood_background": {
+      "background": "whole blood",
+      "auc_cancer_vs_healthy": 0.2611,
+      "detected_healthy": 11,
+      "detected_cancer": 7,
+      "n_healthy": 12,
+      "n_cancer": 15,
+      "origin_top1_correct": 7,
+      "n_known_origin": 11,
+      "samples": [
+        {
+          "title": "cfDNA_young_male_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 21.9405,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_young_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 22.577,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_young_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 22.9259,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_young_female_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 22.9844,
+          "detected": true,
+          "origin_top1": "Pancreas"
+        },
+        {
+          "title": "cfDNA_old_male_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 22.9106,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_old_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 22.0362,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 21.8489,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 22.9694,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_healthy_individual_1",
+          "label": "Healthy",
+          "cancer_score": 22.2461,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_colon_cancer_806",
+          "label": "Colorectal",
+          "cancer_score": 15.9689,
+          "detected": false,
+          "origin_top1": "Colorectal"
+        },
+        {
+          "title": "cfDNA_colon_cancer_684",
+          "label": "Colorectal",
+          "cancer_score": 17.7381,
+          "detected": false,
+          "origin_top1": "Colorectal"
+        },
+        {
+          "title": "cfDNA_colon_cancer_806_50ng",
+          "label": "Colorectal",
+          "cancer_score": 16.112,
+          "detected": false,
+          "origin_top1": "Colorectal"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1",
+          "label": "Lung",
+          "cancer_score": 22.7983,
+          "detected": true,
+          "origin_top1": "Lung"
+        },
+        {
+          "title": "cfDNA_CUP_1302",
+          "label": "Unknown primary",
+          "cancer_score": 23.4654,
+          "detected": true,
+          "origin_top1": "Pancreas"
+        },
+        {
+          "title": "cfDNA_CUP_1149",
+          "label": "Unknown primary",
+          "cancer_score": 20.565,
+          "detected": false,
+          "origin_top1": "Prostate"
+        },
+        {
+          "title": "cfDNA_CUP_1322",
+          "label": "Unknown primary",
+          "cancer_score": 22.2723,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_CUP_1936_1994",
+          "label": "Unknown primary",
+          "cancer_score": 18.7914,
+          "detected": false,
+          "origin_top1": "Colorectal"
+        },
+        {
+          "title": "cfDNA_healthy_individual_2",
+          "label": "Healthy",
+          "cancer_score": 21.7711,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1478",
+          "label": "Lung",
+          "cancer_score": 21.8147,
+          "detected": true,
+          "origin_top1": "Pancreas"
+        },
+        {
+          "title": "cfDNA_colon_cancer_2010",
+          "label": "Colorectal",
+          "cancer_score": 22.3148,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1040",
+          "label": "Breast",
+          "cancer_score": 20.5272,
+          "detected": false,
+          "origin_top1": "Breast"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1711",
+          "label": "Breast",
+          "cancer_score": 20.6266,
+          "detected": false,
+          "origin_top1": "Breast"
+        },
+        {
+          "title": "cfDNA_healthy_individual_3",
+          "label": "Healthy",
+          "cancer_score": 22.4647,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_healthy_individual_4",
+          "label": "Healthy",
+          "cancer_score": 20.5149,
+          "detected": false,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1438",
+          "label": "Breast",
+          "cancer_score": 20.6766,
+          "detected": false,
+          "origin_top1": "Breast"
+        },
+        {
+          "title": "cfDNA_lung_cancer_2244",
+          "label": "Lung",
+          "cancer_score": 22.6626,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1433",
+          "label": "Lung",
+          "cancer_score": 21.2839,
+          "detected": true,
+          "origin_top1": "Liver"
+        }
+      ]
+    },
+    "recalibrated": {
+      "background": "healthy plasma controls, leave-one-donor-group-out",
+      "auc_cancer_vs_healthy": 0.7222,
+      "detected_healthy": 1,
+      "detected_cancer": 3,
+      "n_healthy": 12,
+      "n_cancer": 15,
+      "origin_top1_correct": 7,
+      "n_known_origin": 11,
+      "samples": [
+        {
+          "title": "cfDNA_young_male_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 19.5313,
+          "detected": false,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_young_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 5.4354,
+          "detected": false,
+          "origin_top1": "Head and neck"
+        },
+        {
+          "title": "cfDNA_young_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 9.8157,
+          "detected": false,
+          "origin_top1": "Head and neck"
+        },
+        {
+          "title": "cfDNA_young_female_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 19.098,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_old_male_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 21.6539,
+          "detected": true,
+          "origin_top1": "Lung"
+        },
+        {
+          "title": "cfDNA_old_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 18.7248,
+          "detected": false,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 12.881,
+          "detected": false,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 17.0821,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_healthy_individual_1",
+          "label": "Healthy",
+          "cancer_score": -19.2985,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_806",
+          "label": "Colorectal",
+          "cancer_score": 15.62,
+          "detected": false,
+          "origin_top1": "Colorectal"
+        },
+        {
+          "title": "cfDNA_colon_cancer_684",
+          "label": "Colorectal",
+          "cancer_score": 17.1705,
+          "detected": false,
+          "origin_top1": "Colorectal"
+        },
+        {
+          "title": "cfDNA_colon_cancer_806_50ng",
+          "label": "Colorectal",
+          "cancer_score": 15.7415,
+          "detected": false,
+          "origin_top1": "Colorectal"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1",
+          "label": "Lung",
+          "cancer_score": 19.9642,
+          "detected": false,
+          "origin_top1": "Lung"
+        },
+        {
+          "title": "cfDNA_CUP_1302",
+          "label": "Unknown primary",
+          "cancer_score": 22.5743,
+          "detected": true,
+          "origin_top1": "Lung"
+        },
+        {
+          "title": "cfDNA_CUP_1149",
+          "label": "Unknown primary",
+          "cancer_score": 18.0532,
+          "detected": false,
+          "origin_top1": "Prostate"
+        },
+        {
+          "title": "cfDNA_CUP_1322",
+          "label": "Unknown primary",
+          "cancer_score": 22.7149,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_CUP_1936_1994",
+          "label": "Unknown primary",
+          "cancer_score": 16.2312,
+          "detected": false,
+          "origin_top1": "Colorectal"
+        },
+        {
+          "title": "cfDNA_healthy_individual_2",
+          "label": "Healthy",
+          "cancer_score": -19.5873,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1478",
+          "label": "Lung",
+          "cancer_score": -19.4846,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_colon_cancer_2010",
+          "label": "Colorectal",
+          "cancer_score": 22.6653,
+          "detected": true,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1040",
+          "label": "Breast",
+          "cancer_score": 19.6581,
+          "detected": false,
+          "origin_top1": "Breast"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1711",
+          "label": "Breast",
+          "cancer_score": 19.8877,
+          "detected": false,
+          "origin_top1": "Breast"
+        },
+        {
+          "title": "cfDNA_healthy_individual_3",
+          "label": "Healthy",
+          "cancer_score": 9.6313,
+          "detected": false,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_healthy_individual_4",
+          "label": "Healthy",
+          "cancer_score": -18.1648,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        },
+        {
+          "title": "cfDNA_breast_cancer_1438",
+          "label": "Breast",
+          "cancer_score": 19.2945,
+          "detected": false,
+          "origin_top1": "Breast"
+        },
+        {
+          "title": "cfDNA_lung_cancer_2244",
+          "label": "Lung",
+          "cancer_score": 20.5071,
+          "detected": false,
+          "origin_top1": "Head and neck"
+        },
+        {
+          "title": "cfDNA_lung_cancer_1433",
+          "label": "Lung",
+          "cancer_score": -19.1204,
+          "detected": false,
+          "origin_top1": "Oesophagus-Stomach"
+        }
+      ]
+    }
+  },
+  "minutes": 69.9,
+  "healthy_scores_by_donor": {
+    "calibration": [
+      {
+        "donor": "X1012",
+        "n": 89,
+        "median": 18.451,
+        "max": 21.293
+      },
+      {
+        "donor": "X2055",
+        "n": 93,
+        "median": 15.901,
+        "max": 22.454
+      },
+      {
+        "donor": "X1036",
+        "n": 70,
+        "median": 15.784,
+        "max": 20.759
+      },
+      {
+        "donor": "X2053",
+        "n": 78,
+        "median": 15.291,
+        "max": 22.568
+      },
+      {
+        "donor": "X2030",
+        "n": 85,
+        "median": 12.174,
+        "max": 19.521
+      },
+      {
+        "donor": "X2052",
+        "n": 108,
+        "median": 11.063,
+        "max": 20.16
+      },
+      {
+        "donor": "X2010",
+        "n": 81,
+        "median": 10.47,
+        "max": 21.298
+      },
+      {
+        "donor": "X1080",
+        "n": 76,
+        "median": 10.211,
+        "max": 20.293
+      },
+      {
+        "donor": "X1032",
+        "n": 87,
+        "median": 6.753,
+        "max": 19.188
+      },
+      {
+        "donor": "X1031",
+        "n": 86,
+        "median": 5.428,
+        "max": 19.56
+      },
+      {
+        "donor": "X2032",
+        "n": 85,
+        "median": 2.95,
+        "max": 19.04
+      },
+      {
+        "donor": "X2074",
+        "n": 95,
+        "median": 0.856,
+        "max": 18.285
+      },
+      {
+        "donor": "X2056",
+        "n": 88,
+        "median": -0.413,
+        "max": 17.397
+      },
+      {
+        "donor": "X1062",
+        "n": 82,
+        "median": -1.202,
+        "max": 16.88
+      },
+      {
+        "donor": "X1016",
+        "n": 79,
+        "median": -1.676,
+        "max": 19.359
+      },
+      {
+        "donor": "X2045",
+        "n": 90,
+        "median": -1.755,
+        "max": 18.416
+      },
+      {
+        "donor": "X1015",
+        "n": 92,
+        "median": -2.089,
+        "max": 19.726
+      },
+      {
+        "donor": "X1058",
+        "n": 95,
+        "median": -2.173,
+        "max": 15.159
+      },
+      {
+        "donor": "X1037",
+        "n": 90,
+        "median": -2.381,
+        "max": 17.12
+      },
+      {
+        "donor": "X1052",
+        "n": 76,
+        "median": -3.71,
+        "max": 15.264
+      },
+      {
+        "donor": "X1025",
+        "n": 76,
+        "median": -4.048,
+        "max": 14.77
+      },
+      {
+        "donor": "X2080",
+        "n": 91,
+        "median": -9.2,
+        "max": 14.588
+      },
+      {
+        "donor": "X1017",
+        "n": 92,
+        "median": -9.305,
+        "max": 18.616
+      },
+      {
+        "donor": "X2002",
+        "n": 87,
+        "median": -9.502,
+        "max": 12.097
+      },
+      {
+        "donor": "X1044",
+        "n": 92,
+        "median": -10.424,
+        "max": 15.875
+      },
+      {
+        "donor": "X1018",
+        "n": 79,
+        "median": -11.599,
+        "max": 15.407
+      },
+      {
+        "donor": "X2047",
+        "n": 80,
+        "median": -11.632,
+        "max": 12.974
+      },
+      {
+        "donor": "X2068",
+        "n": 84,
+        "median": -11.648,
+        "max": 18.428
+      },
+      {
+        "donor": "X2035",
+        "n": 87,
+        "median": -13.406,
+        "max": 8.198
+      },
+      {
+        "donor": "X2001",
+        "n": 93,
+        "median": -14.063,
+        "max": 10.202
+      },
+      {
+        "donor": "X2006",
+        "n": 89,
+        "median": -15.486,
+        "max": 11.085
+      },
+      {
+        "donor": "X1020",
+        "n": 73,
+        "median": -15.842,
+        "max": 2.607
+      },
+      {
+        "donor": "X2044",
+        "n": 70,
+        "median": -16.808,
+        "max": -6.972
+      },
+      {
+        "donor": "X1068",
+        "n": 104,
+        "median": -19.262,
+        "max": -15.748
+      },
+      {
+        "donor": "X1060",
+        "n": 78,
+        "median": -19.508,
+        "max": -14.8
+      }
+    ],
+    "test": [
+      {
+        "donor": "X2042",
+        "n": 76,
+        "median": 18.694,
+        "max": 21.736
+      },
+      {
+        "donor": "X2077",
+        "n": 66,
+        "median": 18.308,
+        "max": 22.753
+      },
+      {
+        "donor": "X1053",
+        "n": 94,
+        "median": 18.136,
+        "max": 21.621
+      },
+      {
+        "donor": "X1065",
+        "n": 84,
+        "median": 16.642,
+        "max": 18.877
+      },
+      {
+        "donor": "X2036",
+        "n": 88,
+        "median": 15.485,
+        "max": 20.974
+      },
+      {
+        "donor": "X2060",
+        "n": 97,
+        "median": 14.234,
+        "max": 18.843
+      },
+      {
+        "donor": "X2040",
+        "n": 87,
+        "median": 12.538,
+        "max": 21.652
+      },
+      {
+        "donor": "X2049",
+        "n": 86,
+        "median": 10.371,
+        "max": 17.463
+      },
+      {
+        "donor": "X1010",
+        "n": 79,
+        "median": 10.057,
+        "max": 17.65
+      },
+      {
+        "donor": "X1003",
+        "n": 77,
+        "median": 7.322,
+        "max": 20.598
+      },
+      {
+        "donor": "X2065",
+        "n": 91,
+        "median": 6.608,
+        "max": 16.754
+      },
+      {
+        "donor": "X1079",
+        "n": 86,
+        "median": 5.094,
+        "max": 18.356
+      },
+      {
+        "donor": "X2012",
+        "n": 84,
+        "median": 4.206,
+        "max": 17.434
+      },
+      {
+        "donor": "X2041",
+        "n": 86,
+        "median": 0.583,
+        "max": 19.722
+      },
+      {
+        "donor": "X2013",
+        "n": 67,
+        "median": -0.906,
+        "max": 19.595
+      },
+      {
+        "donor": "X1034",
+        "n": 86,
+        "median": -1.869,
+        "max": 16.743
+      },
+      {
+        "donor": "X1027",
+        "n": 86,
+        "median": -2.82,
+        "max": 14.407
+      },
+      {
+        "donor": "X1074",
+        "n": 74,
+        "median": -6.059,
+        "max": 13.475
+      },
+      {
+        "donor": "X1004",
+        "n": 90,
+        "median": -6.32,
+        "max": 17.843
+      },
+      {
+        "donor": "X1054",
+        "n": 80,
+        "median": -6.614,
+        "max": 10.579
+      },
+      {
+        "donor": "X1059",
+        "n": 82,
+        "median": -6.765,
+        "max": 13.324
+      },
+      {
+        "donor": "X1005",
+        "n": 86,
+        "median": -7.004,
+        "max": 14.785
+      },
+      {
+        "donor": "X1049",
+        "n": 80,
+        "median": -7.078,
+        "max": 12.554
+      },
+      {
+        "donor": "X1030",
+        "n": 83,
+        "median": -7.586,
+        "max": 16.436
+      },
+      {
+        "donor": "X2081",
+        "n": 86,
+        "median": -7.875,
+        "max": 19.766
+      },
+      {
+        "donor": "X2058",
+        "n": 93,
+        "median": -12.738,
+        "max": 7.666
+      },
+      {
+        "donor": "X1069",
+        "n": 83,
+        "median": -12.811,
+        "max": 11.423
+      },
+      {
+        "donor": "X1008",
+        "n": 86,
+        "median": -13.013,
+        "max": 7.435
+      },
+      {
+        "donor": "X1035",
+        "n": 93,
+        "median": -13.181,
+        "max": 4.302
+      },
+      {
+        "donor": "X2026",
+        "n": 78,
+        "median": -13.312,
+        "max": 10.519
+      },
+      {
+        "donor": "X1095",
+        "n": 76,
+        "median": -13.509,
+        "max": 14.853
+      },
+      {
+        "donor": "X1026",
+        "n": 89,
+        "median": -13.724,
+        "max": 17.077
+      },
+      {
+        "donor": "X1041",
+        "n": 81,
+        "median": -14.551,
+        "max": 3.777
+      },
+      {
+        "donor": "X2038",
+        "n": 88,
+        "median": -14.663,
+        "max": 12.873
+      },
+      {
+        "donor": "X2018",
+        "n": 77,
+        "median": -14.949,
+        "max": 9.319
+      },
+      {
+        "donor": "X2063",
+        "n": 80,
+        "median": -14.965,
+        "max": 9.794
+      },
+      {
+        "donor": "X2075",
+        "n": 68,
+        "median": -15.82,
+        "max": 3.134
+      },
+      {
+        "donor": "X1021",
+        "n": 70,
+        "median": -15.968,
+        "max": -0.825
+      },
+      {
+        "donor": "X1009",
+        "n": 82,
+        "median": -16.041,
+        "max": 12.527
+      },
+      {
+        "donor": "X2033",
+        "n": 96,
+        "median": -16.364,
+        "max": 9.902
+      },
+      {
+        "donor": "X2025",
+        "n": 66,
+        "median": -16.472,
+        "max": 5.313
+      },
+      {
+        "donor": "X1055",
+        "n": 64,
+        "median": -17.248,
+        "max": -9.483
+      },
+      {
+        "donor": "X1057",
+        "n": 85,
+        "median": -17.735,
+        "max": -5.889
+      },
+      {
+        "donor": "X2031",
+        "n": 91,
+        "median": -18.817,
+        "max": 8.14
+      },
+      {
+        "donor": "X1040",
+        "n": 68,
+        "median": -18.879,
+        "max": -1.472
+      },
+      {
+        "donor": "X2076",
+        "n": 69,
+        "median": -19.067,
+        "max": -12.869
+      },
+      {
+        "donor": "X2021",
+        "n": 84,
+        "median": -19.129,
+        "max": -10.103
+      },
+      {
+        "donor": "X2048",
+        "n": 76,
+        "median": -19.454,
+        "max": -11.965
+      },
+      {
+        "donor": "X2003",
+        "n": 76,
+        "median": -19.677,
+        "max": -16.423
+      }
+    ]
+  },
+  "gpu": "L40S"
+}

@@ -450,7 +450,7 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
 .tech-h3 { margin: 1.5rem 0 .4rem; font-size: 1.2rem; }
 .tech-p { max-width: 46rem; line-height: 1.6; margin-bottom: 1rem; }
 .tech-table { max-width: 46rem; background: var(--white); }
-.tech-runs { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.25rem; }
+.tech-runs { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 1.25rem; }
 .tech-runs li { border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; background: var(--white); border-top: 4px solid #9AA3B2; }
 .tech-runs li.run-failed { border-top-color: #C9CED6; opacity: .85; }
 .tech-runs li.run-tissue { border-top-color: var(--focus); box-shadow: 0 6px 24px rgba(45, 91, 215, .12); }
