@@ -14,16 +14,17 @@ from pathlib import Path
 REPORTS = Path(__file__).resolve().parent / "model_reports"
 TFS = (0.003, 0.01, 0.03, 0.1)  # tumour DNA fractions shown
 # The classic and Meta runs compared head to head (same tissue types, same test set).
-COMPARE = ("baseline-8", "glimmer-v2")
+COMPARE = ("baseline", "glimmer-v5")
 
 # Every run, in the order it happened. `role` is what Burotu uses it for today.
 RUNS = (
     {"id": "baseline-8", "file": "baseline-8.json", "kind": "classic", "role": "history"},
     {"id": "glimmer-v1", "file": "muse_glimmer-v1.json", "kind": "meta", "role": "failed"},
-    {"id": "glimmer-v2", "file": "muse_glimmer-v2.json", "kind": "meta", "role": "tissue"},
+    {"id": "glimmer-v2", "file": "muse_glimmer-v2.json", "kind": "meta", "role": "history"},
     {"id": "glimmer-v3", "file": "muse_glimmer-v3.json", "kind": "meta", "role": "experiment"},
     {"id": "glimmer-v4", "file": "muse_glimmer-v4.json", "kind": "meta", "role": "experiment"},
     {"id": "baseline", "file": "baseline.json", "kind": "classic", "role": "signal"},
+    {"id": "glimmer-v5", "file": "muse_glimmer-v5.json", "kind": "meta", "role": "tissue"},
 )
 
 
@@ -224,14 +225,16 @@ TEXT = {
             "glimmer-v2": "Muse Glimmer v2: adapter first, then LoRA",
             "glimmer-v3": "Muse Glimmer v3: smaller, regularised adapter",
             "glimmer-v4": "Muse Glimmer v4: pseudo-donors (mixes of real donors)",
+            "glimmer-v5": "Muse Glimmer v5: 20 tissue types, pseudo-donors",
             "baseline": "Classic model, 20 tissue types",
         },
         "run_notes": {
             "baseline-8": "Where Burotu started: the benchmark Glimmer v1 to v4 were measured against.",
             "glimmer-v1": "Learned the answer format, not the sample: the same answer for everyone.",
-            "glimmer-v2": "Names the tissue in Burotu: best at low tumour DNA.",
+            "glimmer-v2": "Named the tissue on the 8-type prototype: right first time 70% at 1% tumour DNA, against 57%.",
             "glimmer-v3": "Fewer healthy people flagged, but too few signals found.",
             "glimmer-v4": "Best Glimmer alarm so far (42% of signals found at 1%), still below the classic model.",
+            "glimmer-v5": "Names the tissue in Burotu: right first time 60% of the time at 1% tumour DNA, against 55% for the classic model; 7 of 11 on real plasma.",
             "baseline": "Raises the alarm in Burotu: same performance with 20 types as with 8; tissue right 55% at 1%, against 5% by chance.",
         },
         "plasma": "Real patient plasma",
@@ -338,14 +341,16 @@ TEXT = {
             "glimmer-v2": "Muse Glimmer v2 : l'adaptateur d'abord, puis LoRA",
             "glimmer-v3": "Muse Glimmer v3 : adaptateur réduit et régularisé",
             "glimmer-v4": "Muse Glimmer v4 : pseudo-donneurs (mélanges de vrais donneurs)",
+            "glimmer-v5": "Muse Glimmer v5 : 20 types de tissus, pseudo-donneurs",
             "baseline": "Modèle classique, 20 types de tissus",
         },
         "run_notes": {
             "baseline-8": "Le point de départ : la référence de Glimmer v1 à v4.",
             "glimmer-v1": "A appris le format de la réponse, pas l'échantillon : la même réponse pour tous.",
-            "glimmer-v2": "Désigne le tissu dans Burotu : le meilleur à faible dose.",
+            "glimmer-v2": "Désignait le tissu sur le prototype à 8 types : juste du premier coup 70 % à 1 % d'ADN tumoral, contre 57 %.",
             "glimmer-v3": "Moins de personnes saines signalées, mais trop peu de signaux trouvés.",
             "glimmer-v4": "Meilleure alarme Glimmer à ce jour (42 % des signaux trouvés à 1 %), encore sous le modèle classique.",
+            "glimmer-v5": "Désigne le tissu dans Burotu : juste du premier coup 60 % du temps à 1 % d'ADN tumoral, contre 55 % pour le modèle classique ; 7 sur 11 sur vrai plasma.",
             "baseline": "Donne l'alarme dans Burotu : mêmes performances avec 20 types qu'avec 8 ; tissu trouvé 55 % à 1 %, contre 5 % au hasard.",
         },
         "plasma": "Plasma de vrais patients",
@@ -456,14 +461,16 @@ TEXT = {
             "glimmer-v2": "Muse Glimmer v2: primero el adaptador, luego LoRA",
             "glimmer-v3": "Muse Glimmer v3: adaptador reducido y regularizado",
             "glimmer-v4": "Muse Glimmer v4: pseudodonantes (mezclas de donantes reales)",
+            "glimmer-v5": "Muse Glimmer v5: 20 tipos de tejido, pseudodonantes",
             "baseline": "Modelo clásico, 20 tipos de tejido",
         },
         "run_notes": {
             "baseline-8": "El punto de partida: la referencia de Glimmer v1 a v4.",
             "glimmer-v1": "Aprendió el formato de la respuesta, no la muestra: la misma respuesta para todos.",
-            "glimmer-v2": "Indica el tejido en Burotu: el mejor con poco ADN tumoral.",
+            "glimmer-v2": "Indicaba el tejido en el prototipo de 8 tipos: acertaba a la primera el 70 % con un 1 % de ADN tumoral, frente al 57 %.",
             "glimmer-v3": "Menos personas sanas señaladas, pero demasiado pocas señales encontradas.",
             "glimmer-v4": "La mejor alarma de Glimmer hasta ahora (42 % de señales encontradas al 1 %), aún por debajo del modelo clásico.",
+            "glimmer-v5": "Indica el tejido en Burotu: acierta a la primera el 60 % de las veces con un 1 % de ADN tumoral, frente al 55 % del modelo clásico; 7 de 11 en plasma real.",
             "baseline": "Da la alarma en Burotu: el mismo rendimiento con 20 tipos que con 8; tejido acertado el 55 % al 1 %, frente al 5 % por azar.",
         },
         "plasma": "Plasma de pacientes reales",

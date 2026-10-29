@@ -107,11 +107,17 @@ The bar Muse Glimmer has to clear, on **20 tissue types**. Simulated plasma buil
 | Tissue of origin top-1, classic model (chance: 5%) | 15% | 55% | 88% | 93% |
 | Tissue of origin top-2, classic model | 26% | 70% | 94% | 97% |
 | Cancer vs healthy AUC, classic model | 0.81 | 0.98 | 1.00 | 1.00 |
-| Tissue of origin top-1, **Muse Glimmer** | *training* | *training* | *training* | *training* |
+| Tissue of origin top-1, **Muse Glimmer** (v5) | 15% | **60%** | 88% | 92% |
+| Tissue of origin top-2, **Muse Glimmer** (v5) | 27% | **73%** | 94% | 96% |
 
 Specificity measured on unseen healthy donors: **99.9%** (target 99.5%). Testis (21% caught at
 1%) and thymus (31%) are the weak spots; brain (93%), prostate (95%) and breast (90%) the strong
-ones. Report: [`reports/baseline.json`](reports/baseline.json).
+ones. Muse Glimmer v5, trained on the same 20 types with pseudo-donors, names the tissue better
+where it is hardest (60% vs 55% right first time at 1% tumour DNA) and as well above it; on real
+patient plasma it gets 7 of 11 tissues right, against 6 for the classic model. Its alarm still does
+not hold 99.5% specificity on new people (38% of signals found at 1%), so the classic model keeps
+that job. Reports: [`reports/baseline.json`](reports/baseline.json),
+[`reports/muse_glimmer-v5.json`](reports/muse_glimmer-v5.json).
 
 **20 tissues, about 27 cancer categories.** Multi-cancer tests count "types" with the AJCC
 staging manual, where one organ can count several times (five soft tissue sarcoma sites, three
@@ -131,7 +137,7 @@ regularised adapter narrows the gap (99.9% specificity, 26% of cancers caught at
 training on pseudo-donors (half the healthy backgrounds mixed from 2-3 real donors) narrows it
 further (99.7% specificity, 42% at 1%, 49% at 3%), without closing it. Burotu therefore uses each
 model for what it does best: the classic model raises the alarm, Muse Glimmer names the tissue.
-Reports: [`reports/`](reports/) (`baseline-8`, `muse_glimmer-v1` to `v4`).
+Reports: [`reports/`](reports/) (`baseline-8`, `muse_glimmer-v1` to `v4`; `v5` is the 20-type run).
 
 **Real patient plasma.** 27 cell-free DNA samples from Moss et al. (12 healthy, 15 cancer),
 measured on methylation arrays rather than sequencing. Healthy plasma is not pure blood
@@ -215,8 +221,8 @@ Once trained, **Actions → Deploy Muse** serves the run on a Modal GPU behind a
 ([serve.py](src/burotu/muse/serve.py), scales to zero when idle; needs a `BUROTU_MUSE_TOKEN`
 secret). Setting `BUROTU_MUSE_URL`, `BUROTU_MUSE_TOKEN` and `BUROTU_MUSE_ROLE=origin` on the
 server makes the tracking site take the tissue of origin from Muse Glimmer (`full` would also
-take the cancer signal from it). Run reports: [`reports/muse_glimmer-v2.json`](reports/muse_glimmer-v2.json)
-(served) and [`reports/muse_glimmer-v3.json`](reports/muse_glimmer-v3.json) (smaller adapter).
+take the cancer signal from it). Run reports: [`reports/muse_glimmer-v5.json`](reports/muse_glimmer-v5.json)
+(served, 20 tissues) and [`reports/muse_glimmer-v2.json`](reports/muse_glimmer-v2.json) (8-type prototype).
 
 Every model is scored on the same frozen benchmark (`data/benchmark/`): the calibration cohort
 sets the threshold, the test cohort gives the numbers.
@@ -254,5 +260,5 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [x] Background calibration on real patient plasma (healthy controls)
 - [ ] Validation on a large real plasma cohort, sequenced
 - [x] From 8 to 20 tissues (about 27 AJCC cancer categories), same alarm performance
-- [ ] Muse Glimmer on 20 tissues (training)
+- [x] Muse Glimmer on 20 tissues: 60% right first time at 1% tumour DNA (classic: 55%)
 - [ ] Towards 50: sequenced samples from a partner lab
