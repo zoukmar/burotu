@@ -247,7 +247,7 @@ src/burotu/
 │   ├── classic/     gradient-boosted trees · decides the signal · weights in git
 │   ├── logreg/      logistic-regression ensembles (GRAIL-style) · cross-check · weights in git
 │   ├── glimmer/     Muse Glimmer 30B + methylation adapter + QLoRA · names the tissue · HF + Modal
-│   ├── cpgpt/       CpGPT foundation model + Burotu heads · cross-check · HF + Modal
+│   ├── cpgpt/       CpGPT foundation model + Burotu heads · tested, not used (experiment)
 │   └── consensus/   vote over the models present
 ├── evaluation/      frozen benchmark, real-plasma checks (Moss 2018, open GEO sets)
 ├── analysis/        the pipeline for one sample: QC → models → consensus → letters, Q&A, PDF
