@@ -91,8 +91,72 @@ def origin_chart(width: int = 640, height: int = 240) -> dict:
     return {"width": width, "height": height, "left": left, "base": top + plot_h, "groups": groups, "ticks": ticks}
 
 
+# Our 20 tissues, and the AJCC 8th edition cancer categories (the way "50+ types" are counted
+# by multi-cancer tests) that the TCGA projects behind each tissue cover. Conservative mapping.
+COVERAGE = [
+    ("Lung", ["Lung"]),
+    ("Colorectal", ["Colon and rectum"]),
+    ("Breast", ["Breast"]),
+    ("Pancreas", ["Exocrine pancreas"]),
+    ("Liver", ["Liver"]),
+    ("Oesophagus-Stomach", ["Oesophagus and oesophagogastric junction", "Stomach"]),
+    ("Head and neck", ["Oral cavity", "Oropharynx (HPV-mediated)", "Oropharynx (p16-) and hypopharynx", "Larynx"]),
+    ("Prostate", ["Prostate"]),
+    ("Kidney", ["Kidney"]),
+    ("Bladder", ["Urinary bladder"]),
+    ("Uterus", ["Uterus, carcinoma and carcinosarcoma"]),
+    ("Cervix", ["Cervix"]),
+    ("Thyroid", ["Thyroid"]),
+    ("Skin", ["Melanoma of the skin"]),
+    ("Brain", ["Brain and spinal cord (gliomas)"]),
+    (
+        "Soft tissue",
+        [
+            "Soft tissue sarcoma of the trunk and extremities",
+            "Soft tissue sarcoma of the retroperitoneum",
+            "Soft tissue sarcoma of the abdomen and thoracic visceral organs",
+        ],
+    ),
+    ("Mesothelium", ["Malignant pleural mesothelioma"]),
+    ("Adrenal", ["Adrenal cortical carcinoma", "Adrenal neuroendocrine tumours"]),
+    ("Testis", ["Testis"]),
+    ("Thymus", ["Thymus"]),
+]
+NOT_YET = [
+    "Ovary, fallopian tube and peritoneum",
+    "Bile ducts (3 categories)",
+    "Gallbladder",
+    "Ampulla of Vater",
+    "Small intestine",
+    "Appendix",
+    "Anus",
+    "Neuroendocrine tumours (appendix, colon and rectum, pancreas)",
+    "Gastrointestinal stromal tumour",
+    "Nasal cavity and nasopharynx",
+    "Merkel cell carcinoma",
+    "Bone",
+    "Ureter and renal pelvis",
+    "Vagina",
+    "Vulva",
+    "Gestational trophoblastic neoplasms",
+    "Blood cancers (leukaemia, lymphoma, myeloma)",
+]
+
+
+def coverage_count() -> int:
+    return sum(len(c) for _, c in COVERAGE)
+
+
 TEXT = {
     "en": {
+        "coverage": "20 tissues, about {n} cancer categories",
+        "coverage_lead": 'Multi-cancer tests count "types" with the AJCC staging manual, where one organ can count '
+        "several times (five soft tissue sarcoma sites, three bile duct categories). Burotu names tissues instead. "
+        "Counted the AJCC way, the public tumours behind our 20 tissues cover about {n} categories. The others are "
+        "missing from public methylation data, which is why going to 50 needs a partner lab's sequenced samples.",
+        "col_tissue": "Burotu tissue",
+        "col_ajcc": "AJCC categories covered",
+        "not_yet": "Not covered yet (no public data on the same array)",
         "title": "Under the hood",
         "lead": "Every number on this page comes from the experiments in Burotu's public repository. Burotu is a "
         "demonstration prototype: its models are trained and tested on public data, mostly simulated plasma.",
@@ -192,6 +256,15 @@ TEXT = {
         "repo": "Code, data pipeline and every report",
     },
     "fr": {
+        "coverage": "20 tissus, environ {n} catégories de cancer",
+        "coverage_lead": "Les tests multi-cancers comptent les « types » avec le manuel de classification AJCC, où un "
+        "même organe peut compter plusieurs fois (cinq localisations de sarcomes, trois catégories de voies biliaires). "
+        "Burotu désigne des tissus. Comptées à la manière AJCC, les tumeurs publiques derrière nos 20 tissus couvrent "
+        "environ {n} catégories. Les autres manquent dans les données publiques de méthylation : pour aller à 50, il faut "
+        "les échantillons séquencés d'un laboratoire partenaire.",
+        "col_tissue": "Tissu Burotu",
+        "col_ajcc": "Catégories AJCC couvertes",
+        "not_yet": "Pas encore couvert (pas de données publiques sur la même puce)",
         "title": "Sous le capot",
         "lead": "Chaque chiffre de cette page vient des expériences du dépôt public de Burotu. Burotu est un "
         "prototype de démonstration : ses modèles sont entraînés et testés sur des données publiques, surtout du "
@@ -301,6 +374,15 @@ TEXT = {
         "repo": "Code, chaîne de données et tous les rapports",
     },
     "es": {
+        "coverage": "20 tejidos, unas {n} categorías de cáncer",
+        "coverage_lead": "Las pruebas multicáncer cuentan los «tipos» con el manual de clasificación AJCC, donde un "
+        "mismo órgano puede contar varias veces (cinco localizaciones de sarcomas, tres categorías de vías biliares). "
+        "Burotu indica tejidos. Contadas al modo AJCC, las muestras tumorales públicas detrás de nuestros 20 tejidos "
+        "cubren unas {n} categorías. Las demás faltan en los datos públicos de metilación: para llegar a 50 hacen falta "
+        "las muestras secuenciadas de un laboratorio colaborador.",
+        "col_tissue": "Tejido Burotu",
+        "col_ajcc": "Categorías AJCC cubiertas",
+        "not_yet": "Aún no cubierto (sin datos públicos en el mismo chip)",
         "title": "Bajo el capó",
         "lead": "Cada cifra de esta página procede de los experimentos del repositorio público de Burotu. Burotu es "
         "un prototipo de demostración: sus modelos se entrenan y evalúan con datos públicos, sobre todo plasma "
