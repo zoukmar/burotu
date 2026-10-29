@@ -215,7 +215,7 @@ def map_page(request: Request):
 
     db = request.app.state.db
     try:
-        public = _json.loads((Path(__file__).resolve().parents[2] / "reports" / "public_plasma.json").read_text())
+        public = _json.loads((Path(__file__).resolve().parent / "model_reports" / "public_plasma.json").read_text())
     except OSError:
         public = None
     return page(
