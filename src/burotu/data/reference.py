@@ -60,6 +60,14 @@ def split_ids(ids, test_frac: float, rng: np.random.Generator):
     return list(ids[n_test:]), list(ids[:n_test])
 
 
+BLOOD_MAX_MEAN, BLOOD_MAX_Q95 = 0.10, 0.20
+
+
+def quiet_cpgs(blood: pd.DataFrame, max_mean: float = BLOOD_MAX_MEAN, max_q95: float = BLOOD_MAX_Q95) -> pd.Index:
+    """CpGs almost never methylated in blood: the only ones a panel can use."""
+    return blood.index[(blood.mean(axis=1) < max_mean) & (blood.quantile(0.95, axis=1) < max_q95)]
+
+
 def design_panel(
     blood: pd.DataFrame,
     tumors: pd.DataFrame,
@@ -103,11 +111,16 @@ def build_reference(
     if restrict_to is not None:  # e.g. CpGs also on the EPIC array (Moss validation)
         common = common.intersection(restrict_to)
     blood = blood.loc[common]
-    tumors = tumors.loc[common]
 
     # Missing values: median per CpG (blood) or per CpG and class (tumours).
-    blood_med = np.nanmedian(blood.to_numpy(np.float32), axis=1)
-    blood = _impute_rows(blood, blood_med)
+    blood_med = pd.Series(np.nanmedian(blood.to_numpy(np.float32), axis=1), index=blood.index)
+    blood = _impute_rows(blood, blood_med.to_numpy())
+    b_tr, b_te = split_ids(blood.columns, test_frac, rng)
+
+    # The panel can only use CpGs that are quiet in training blood (see design_panel), so the
+    # tumour matrix is cut down to those rows before it is read into memory.
+    quiet = quiet_cpgs(blood[b_tr])
+    tumors = tumors.loc[quiet]
     meta = pd.DataFrame({"file_id": list(tumors.columns)}).merge(tumor_meta, on="file_id", how="left")
     parts = []
     for _cls, grp in meta.groupby("cancer_class"):
@@ -115,11 +128,10 @@ def build_reference(
         with warnings.catch_warnings():  # all-NaN rows fall back to the blood median
             warnings.simplefilter("ignore", RuntimeWarning)
             med = np.nanmedian(sub.to_numpy(np.float32), axis=1)
-        med = np.where(np.isnan(med), blood_med, med)
+        med = np.where(np.isnan(med), blood_med.loc[quiet].to_numpy(), med)
         parts.append(_impute_rows(sub, med))
     tumors = pd.concat(parts, axis=1)[meta["file_id"].tolist()]
 
-    b_tr, b_te = split_ids(blood.columns, test_frac, rng)
     meta["split"] = "train"
     for _cls, grp in meta.groupby("cancer_class"):
         _, te = split_ids(grp["file_id"], test_frac, rng)
