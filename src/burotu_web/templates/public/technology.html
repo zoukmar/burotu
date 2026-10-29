@@ -81,7 +81,7 @@
       <li class="run-{{ r.role }}">
         <p class="run-name">{{ s.run_names[r.id] }}</p>
         <p class="run-note">{{ s.run_notes[r.id] }}</p>
-        <p class="run-figs muted small">AUC {{ '%.2f' % r.by_tf[0.01].auc }} · {{ '%.0f' % (r.by_tf[0.01].top1 * 100) }}% @ 1%{% if r.minutes and r.kind == 'meta' and r.id != 'glimmer-v2' %} · {{ '%.0f' % r.minutes }} min{% endif %}</p>
+        <p class="run-figs muted small">AUC {{ '%.2f' % r.by_tf[0.01].auc }} · {{ '%.0f' % (r.by_tf[0.01].top1 * 100) }}% @ 1%{% if r.minutes and r.kind == 'meta' and r.id != 'glimmer-v5' %} · {{ '%.0f' % r.minutes }} min{% endif %}</p>
       </li>
       {% endfor %}
     </ol>
