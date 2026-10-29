@@ -19,7 +19,7 @@ from pathlib import Path
 
 import numpy as np
 
-from burotu.model.features import Featurizer
+from burotu.core.features import Featurizer
 
 TARGET_SPECIFICITY = 0.995
 N_MODELS = 8

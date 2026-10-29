@@ -29,13 +29,30 @@ checking a lab file, explaining a result clearly, and answering follow-up questi
 
 | Path | Role |
 | --- | --- |
-| `src/burotu/data` | Download TCGA (GDC) and GEO data, build the targeted panel |
-| `src/burotu/simulate` | Cell-free DNA simulator built from real profiles |
-| `src/burotu/model` | Features and benchmark classifier (Muse Glimmer adapter next) |
+| `src/burotu/core` | `burotu-bmc` lab file format, features (binomial z-scores against healthy blood) |
+| `src/burotu/data` | Sources (GDC, GEO, open plasma sets), targeted panel, cell-free DNA simulator |
+| `src/burotu/models` | One package per model (classic, logreg, glimmer, cpgpt, consensus) and `registry.toml` |
+| `src/burotu/evaluation` | Frozen benchmark, real-plasma checks (Moss 2018, open GEO sets) |
+| `src/burotu/analysis` | The pipeline for one sample: QC, every model, consensus, letters, Q&A, PDF |
 | `src/burotu/llm` | Meta Model API client (OpenAI-compatible), mock mode without a key |
-| `src/burotu/labformat.py` | `burotu-bmc` exchange format with the partner lab |
-| `src/burotu_web` | burotu.com (one-pager, booking) and admin.burotu.com (tracking) |
+| `src/burotu_web` | burotu.com (site, booking) and admin.burotu.com (tracking, map of models and data) |
+| `scripts/modal_muse.py` | Modal app: train and serve Muse Glimmer, run CpGPT, publish weights |
 | `deploy/` | Production compose file, Caddy block, deploy script |
+
+### How a model plugs in
+
+```
+lab file ─► core.labformat ─► analysis.service ─┬─► models.classic.engine   (CPU)  ── signal
+                                                ├─► models.logreg.engine    (CPU)  ── cross-check
+                                                ├─► models.glimmer.engine ─► Modal GPU ── tissue
+                                                │        └─ same call ─► CpGPT embedding ─► models.cpgpt.engine
+                                                └─► models.consensus ─► letters (Muse Spark), PDF, admin
+```
+
+Every engine returns the same `Detection` (signal, score, threshold, top tissues), so the
+pipeline, the admin pages and the PDF never depend on how a model works or where it runs. Which
+model plays which role, its version and where its weights live are declared once in
+`src/burotu/models/registry.toml`.
 
 ## Website and tracking
 

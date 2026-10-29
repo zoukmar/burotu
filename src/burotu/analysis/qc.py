@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass, field
 
 import numpy as np
 
-from burotu.labformat import LabSample
+from burotu.core.labformat import LabSample
 
 MIN_COVERAGE = 0.95  # share of panel CpGs with at least one read
 MIN_MEDIAN_DEPTH = 200

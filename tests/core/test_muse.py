@@ -7,9 +7,9 @@ torch = pytest.importorskip("torch")
 pytest.importorskip("transformers")
 pytest.importorskip("peft")
 
-from burotu.muse import prompts  # noqa: E402
-from burotu.muse.reader import MuseReader  # noqa: E402
-from burotu.muse.train import TrainConfig, load_lm  # noqa: E402
+from burotu.models.glimmer import prompts  # noqa: E402
+from burotu.models.glimmer.reader import MuseReader  # noqa: E402
+from burotu.models.glimmer.train import TrainConfig, load_lm  # noqa: E402
 
 CLASSES = ["Colorectal", "Lung"]
 
