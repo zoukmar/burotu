@@ -18,8 +18,8 @@ dist/
 !/data/processed/
 !/data/benchmark/
 /data/benchmark/*
-!/data/benchmark/calibration.*
-!/data/benchmark/test.*
+!/data/benchmark/calibration.csv
+!/data/benchmark/test.csv
 /runs/
 /models/
 

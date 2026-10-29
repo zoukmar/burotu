@@ -1,175 +1,115 @@
 {
   "target_specificity": 0.995,
-  "panel_size": 3148,
+  "panel_size": 1681,
   "classes": [
-    "Adrenal",
-    "Bladder",
-    "Brain",
     "Breast",
-    "Cervix",
     "Colorectal",
     "Head and neck",
-    "Kidney",
     "Liver",
     "Lung",
-    "Mesothelium",
     "Oesophagus-Stomach",
     "Pancreas",
-    "Prostate",
-    "Skin",
-    "Soft tissue",
-    "Testis",
-    "Thymus",
-    "Thyroid",
-    "Uterus"
+    "Prostate"
   ],
-  "train_samples": 14000,
+  "train_samples": 8000,
   "donors": {
     "fit": 80,
     "calibration": 35,
     "test": 49
   },
-  "threshold": 0.9968081751653052,
+  "threshold": 0.9956049379857056,
   "test": {
-    "threshold": 0.9968081751653052,
-    "specificity_observed": 0.99875,
+    "threshold": 0.9956049379857056,
+    "specificity_observed": 0.99825,
     "n_healthy": 4000,
     "by_tumor_fraction": [
       {
         "tumor_fraction": 0.0003,
-        "n": 840,
-        "sensitivity": 0.002380952380952381,
-        "auc": 0.5363592261904762,
-        "origin_top1": 0.06428571428571428,
-        "origin_top2": 0.12142857142857143,
-        "sensitivity_naive": 0.02142857142857143
+        "n": 336,
+        "sensitivity": 0.0,
+        "auc": 0.522765625,
+        "origin_top1": 0.1130952380952381,
+        "origin_top2": 0.25,
+        "sensitivity_naive": 0.020833333333333332
       },
       {
         "tumor_fraction": 0.001,
-        "n": 840,
-        "sensitivity": 0.010714285714285714,
-        "auc": 0.6186907738095238,
-        "origin_top1": 0.07261904761904762,
-        "origin_top2": 0.1523809523809524,
-        "sensitivity_naive": 0.02023809523809524
+        "n": 336,
+        "sensitivity": 0.005952380952380952,
+        "auc": 0.6123206845238095,
+        "origin_top1": 0.17261904761904762,
+        "origin_top2": 0.3125,
+        "sensitivity_naive": 0.017857142857142856
       },
       {
         "tumor_fraction": 0.003,
-        "n": 840,
-        "sensitivity": 0.09285714285714286,
-        "auc": 0.8076907738095238,
-        "origin_top1": 0.14642857142857144,
-        "origin_top2": 0.25833333333333336,
-        "sensitivity_naive": 0.016666666666666666
+        "n": 336,
+        "sensitivity": 0.06845238095238096,
+        "auc": 0.8307358630952381,
+        "origin_top1": 0.25,
+        "origin_top2": 0.41369047619047616,
+        "sensitivity_naive": 0.02976190476190476
       },
       {
         "tumor_fraction": 0.01,
-        "n": 840,
-        "sensitivity": 0.7130952380952381,
-        "auc": 0.9778508928571428,
-        "origin_top1": 0.5452380952380952,
-        "origin_top2": 0.6964285714285714,
-        "sensitivity_naive": 0.02142857142857143
+        "n": 336,
+        "sensitivity": 0.7083333333333334,
+        "auc": 0.986297619047619,
+        "origin_top1": 0.5654761904761905,
+        "origin_top2": 0.7410714285714286,
+        "sensitivity_naive": 0.03869047619047619
       },
       {
         "tumor_fraction": 0.03,
-        "n": 840,
-        "sensitivity": 0.9666666666666667,
-        "auc": 0.9957892857142856,
-        "origin_top1": 0.8773809523809524,
-        "origin_top2": 0.9380952380952381,
-        "sensitivity_naive": 0.05357142857142857
+        "n": 336,
+        "sensitivity": 0.9970238095238095,
+        "auc": 0.9999561011904763,
+        "origin_top1": 0.8690476190476191,
+        "origin_top2": 0.9464285714285714,
+        "sensitivity_naive": 0.08630952380952381
       },
       {
         "tumor_fraction": 0.1,
-        "n": 840,
-        "sensitivity": 0.9964285714285714,
-        "auc": 0.9999038690476191,
-        "origin_top1": 0.9297619047619048,
-        "origin_top2": 0.9738095238095238,
-        "sensitivity_naive": 0.7357142857142858
+        "n": 336,
+        "sensitivity": 1.0,
+        "auc": 1.0,
+        "origin_top1": 0.9613095238095238,
+        "origin_top2": 0.9970238095238095,
+        "sensitivity_naive": 0.9434523809523809
       }
     ],
     "by_class_at_1pct": {
-      "Adrenal": {
-        "sensitivity": 0.7380952380952381,
-        "origin_top1": 0.6666666666666666
-      },
-      "Bladder": {
-        "sensitivity": 0.7380952380952381,
-        "origin_top1": 0.6190476190476191
-      },
-      "Brain": {
-        "sensitivity": 0.9285714285714286,
-        "origin_top1": 0.8333333333333334
-      },
       "Breast": {
-        "sensitivity": 0.9047619047619048,
-        "origin_top1": 0.5
-      },
-      "Cervix": {
-        "sensitivity": 0.7619047619047619,
-        "origin_top1": 0.47619047619047616
+        "sensitivity": 0.7857142857142857,
+        "origin_top1": 0.5952380952380952
       },
       "Colorectal": {
-        "sensitivity": 0.7380952380952381,
-        "origin_top1": 0.5714285714285714
+        "sensitivity": 0.6904761904761905,
+        "origin_top1": 0.6666666666666666
       },
       "Head and neck": {
-        "sensitivity": 0.47619047619047616,
-        "origin_top1": 0.35714285714285715
-      },
-      "Kidney": {
-        "sensitivity": 0.7142857142857143,
-        "origin_top1": 0.5
+        "sensitivity": 0.5238095238095238,
+        "origin_top1": 0.5238095238095238
       },
       "Liver": {
-        "sensitivity": 0.6666666666666666,
+        "sensitivity": 0.6190476190476191,
         "origin_top1": 0.8571428571428571
       },
       "Lung": {
-        "sensitivity": 0.8095238095238095,
-        "origin_top1": 0.40476190476190477
-      },
-      "Mesothelium": {
-        "sensitivity": 0.6190476190476191,
-        "origin_top1": 0.5238095238095238
+        "sensitivity": 0.6904761904761905,
+        "origin_top1": 0.21428571428571427
       },
       "Oesophagus-Stomach": {
-        "sensitivity": 0.7142857142857143,
-        "origin_top1": 0.40476190476190477
+        "sensitivity": 0.7857142857142857,
+        "origin_top1": 0.21428571428571427
       },
       "Pancreas": {
-        "sensitivity": 0.6428571428571429,
-        "origin_top1": 0.42857142857142855
+        "sensitivity": 0.6666666666666666,
+        "origin_top1": 0.6904761904761905
       },
       "Prostate": {
-        "sensitivity": 0.9523809523809523,
-        "origin_top1": 0.7142857142857143
-      },
-      "Skin": {
-        "sensitivity": 0.7619047619047619,
-        "origin_top1": 0.8809523809523809
-      },
-      "Soft tissue": {
-        "sensitivity": 0.8095238095238095,
-        "origin_top1": 0.35714285714285715
-      },
-      "Testis": {
-        "sensitivity": 0.21428571428571427,
-        "origin_top1": 0.30952380952380953
-      },
-      "Thymus": {
-        "sensitivity": 0.30952380952380953,
-        "origin_top1": 0.2857142857142857
-      },
-      "Thyroid": {
-        "sensitivity": 0.8809523809523809,
-        "origin_top1": 0.6666666666666666
-      },
-      "Uterus": {
-        "sensitivity": 0.8809523809523809,
-        "origin_top1": 0.5476190476190477
+        "sensitivity": 0.9047619047619048,
+        "origin_top1": 0.7619047619047619
       }
     }
   },
@@ -177,25 +117,25 @@
     "note": "Moss et al. 2018 cfDNA on EPIC arrays, 12 healthy and 15 cancer samples: a sanity check, not a performance figure. Model and threshold unchanged; only the healthy background differs.",
     "whole_blood_background": {
       "background": "whole blood",
-      "auc_cancer_vs_healthy": 0.7333,
+      "auc_cancer_vs_healthy": 0.6222,
       "detected_healthy": 12,
       "detected_cancer": 15,
       "n_healthy": 12,
       "n_cancer": 15,
-      "origin_top1_correct": 0,
+      "origin_top1_correct": 2,
       "n_known_origin": 11,
       "samples": [
         {
           "title": "cfDNA_young_male_pool_rep1",
           "label": "Healthy",
-          "cancer_score": 0.9999,
+          "cancer_score": 0.9996,
           "detected": true,
           "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_young_male_pool_rep2",
           "label": "Healthy",
-          "cancer_score": 1.0,
+          "cancer_score": 0.9999,
           "detected": true,
           "origin_top1": "Liver"
         },
@@ -209,7 +149,7 @@
         {
           "title": "cfDNA_young_female_pool_rep2",
           "label": "Healthy",
-          "cancer_score": 1.0,
+          "cancer_score": 0.9999,
           "detected": true,
           "origin_top1": "Liver"
         },
@@ -223,7 +163,7 @@
         {
           "title": "cfDNA_old_male_pool_rep2",
           "label": "Healthy",
-          "cancer_score": 1.0,
+          "cancer_score": 0.9998,
           "detected": true,
           "origin_top1": "Liver"
         },
@@ -237,16 +177,16 @@
         {
           "title": "cfDNA_old_female_pool_rep2",
           "label": "Healthy",
-          "cancer_score": 0.9999,
+          "cancer_score": 0.9997,
           "detected": true,
-          "origin_top1": "Adrenal"
+          "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_healthy_individual_1",
           "label": "Healthy",
-          "cancer_score": 0.9999,
+          "cancer_score": 0.9997,
           "detected": true,
-          "origin_top1": "Brain"
+          "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_colon_cancer_806",
@@ -279,9 +219,9 @@
         {
           "title": "cfDNA_CUP_1302",
           "label": "Unknown primary",
-          "cancer_score": 1.0,
+          "cancer_score": 0.9998,
           "detected": true,
-          "origin_top1": "Adrenal"
+          "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_CUP_1149",
@@ -302,7 +242,7 @@
           "label": "Unknown primary",
           "cancer_score": 1.0,
           "detected": true,
-          "origin_top1": "Colorectal"
+          "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_healthy_individual_2",
@@ -314,9 +254,9 @@
         {
           "title": "cfDNA_lung_cancer_1478",
           "label": "Lung",
-          "cancer_score": 0.9977,
+          "cancer_score": 0.999,
           "detected": true,
-          "origin_top1": "Thyroid"
+          "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_colon_cancer_2010",
@@ -330,19 +270,19 @@
           "label": "Breast",
           "cancer_score": 1.0,
           "detected": true,
-          "origin_top1": "Uterus"
+          "origin_top1": "Breast"
         },
         {
           "title": "cfDNA_breast_cancer_1711",
           "label": "Breast",
           "cancer_score": 1.0,
           "detected": true,
-          "origin_top1": "Liver"
+          "origin_top1": "Breast"
         },
         {
           "title": "cfDNA_healthy_individual_3",
           "label": "Healthy",
-          "cancer_score": 1.0,
+          "cancer_score": 0.9996,
           "detected": true,
           "origin_top1": "Liver"
         },
@@ -363,14 +303,14 @@
         {
           "title": "cfDNA_lung_cancer_2244",
           "label": "Lung",
-          "cancer_score": 1.0,
+          "cancer_score": 0.9999,
           "detected": true,
           "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_lung_cancer_1433",
           "label": "Lung",
-          "cancer_score": 0.9989,
+          "cancer_score": 0.9982,
           "detected": true,
           "origin_top1": "Liver"
         }
@@ -380,74 +320,74 @@
       "background": "healthy plasma controls, leave-one-donor-group-out",
       "auc_cancer_vs_healthy": 0.8222,
       "detected_healthy": 0,
-      "detected_cancer": 12,
+      "detected_cancer": 11,
       "n_healthy": 12,
       "n_cancer": 15,
-      "origin_top1_correct": 6,
+      "origin_top1_correct": 7,
       "n_known_origin": 11,
       "samples": [
         {
           "title": "cfDNA_young_male_pool_rep1",
           "label": "Healthy",
-          "cancer_score": 0.9302,
+          "cancer_score": 0.3204,
           "detected": false,
-          "origin_top1": "Adrenal"
+          "origin_top1": "Oesophagus-Stomach"
         },
         {
           "title": "cfDNA_young_male_pool_rep2",
           "label": "Healthy",
-          "cancer_score": 0.7305,
+          "cancer_score": 0.4145,
           "detected": false,
-          "origin_top1": "Brain"
+          "origin_top1": "Lung"
         },
         {
           "title": "cfDNA_young_female_pool_rep1",
           "label": "Healthy",
-          "cancer_score": 0.2647,
+          "cancer_score": 0.073,
           "detected": false,
-          "origin_top1": "Soft tissue"
+          "origin_top1": "Colorectal"
         },
         {
           "title": "cfDNA_young_female_pool_rep2",
           "label": "Healthy",
-          "cancer_score": 0.9477,
+          "cancer_score": 0.4127,
           "detected": false,
-          "origin_top1": "Testis"
+          "origin_top1": "Oesophagus-Stomach"
         },
         {
           "title": "cfDNA_old_male_pool_rep1",
           "label": "Healthy",
-          "cancer_score": 0.9735,
-          "detected": false,
-          "origin_top1": "Pancreas"
-        },
-        {
-          "title": "cfDNA_old_male_pool_rep2",
-          "label": "Healthy",
-          "cancer_score": 0.9426,
-          "detected": false,
-          "origin_top1": "Thymus"
-        },
-        {
-          "title": "cfDNA_old_female_pool_rep1",
-          "label": "Healthy",
-          "cancer_score": 0.9828,
+          "cancer_score": 0.9365,
           "detected": false,
           "origin_top1": "Liver"
         },
         {
+          "title": "cfDNA_old_male_pool_rep2",
+          "label": "Healthy",
+          "cancer_score": 0.4374,
+          "detected": false,
+          "origin_top1": "Liver"
+        },
+        {
+          "title": "cfDNA_old_female_pool_rep1",
+          "label": "Healthy",
+          "cancer_score": 0.9449,
+          "detected": false,
+          "origin_top1": "Lung"
+        },
+        {
           "title": "cfDNA_old_female_pool_rep2",
           "label": "Healthy",
-          "cancer_score": 0.4804,
+          "cancer_score": 0.2204,
           "detected": false,
-          "origin_top1": "Testis"
+          "origin_top1": "Oesophagus-Stomach"
         },
         {
           "title": "cfDNA_healthy_individual_1",
           "label": "Healthy",
-          "cancer_score": 0.7192,
+          "cancer_score": 0.7778,
           "detected": false,
-          "origin_top1": "Prostate"
+          "origin_top1": "Breast"
         },
         {
           "title": "cfDNA_colon_cancer_806",
@@ -459,7 +399,7 @@
         {
           "title": "cfDNA_colon_cancer_684",
           "label": "Colorectal",
-          "cancer_score": 0.9999,
+          "cancer_score": 1.0,
           "detected": true,
           "origin_top1": "Colorectal"
         },
@@ -473,15 +413,15 @@
         {
           "title": "cfDNA_lung_cancer_1",
           "label": "Lung",
-          "cancer_score": 0.9998,
+          "cancer_score": 0.9997,
           "detected": true,
           "origin_top1": "Lung"
         },
         {
           "title": "cfDNA_CUP_1302",
           "label": "Unknown primary",
-          "cancer_score": 0.9971,
-          "detected": true,
+          "cancer_score": 0.9702,
+          "detected": false,
           "origin_top1": "Lung"
         },
         {
@@ -496,7 +436,7 @@
           "label": "Unknown primary",
           "cancer_score": 1.0,
           "detected": true,
-          "origin_top1": "Bladder"
+          "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_CUP_1936_1994",
@@ -508,21 +448,21 @@
         {
           "title": "cfDNA_healthy_individual_2",
           "label": "Healthy",
-          "cancer_score": 0.0314,
+          "cancer_score": 0.0038,
           "detected": false,
-          "origin_top1": "Skin"
+          "origin_top1": "Head and neck"
         },
         {
           "title": "cfDNA_lung_cancer_1478",
           "label": "Lung",
-          "cancer_score": 0.0038,
+          "cancer_score": 0.0004,
           "detected": false,
-          "origin_top1": "Bladder"
+          "origin_top1": "Colorectal"
         },
         {
           "title": "cfDNA_colon_cancer_2010",
           "label": "Colorectal",
-          "cancer_score": 1.0,
+          "cancer_score": 0.9999,
           "detected": true,
           "origin_top1": "Liver"
         },
@@ -543,37 +483,37 @@
         {
           "title": "cfDNA_healthy_individual_3",
           "label": "Healthy",
-          "cancer_score": 0.8837,
+          "cancer_score": 0.9252,
           "detected": false,
-          "origin_top1": "Head and neck"
+          "origin_top1": "Liver"
         },
         {
           "title": "cfDNA_healthy_individual_4",
           "label": "Healthy",
-          "cancer_score": 0.0425,
+          "cancer_score": 0.0122,
           "detected": false,
-          "origin_top1": "Kidney"
+          "origin_top1": "Colorectal"
         },
         {
           "title": "cfDNA_breast_cancer_1438",
           "label": "Breast",
           "cancer_score": 1.0,
           "detected": true,
-          "origin_top1": "Liver"
+          "origin_top1": "Breast"
         },
         {
           "title": "cfDNA_lung_cancer_2244",
           "label": "Lung",
-          "cancer_score": 0.5067,
+          "cancer_score": 0.2815,
           "detected": false,
-          "origin_top1": "Uterus"
+          "origin_top1": "Oesophagus-Stomach"
         },
         {
           "title": "cfDNA_lung_cancer_1433",
           "label": "Lung",
-          "cancer_score": 0.004,
+          "cancer_score": 0.0007,
           "detected": false,
-          "origin_top1": "Cervix"
+          "origin_top1": "Colorectal"
         }
       ]
     }

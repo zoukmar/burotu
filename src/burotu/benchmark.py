@@ -37,7 +37,7 @@ COHORTS = {
     # Larger training set for Muse (same fitting donors and tumours, different draws).
     "fit_large": ("train", 12000, 2000, SimConfig(seed=11, tf_min=3e-4), None),
     # Same as fit_large, but half the healthy backgrounds are pseudo-donors (mixes of 2-3 donors).
-    "fit_mix": ("train", 12000, 2000, SimConfig(seed=21, tf_min=3e-4, mix_donors=3), None),
+    "fit_mix": ("train", 12000, 1000, SimConfig(seed=21, tf_min=3e-4, mix_donors=3), None),
     "calibration": ("train", 3000, 0, SimConfig(seed=2), None),
     "test": ("test", 4000, 42, SimConfig(seed=3), TEST_TFS),
 }
