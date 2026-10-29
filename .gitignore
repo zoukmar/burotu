@@ -27,3 +27,4 @@ dist/
 .vscode/
 .idea/
 .DS_Store
+/data_v20/
