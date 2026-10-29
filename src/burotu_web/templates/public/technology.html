@@ -83,7 +83,7 @@
 <section class="section section-ink" id="plasma">
   <div class="wrap">
     <h2>{{ s.plasma }}</h2>
-    {% set rp = classic.real_plasma %}
+    {% set rp = current.real_plasma %}
     <p class="section-lead">{{ s.plasma_text.format(auc=rp.auc, flagged=rp.healthy_flagged, n_healthy=rp.n_healthy, detected=rp.detected, n_cancer=rp.n_cancer) }}</p>
   </div>
 </section>
