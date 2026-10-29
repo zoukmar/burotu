@@ -1,0 +1,234 @@
+{
+  "note": "Real plasma from other labs on 450K/EPIC arrays: a behaviour check, not a validation. 'plasma controls' = healthy background from the 12 healthy Moss 2018 samples.",
+  "datasets": {
+    "GSE277078": {
+      "description": "Non-small cell lung cancer, plasma, EPIC",
+      "models": {
+        "classic": {
+          "whole blood": {
+            "n_cancer": 185,
+            "n_no_cancer": 0,
+            "detected": 185,
+            "flagged_no_cancer": 0,
+            "tissue_right": 1,
+            "top_tissues": {
+              "Liver": 73,
+              "Adrenal": 45,
+              "Brain": 29
+            }
+          },
+          "plasma controls": {
+            "n_cancer": 185,
+            "n_no_cancer": 0,
+            "detected": 26,
+            "flagged_no_cancer": 0,
+            "tissue_right": 26,
+            "top_tissues": {
+              "Thymus": 33,
+              "Lung": 26,
+              "Mesothelium": 22
+            }
+          }
+        },
+        "logreg": {
+          "whole blood": {
+            "n_cancer": 185,
+            "n_no_cancer": 0,
+            "detected": 185,
+            "flagged_no_cancer": 0,
+            "tissue_right": 12,
+            "top_tissues": {
+              "Testis": 88,
+              "Adrenal": 34,
+              "Liver": 26
+            }
+          },
+          "plasma controls": {
+            "n_cancer": 185,
+            "n_no_cancer": 0,
+            "detected": 61,
+            "flagged_no_cancer": 0,
+            "tissue_right": 60,
+            "top_tissues": {
+              "Lung": 60,
+              "Liver": 20,
+              "Uterus": 17
+            }
+          }
+        }
+      }
+    },
+    "GSE108462": {
+      "description": "Metastatic prostate cancer, plasma, 450K",
+      "models": {
+        "classic": {
+          "whole blood": {
+            "n_cancer": 181,
+            "n_no_cancer": 0,
+            "detected": 163,
+            "flagged_no_cancer": 0,
+            "tissue_right": 0,
+            "top_tissues": {
+              "Liver": 163,
+              "Pancreas": 18
+            }
+          },
+          "plasma controls": {
+            "n_cancer": 181,
+            "n_no_cancer": 0,
+            "detected": 181,
+            "flagged_no_cancer": 0,
+            "tissue_right": 0,
+            "top_tissues": {
+              "Liver": 163,
+              "Pancreas": 18
+            }
+          }
+        },
+        "logreg": {
+          "whole blood": {
+            "n_cancer": 181,
+            "n_no_cancer": 0,
+            "detected": 163,
+            "flagged_no_cancer": 0,
+            "tissue_right": 162,
+            "top_tissues": {
+              "Prostate": 162,
+              "Uterus": 18,
+              "Brain": 1
+            }
+          },
+          "plasma controls": {
+            "n_cancer": 181,
+            "n_no_cancer": 0,
+            "detected": 163,
+            "flagged_no_cancer": 0,
+            "tissue_right": 163,
+            "top_tissues": {
+              "Prostate": 163,
+              "Uterus": 18
+            }
+          }
+        }
+      }
+    },
+    "GSE298812": {
+      "description": "Liver cancer vs HIV+, fibrosis, cirrhosis, EPIC",
+      "models": {
+        "classic": {
+          "whole blood": {
+            "n_cancer": 31,
+            "n_no_cancer": 214,
+            "detected": 24,
+            "flagged_no_cancer": 41,
+            "tissue_right": 31,
+            "top_tissues": {
+              "Liver": 31
+            },
+            "auc": 0.89
+          },
+          "plasma controls": {
+            "n_cancer": 31,
+            "n_no_cancer": 214,
+            "detected": 11,
+            "flagged_no_cancer": 0,
+            "tissue_right": 21,
+            "top_tissues": {
+              "Liver": 21,
+              "Bladder": 5,
+              "Colorectal": 3
+            },
+            "auc": 0.858
+          }
+        },
+        "logreg": {
+          "whole blood": {
+            "n_cancer": 31,
+            "n_no_cancer": 214,
+            "detected": 30,
+            "flagged_no_cancer": 190,
+            "tissue_right": 30,
+            "top_tissues": {
+              "Liver": 30,
+              "Soft tissue": 1
+            },
+            "auc": 0.853
+          },
+          "plasma controls": {
+            "n_cancer": 31,
+            "n_no_cancer": 214,
+            "detected": 19,
+            "flagged_no_cancer": 4,
+            "tissue_right": 21,
+            "top_tissues": {
+              "Liver": 21,
+              "Lung": 7,
+              "Colorectal": 1
+            },
+            "auc": 0.84
+          }
+        }
+      }
+    },
+    "GSE129374": {
+      "description": "Liver cancer vs cirrhosis, 450K",
+      "models": {
+        "classic": {
+          "whole blood": {
+            "n_cancer": 22,
+            "n_no_cancer": 22,
+            "detected": 22,
+            "flagged_no_cancer": 22,
+            "tissue_right": 21,
+            "top_tissues": {
+              "Liver": 21,
+              "Brain": 1
+            },
+            "auc": 0.38
+          },
+          "plasma controls": {
+            "n_cancer": 22,
+            "n_no_cancer": 22,
+            "detected": 15,
+            "flagged_no_cancer": 8,
+            "tissue_right": 3,
+            "top_tissues": {
+              "Cervix": 9,
+              "Thymus": 4,
+              "Liver": 3
+            },
+            "auc": 0.657
+          }
+        },
+        "logreg": {
+          "whole blood": {
+            "n_cancer": 22,
+            "n_no_cancer": 22,
+            "detected": 22,
+            "flagged_no_cancer": 22,
+            "tissue_right": 6,
+            "top_tissues": {
+              "Testis": 8,
+              "Liver": 6,
+              "Brain": 5
+            },
+            "auc": 0.731
+          },
+          "plasma controls": {
+            "n_cancer": 22,
+            "n_no_cancer": 22,
+            "detected": 21,
+            "flagged_no_cancer": 20,
+            "tissue_right": 5,
+            "top_tissues": {
+              "Prostate": 9,
+              "Testis": 6,
+              "Liver": 5
+            },
+            "auc": 0.723
+          }
+        }
+      }
+    }
+  }
+}

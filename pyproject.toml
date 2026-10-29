@@ -52,3 +52,5 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # translated site copy: typographic apo
 "src/burotu/analysis/wording.py" = ["E501"]
 "src/burotu/analysis/pdf.py" = ["E501"]
 "src/burotu_web/science.py" = ["E501"]
+"src/burotu_web/inventory.py" = ["E501"]
+"src/burotu/data/public.py" = ["E501"]

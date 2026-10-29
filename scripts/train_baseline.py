@@ -81,7 +81,8 @@ def main() -> None:
     t0 = time.time()
     ref = Reference.load()
     fit_ref, calib_ref = benchmark.split_donors(ref)
-    fit, calib, test = (benchmark.load_cohort(n, ref) for n in ("fit", "calibration", "test"))
+    fit_name = os.environ.get("BUROTU_FIT_COHORT", "fit")
+    fit, calib, test = (benchmark.load_cohort(n, ref) for n in (fit_name, "calibration", "test"))
     print(f"cohorts ready: fit {len(fit)}, calibration {len(calib)}, test {len(test)} ({time.time() - t0:.0f}s)")
 
     featurizer = Featurizer.from_blood(ref.blood_train.to_numpy(np.float32))

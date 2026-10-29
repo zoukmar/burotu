@@ -46,6 +46,45 @@ image = (
     .add_local_dir(ROOT / "src", "/root/src")
 )
 
+# CpGPT needs a newer torch than the Glimmer stack, so it gets its own image.
+cpgpt_image = (
+    modal.Image.debian_slim(python_version="3.12")
+    .pip_install(
+        "torch==2.14.1",
+        "numpy==2.5.3",
+        "pandas==3.0.5",
+        "pyarrow==26.0.0",
+        "scikit-learn==1.9.1",
+        "huggingface-hub",
+        "transformers",
+        "lightning",
+        "hydra-core",
+        "hydra-colorlog",
+        "omegaconf",
+        "pyfaidx",
+        "sqlitedict",
+        "rootutils",
+        "loguru",
+        "schedulefree<2",
+        "boto3",
+        "torchmetrics",
+        "rich",
+        "biopython",
+        "lifelines",
+        "litmodels",
+        "litlogger",
+        "pyaging",
+    )
+    .pip_install("cpgpt==0.0.13", extra_options="--no-deps")
+    .env({"BUROTU_DATA_DIR": "/root/data", "HF_HOME": "/cache/hf", "PYTHONPATH": "/root/src"})
+    .add_local_dir(ROOT / "data" / "processed", "/root/data/processed")
+    .add_local_dir(ROOT / "data" / "benchmark", "/root/data/benchmark")
+    .add_local_dir(ROOT / "data" / "public", "/root/data/public")
+    .add_local_dir(ROOT / "src", "/root/src")
+)
+CPGPT_GPU = os.environ.get("BUROTU_CPGPT_GPU", "L4")
+CPGPT_MODEL = "large"
+
 app = modal.App("burotu-muse", image=image)
 runs = modal.Volume.from_name("burotu-runs", create_if_missing=True)
 hf_cache = modal.Volume.from_name("burotu-hf-cache", create_if_missing=True)
@@ -86,6 +125,126 @@ def diagnose(name: str) -> dict:
     return diagnose_run_dir(Path(f"/runs/{name}"))
 
 
+def _cpgpt_reader():
+    """Download CpGPT (weights + the human DNA embeddings) once into the cache volume, keep the panel's slice."""
+    from huggingface_hub import hf_hub_download, snapshot_download
+
+    from burotu.analysis.engines import ASSETS
+    from burotu.cpgpt_reader import DEPS_REPO, MODEL_REPO, CpGPTReader, prepare_panel
+
+    panel = json.loads((ASSETS / "baseline" / "meta.json").read_text())["panel"]
+    config = Path(hf_hub_download(MODEL_REPO, f"config/{CPGPT_MODEL}.yaml"))
+    ckpt = Path(hf_hub_download(MODEL_REPO, f"weights/{CPGPT_MODEL}.ckpt"))
+    assets = Path(f"/runs/cpgpt/panel_{len(panel)}.npz")
+    if not assets.exists():
+        deps = Path(snapshot_download(DEPS_REPO))
+        print(prepare_panel(panel, deps, assets))
+        runs.commit()
+    hf_cache.commit()
+    return CpGPTReader(config, ckpt, assets)
+
+
+@app.function(
+    image=cpgpt_image, gpu=CPGPT_GPU, volumes={"/runs": runs, "/cache": hf_cache}, timeout=4 * 3600, memory=32768
+)
+def cpgpt_embed_benchmark() -> dict:
+    """CpGPT embeddings of every benchmark cohort, Moss real plasma and the public plasma sets."""
+    import glob
+
+    import numpy as np
+    import pandas as pd
+
+    from burotu import benchmark, realplasma
+    from burotu.cpgpt_reader import beta_from_counts
+    from burotu.data.reference import Reference
+
+    reader = _cpgpt_reader()
+    ref = Reference.load()
+    out, meta = {}, {}
+    for name in ("fit", "calibration", "test"):
+        c = benchmark.load_cohort(name, ref)
+        out[name] = reader.embed(beta_from_counts(c.meth, c.total), batch_size=32).astype(np.float16)
+        meta[name] = c.meta.to_dict(orient="list")
+        print(name, out[name].shape, flush=True)
+    b, labels, titles, groups = realplasma.load(ref.panel)
+    out["moss"] = reader.embed(b).astype(np.float16)
+    meta["moss"] = {"label": list(map(str, labels)), "title": list(map(str, titles)), "group": list(map(str, groups))}
+    for f in sorted(glob.glob("/root/data/public/GSE*.parquet")):
+        gse = Path(f).stem
+        beta = pd.read_parquet(f).reindex(ref.panel)
+        out[gse] = reader.embed(beta.to_numpy(np.float32).T).astype(np.float16)
+        meta[gse] = {"sample": list(map(str, beta.columns))}
+        print(gse, out[gse].shape, flush=True)
+    np.savez_compressed("/runs/cpgpt/embeddings.npz", **out)
+    Path("/runs/cpgpt/embeddings_meta.json").write_text(json.dumps(meta))
+    runs.commit()
+    return {k: list(v.shape) for k, v in out.items()}
+
+
+@app.local_entrypoint()
+def cpgpt_benchmark() -> None:
+    """modal run scripts/modal_muse.py::cpgpt_benchmark  (then modal volume get burotu-runs cpgpt/...)"""
+    print(json.dumps(cpgpt_embed_benchmark.remote(), indent=2))
+
+
+MODEL_CARD = """---
+license: apache-2.0
+base_model: meta-models/Muse-Glimmer-30B
+tags: [dna-methylation, cfdna, liquid-biopsy, qlora, peft, burotu]
+---
+
+# Burotu methylation reader for Muse Glimmer 30B ({run})
+
+Trainable weights that teach Meta's open-weight **Muse Glimmer 30B** to read a cell-free DNA
+methylation profile: a methylation adapter (3,148 CpG sites -> 16 soft tokens) and QLoRA weights
+(rank 16), trained in two stages on simulated plasma (TCGA tumours mixed into healthy blood).
+The base model is not included: load it from `meta-models/Muse-Glimmer-30B` (revision
+`a4e59da52a7bc87ae7251dd5545c0dd437c44b68`, 4-bit nf4) and apply these weights with the code in
+[github.com/zoukmar/burotu](https://github.com/zoukmar/burotu) (`burotu.muse`).
+
+**Research prototype, not a medical device.** Trained and tested on simulated data; the tests on
+real plasma are small sanity checks.
+
+| Tumour DNA in plasma (20 tissue types, held-out people and tumours) | 0.3% | 1% | 3% | 10% |
+| --- | --- | --- | --- | --- |
+| Tissue of origin right first time | 15% | 60% | 88% | 92% |
+
+Files: `trainable.pt` (adapter + LoRA), `serving.json` (panel, classes, threshold, adapter
+settings), `mu.npy` (healthy background per CpG), `report.json` (full benchmark).
+Built for the Meta Global AI Developer Hackathon (2026).
+"""
+
+
+@app.function(volumes={"/runs": runs}, timeout=3600)
+def publish_hf(run: str, repo_id: str, token: str) -> str:
+    """Upload a trained run's own weights (not the base model) to a Hugging Face model repo."""
+    import shutil
+    import tempfile
+
+    from huggingface_hub import HfApi
+
+    src = Path(f"/runs/{run}")
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d)
+        for name in ("trainable.pt", "serving.json", "mu.npy"):
+            shutil.copy(src / name, out / name)
+        if (src / "report.json").exists():
+            shutil.copy(src / "report.json", out / "report.json")
+        (out / "README.md").write_text(MODEL_CARD.format(run=run))
+        api = HfApi(token=token)
+        if "/" not in repo_id:  # only a name, or nothing: publish under the token's own account
+            repo_id = f"{api.whoami()['name']}/{repo_id or 'burotu-glimmer'}"
+        api.create_repo(repo_id, repo_type="model", exist_ok=True)
+        api.upload_folder(folder_path=str(out), repo_id=repo_id, commit_message=f"Burotu {run}")
+    return f"https://huggingface.co/{repo_id}"
+
+
+@app.local_entrypoint()
+def publish(run: str = "glimmer-v5", repo_id: str = "") -> None:
+    """HF_TOKEN=... modal run scripts/modal_muse.py::publish --run glimmer-v5 --repo-id user/name"""
+    print(publish_hf.remote(run, repo_id, os.environ["HF_TOKEN"]))
+
+
 @app.local_entrypoint()
 def diagnose_run(name: str = "glimmer") -> None:
     """modal run scripts/modal_muse.py::diagnose_run --name glimmer"""
@@ -124,7 +283,33 @@ if SERVE:
         def web(self):
             from burotu.muse.serve import make_app
 
-            return make_app(self.service, os.environ["BUROTU_MUSE_TOKEN"])
+            def cpgpt(meth, total):
+                """Start CpGPT on its own GPU while Glimmer reads the sample; returns a waiter."""
+                call = CpGPTEmbedder().embed.spawn(meth.tolist(), total.tolist())
+                return lambda: {"cpgpt_embedding": call.get(timeout=300)}
+
+            return make_app(self.service, os.environ["BUROTU_MUSE_TOKEN"], extra=cpgpt)
+
+    @app.cls(
+        image=cpgpt_image,
+        gpu=CPGPT_GPU,
+        volumes={"/runs": runs, "/cache": hf_cache},
+        scaledown_window=15 * 60,
+        timeout=600,
+    )
+    class CpGPTEmbedder:
+        @modal.enter()
+        def load(self) -> None:
+            self.reader = _cpgpt_reader()
+
+        @modal.method()
+        def embed(self, meth: list[int], total: list[int]) -> list[float]:
+            import numpy as np
+
+            from burotu.cpgpt_reader import beta_from_counts
+
+            beta = beta_from_counts(np.asarray([meth]), np.asarray([total]))
+            return self.reader.embed(beta)[0].round(5).tolist()
 
 
 @app.local_entrypoint()
