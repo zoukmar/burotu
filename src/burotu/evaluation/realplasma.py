@@ -24,7 +24,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 
 from burotu.config import HEALTHY, PROCESSED_DIR
-from burotu.model.features import EPS
+from burotu.core.features import EPS
 
 PSEUDO_DEPTH = 500  # array beta values become read counts at this depth
 SUBSET = PROCESSED_DIR / "real_plasma_panel.parquet"  # panel CpGs only, committed (small)

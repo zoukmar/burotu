@@ -12,7 +12,7 @@
     <li class="flow-step flow-models">
       <span class="flow-n">2</span>{{ inv.FLOW[1][1][L] }}
       <ul class="flow-sub">
-        {% for m in inv.MODELS if m.key in ('classic', 'logreg', 'meta', 'cpgpt') %}
+        {% for m in models if m.key in ('classic', 'logreg', 'meta', 'cpgpt') %}
         <li class="st-{{ m.status }}"><strong>{{ _(m.name) }}</strong> <span class="small muted">{{ m.role[L] }}</span></li>
         {% endfor %}
       </ul>
@@ -29,9 +29,9 @@
   <table class="table map-table">
     <thead><tr><th>{{ _("Model") }}</th><th>{{ _("What it is") }}</th><th>{{ _("Learned from") }}</th><th>{{ _("Where it lives") }}</th><th>{{ _("Result") }}</th><th>{{ _("Analyses") }}</th></tr></thead>
     <tbody>
-    {% for m in inv.MODELS %}{% set c = counts.get(m.key) %}
+    {% for m in models %}{% set c = counts.get(m.key) %}
       <tr>
-        <td><strong>{% if m.link %}<a class="link" href="{{ m.link }}">{{ _(m.name) }}</a>{% else %}{{ _(m.name) }}{% endif %}</strong><br><span class="badge st-{{ m.status }}">{{ inv.STATUS[m.status][L] }}</span><br><span class="small muted">{{ m.role[L] }}</span></td>
+        <td><strong>{% if m.link %}<a class="link" href="{{ m.link }}">{{ _(m.name) }}</a>{% else %}{{ _(m.name) }}{% endif %}</strong><br><span class="badge st-{{ m.status }}">{{ inv.STATUS[m.status][L] }}</span><br><span class="small muted">{{ m.role[L] }}</span>{% if m.version %}<br><span class="small muted">{{ m.version }}</span>{% endif %}{% if m.card %}<br><a class="link small" href="{{ m.card }}">{{ _("Model card") }}</a>{% endif %}</td>
         <td class="small">{{ m.type[L] }}</td>
         <td class="small">{{ m.data[L] }}</td>
         <td class="small">{{ m.where[L] }}</td>

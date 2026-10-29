@@ -1,8 +1,8 @@
 """Train and evaluate the baseline classifier on the frozen benchmark.
 
-    python scripts/train_baseline.py
+    python -m burotu.models.classic.train
 
-Cohorts come from `burotu.benchmark` (simulated once, cached in data/benchmark/), so
+Cohorts come from `burotu.evaluation.benchmark` (simulated once, cached in data/benchmark/), so
 the baseline and Muse Glimmer are scored on exactly the same samples. Real patient
 plasma (Moss et al. 2018, EPIC array) is used as a sanity check only.
 
@@ -18,12 +18,12 @@ from pathlib import Path
 
 import numpy as np
 
-from burotu import benchmark, realplasma
-from burotu.benchmark import TARGET_SPECIFICITY
 from burotu.config import HEALTHY, ROOT
+from burotu.core.features import Featurizer
 from burotu.data.reference import Reference
-from burotu.model.baseline import BaselineModel
-from burotu.model.features import Featurizer
+from burotu.evaluation import benchmark, realplasma
+from burotu.evaluation.benchmark import TARGET_SPECIFICITY
+from burotu.models.classic.model import BaselineModel
 
 
 def naive_score(meth: np.ndarray, total: np.ndarray) -> np.ndarray:

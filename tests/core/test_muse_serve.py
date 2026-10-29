@@ -10,11 +10,11 @@ pytest.importorskip("transformers")
 pytest.importorskip("peft")
 from fastapi.testclient import TestClient  # noqa: E402
 
-from burotu.analysis.engines import MuseEngine  # noqa: E402
-from burotu.labformat import parse_lab_text  # noqa: E402
-from burotu.muse.reader import MuseReader  # noqa: E402
-from burotu.muse.serve import MuseService, make_app  # noqa: E402
-from burotu.muse.train import TrainConfig, load_lm  # noqa: E402
+from burotu.core.labformat import parse_lab_text  # noqa: E402
+from burotu.models.glimmer.engine import MuseEngine  # noqa: E402
+from burotu.models.glimmer.reader import MuseReader  # noqa: E402
+from burotu.models.glimmer.serve import MuseService, make_app  # noqa: E402
+from burotu.models.glimmer.train import TrainConfig, load_lm  # noqa: E402
 
 PANEL = [f"cg{i:08d}" for i in range(9)]
 CLASSES = ["Colorectal", "Lung"]
