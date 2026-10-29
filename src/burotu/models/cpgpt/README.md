@@ -7,4 +7,15 @@
 - **Trained on:** heads on the `fit` cohort embeddings; threshold on the calibration cohort.
 - **Serving:** CpGPT runs on its own Modal GPU, started in parallel with Muse Glimmer; the heads run on the tracking server.
 
-**Status:** embedding the benchmark on Modal; results will be added here.
+**Status: experiment, not used on samples.** Frozen, CpGPT's sample embedding does not keep
+the faint signal of a little tumour DNA in blood: it was pre-trained to summarise whole methylation
+profiles (age, cell mix), where 1% of foreign DNA barely moves the summary.
+
+| Tumour DNA in plasma (20 tissues) | 0.3% | 1% | 3% | 10% |
+| --- | --- | --- | --- | --- |
+| Signal found (99.0% specificity observed) | 1% | 4% | 22% | 93% |
+| Tissue right first time | 5% | 6% | 7% | 18% |
+
+On real plasma it flags every healthy Moss sample (12/12) and names no tissue right. Report:
+[`reports/cpgpt.json`](../../../../reports/cpgpt.json). Next step, if pursued: fine-tune CpGPT
+(or read its per-site reconstruction errors) instead of using the frozen summary embedding.
