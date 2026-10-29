@@ -156,3 +156,14 @@ def test_ask_a_question_about_the_result(public, logged_admin):
     data = {"csrf": token, "question": "Should I repeat the test?", "lang": "fr", "audience": "patient"}
     page = logged_admin.post(f"/bookings/{ref}/ask", data=data).text
     assert "Should I repeat the test?" in page and "Posez-la au médecin" in page  # offline in tests
+
+
+def test_map_page_lists_models_data_and_latest_analyses(public, logged_admin):
+    ref = _ref(public)
+    token = csrf(logged_admin, f"/bookings/{ref}")
+    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-05"})
+    page = logged_admin.get("/map").text
+    assert "Map of Burotu" in page and "Muse Glimmer v5" in page and "CpGPT" in page
+    assert "TCGA tumours" in page and ref in page
+    fr = logged_admin.get("/lang/fr?next=/map", follow_redirects=True).text
+    assert "Carte de Burotu" in fr and "Appris sur" in fr

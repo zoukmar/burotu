@@ -517,3 +517,24 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
 .why-axis .is-cut { color: var(--venous); font-weight: 600; }
 .models-table tr.is-meta td { background: #F5F8FF; }
 .models-table tr.is-consensus td { border-top: 2px solid var(--ink); font-weight: 500; }
+
+/* Map page (admin) */
+.flow { list-style: none; margin: 0 0 .8rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .6rem; }
+.flow-step { border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem .9rem; background: var(--white); font-weight: 600; display: grid; gap: .4rem; align-content: start; }
+.flow-models { grid-column: span 2; border-color: #C7D3F4; background: #F5F8FF; }
+.flow-n { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--ink); color: var(--white); font-size: .8rem; }
+.flow-sub { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; font-weight: 400; }
+.flow-sub li { padding-left: .6rem; border-left: 3px solid var(--line); }
+.flow-sub li.st-live { border-left-color: #2E7D4F; }
+.flow-sub li.st-running { border-left-color: #C98A12; }
+.map-table td { vertical-align: top; }
+.badge.st-live { background: #DDF1E4; color: #1F5E3A; }
+.badge.st-ready { background: #E3ECFB; color: #23468C; }
+.badge.st-running { background: #FBEFD5; color: #7A5308; }
+.badge.st-experiment { background: #ECE6F6; color: #4E3A7A; }
+.badge.st-later { background: var(--line); color: var(--ink); }
+.dot { display: inline-block; width: .6rem; height: .6rem; border-radius: 50%; margin-right: .35rem; vertical-align: middle; }
+.dot.on { background: var(--venous); }
+.dot.off { background: #B9C2C8; }
+.progress-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+@media (max-width: 640px) { .flow-models { grid-column: auto; } }
