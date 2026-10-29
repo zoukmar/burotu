@@ -1,0 +1,216 @@
+{
+  "model": "CpGPT large (frozen, ~100M parameters) + gradient-boosted heads",
+  "target_specificity": 0.995,
+  "classes": [
+    "Adrenal",
+    "Bladder",
+    "Brain",
+    "Breast",
+    "Cervix",
+    "Colorectal",
+    "Head and neck",
+    "Kidney",
+    "Liver",
+    "Lung",
+    "Mesothelium",
+    "Oesophagus-Stomach",
+    "Pancreas",
+    "Prostate",
+    "Skin",
+    "Soft tissue",
+    "Testis",
+    "Thymus",
+    "Thyroid",
+    "Uterus"
+  ],
+  "embedding_dim": 512,
+  "train_samples": 14000,
+  "threshold": 0.9606748617139637,
+  "test": {
+    "threshold": 0.9606748617139637,
+    "specificity_observed": 0.99025,
+    "n_healthy": 4000,
+    "by_tumor_fraction": [
+      {
+        "tumor_fraction": 0.0003,
+        "n": 840,
+        "sensitivity": 0.011904761904761904,
+        "auc": 0.49552827380952386,
+        "origin_top1": 0.047619047619047616,
+        "origin_top2": 0.09166666666666666
+      },
+      {
+        "tumor_fraction": 0.001,
+        "n": 840,
+        "sensitivity": 0.014285714285714285,
+        "auc": 0.5186000000000001,
+        "origin_top1": 0.04404761904761905,
+        "origin_top2": 0.09047619047619047
+      },
+      {
+        "tumor_fraction": 0.003,
+        "n": 840,
+        "sensitivity": 0.013095238095238096,
+        "auc": 0.5406404761904762,
+        "origin_top1": 0.047619047619047616,
+        "origin_top2": 0.0880952380952381
+      },
+      {
+        "tumor_fraction": 0.01,
+        "n": 840,
+        "sensitivity": 0.04404761904761905,
+        "auc": 0.6056339285714286,
+        "origin_top1": 0.05714285714285714,
+        "origin_top2": 0.11428571428571428
+      },
+      {
+        "tumor_fraction": 0.03,
+        "n": 840,
+        "sensitivity": 0.2154761904761905,
+        "auc": 0.8193375,
+        "origin_top1": 0.07142857142857142,
+        "origin_top2": 0.14047619047619048
+      },
+      {
+        "tumor_fraction": 0.1,
+        "n": 840,
+        "sensitivity": 0.9273809523809524,
+        "auc": 0.9916226190476191,
+        "origin_top1": 0.1761904761904762,
+        "origin_top2": 0.30238095238095236
+      }
+    ],
+    "by_class_at_1pct": {
+      "Adrenal": {
+        "sensitivity": 0.023809523809523808,
+        "origin_top1": 0.07142857142857142
+      },
+      "Bladder": {
+        "sensitivity": 0.0,
+        "origin_top1": 0.023809523809523808
+      },
+      "Brain": {
+        "sensitivity": 0.07142857142857142,
+        "origin_top1": 0.023809523809523808
+      },
+      "Breast": {
+        "sensitivity": 0.047619047619047616,
+        "origin_top1": 0.09523809523809523
+      },
+      "Cervix": {
+        "sensitivity": 0.047619047619047616,
+        "origin_top1": 0.09523809523809523
+      },
+      "Colorectal": {
+        "sensitivity": 0.023809523809523808,
+        "origin_top1": 0.11904761904761904
+      },
+      "Head and neck": {
+        "sensitivity": 0.023809523809523808,
+        "origin_top1": 0.07142857142857142
+      },
+      "Kidney": {
+        "sensitivity": 0.047619047619047616,
+        "origin_top1": 0.023809523809523808
+      },
+      "Liver": {
+        "sensitivity": 0.023809523809523808,
+        "origin_top1": 0.047619047619047616
+      },
+      "Lung": {
+        "sensitivity": 0.047619047619047616,
+        "origin_top1": 0.0
+      },
+      "Mesothelium": {
+        "sensitivity": 0.07142857142857142,
+        "origin_top1": 0.09523809523809523
+      },
+      "Oesophagus-Stomach": {
+        "sensitivity": 0.047619047619047616,
+        "origin_top1": 0.07142857142857142
+      },
+      "Pancreas": {
+        "sensitivity": 0.023809523809523808,
+        "origin_top1": 0.023809523809523808
+      },
+      "Prostate": {
+        "sensitivity": 0.047619047619047616,
+        "origin_top1": 0.07142857142857142
+      },
+      "Skin": {
+        "sensitivity": 0.07142857142857142,
+        "origin_top1": 0.11904761904761904
+      },
+      "Soft tissue": {
+        "sensitivity": 0.023809523809523808,
+        "origin_top1": 0.023809523809523808
+      },
+      "Testis": {
+        "sensitivity": 0.023809523809523808,
+        "origin_top1": 0.023809523809523808
+      },
+      "Thymus": {
+        "sensitivity": 0.047619047619047616,
+        "origin_top1": 0.07142857142857142
+      },
+      "Thyroid": {
+        "sensitivity": 0.11904761904761904,
+        "origin_top1": 0.047619047619047616
+      },
+      "Uterus": {
+        "sensitivity": 0.047619047619047616,
+        "origin_top1": 0.023809523809523808
+      }
+    }
+  },
+  "real_plasma": {
+    "note": "Moss et al. 2018, 12 healthy and 15 cancer samples: a sanity check.",
+    "raw": {
+      "background": "none needed (CpGPT reads beta values directly)",
+      "detected_healthy": 12,
+      "detected_cancer": 14,
+      "n_healthy": 12,
+      "n_cancer": 15,
+      "origin_top1_correct": 0,
+      "n_known_origin": 11
+    }
+  },
+  "public_plasma": {
+    "GSE277078": {
+      "detected": 184,
+      "n": 185,
+      "top_tissues": {
+        "Thyroid": 68,
+        "Brain": 66,
+        "Adrenal": 16
+      }
+    },
+    "GSE108462": {
+      "detected": 181,
+      "n": 181,
+      "top_tissues": {
+        "Cervix": 104,
+        "Soft tissue": 67,
+        "Brain": 5
+      }
+    },
+    "GSE298812": {
+      "detected": 71,
+      "n": 245,
+      "top_tissues": {
+        "Adrenal": 62,
+        "Kidney": 36,
+        "Soft tissue": 29
+      }
+    },
+    "GSE129374": {
+      "detected": 44,
+      "n": 44,
+      "top_tissues": {
+        "Brain": 38,
+        "Thyroid": 4,
+        "Lung": 1
+      }
+    }
+  }
+}

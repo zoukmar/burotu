@@ -22,7 +22,7 @@ FLOW = [
     ("qc", {"en": "Quality control", "fr": "Contrôle qualité", "es": "Control de calidad"}),
     (
         "models",
-        {"en": "4 models read the sample", "fr": "4 modèles lisent l'échantillon", "es": "4 modelos leen la muestra"},
+        {"en": "3 models read the sample", "fr": "3 modèles lisent l'échantillon", "es": "3 modelos leen la muestra"},
     ),
     ("consensus", {"en": "Consensus", "fr": "Consensus", "es": "Consenso"}),
     (
@@ -134,9 +134,9 @@ MODELS = [
             "es": "Pesos en Hugging Face (lucascamillomd/cpgpt-models, MIT) · se ejecuta en una GPU de Modal",
         },
         "result": {
-            "en": "Reading the 26,000 benchmark samples on Modal",
-            "fr": "Lecture des 26 000 échantillons du banc d'essai sur Modal",
-            "es": "Leyendo las 26.000 muestras del banco de pruebas en Modal",
+            "en": "Tested, not kept: frozen, it finds 4% of signals at 1% (22% at 3%) and tissue near chance",
+            "fr": "Testé, non retenu : gelé, il trouve 4 % des signaux à 1 % (22 % à 3 %) et le tissu presque au hasard",
+            "es": "Probado, no adoptado: congelado, encuentra el 4 % de las señales al 1 % (22 % al 3 %) y el tejido casi al azar",
         },
         "link": "https://huggingface.co/lucascamillomd/cpgpt-models",
     },
