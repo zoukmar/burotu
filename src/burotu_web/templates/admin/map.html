@@ -1,0 +1,112 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ _("Map") }}{% endblock %}
+{% block main %}
+{% set L = lang %}
+<div class="admin-head"><h1>{{ _("Map of Burotu") }}</h1></div>
+<p class="section-lead small-lead">{{ _("What each blood sample goes through, which models read it, what they learned from, where they live, and where the work stands.") }}</p>
+
+<section class="site-card">
+  <h2>{{ _("The path of a sample") }}</h2>
+  <ol class="flow">
+    <li class="flow-step"><span class="flow-n">1</span>{{ inv.FLOW[0][1][L] }}</li>
+    <li class="flow-step flow-models">
+      <span class="flow-n">2</span>{{ inv.FLOW[1][1][L] }}
+      <ul class="flow-sub">
+        {% for m in inv.MODELS if m.key in ('classic', 'logreg', 'meta', 'cpgpt') %}
+        <li class="st-{{ m.status }}"><strong>{{ _(m.name) }}</strong> <span class="small muted">{{ m.role[L] }}</span></li>
+        {% endfor %}
+      </ul>
+    </li>
+    <li class="flow-step"><span class="flow-n">3</span>{{ inv.FLOW[2][1][L] }}</li>
+    <li class="flow-step"><span class="flow-n">4</span>{{ inv.FLOW[3][1][L] }}</li>
+  </ol>
+  <p class="small muted">{{ _("The reported signal is the classic model's; the tissue is Muse Glimmer's; the others are cross-checks. Muse Spark writes the letter from these facts and never decides.") }}</p>
+</section>
+
+<section class="site-card">
+  <h2>{{ _("Models") }}</h2>
+  <div class="table-wrap">
+  <table class="table map-table">
+    <thead><tr><th>{{ _("Model") }}</th><th>{{ _("What it is") }}</th><th>{{ _("Learned from") }}</th><th>{{ _("Where it lives") }}</th><th>{{ _("Result") }}</th><th>{{ _("Analyses") }}</th></tr></thead>
+    <tbody>
+    {% for m in inv.MODELS %}{% set c = counts.get(m.key) %}
+      <tr>
+        <td><strong>{% if m.link %}<a class="link" href="{{ m.link }}">{{ _(m.name) }}</a>{% else %}{{ _(m.name) }}{% endif %}</strong><br><span class="badge st-{{ m.status }}">{{ inv.STATUS[m.status][L] }}</span><br><span class="small muted">{{ m.role[L] }}</span></td>
+        <td class="small">{{ m.type[L] }}</td>
+        <td class="small">{{ m.data[L] }}</td>
+        <td class="small">{{ m.where[L] }}</td>
+        <td class="small">{{ m.result[L] }}</td>
+        <td class="num small">{% if c %}{{ c.n }}<br><span class="muted">{{ _("{k} signals", k=c.signals) }}</span>{% else %}<span class="muted">-</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="site-card">
+  <h2>{{ _("Data") }}</h2>
+  <div class="table-wrap">
+  <table class="table map-table">
+    <thead><tr><th>{{ _("Dataset") }}</th><th>{{ _("Size") }}</th><th>{{ _("Used for") }}</th><th>{{ _("Where") }}</th><th>{{ _("Status") }}</th></tr></thead>
+    <tbody>
+    {% for d in inv.DATASETS %}
+      <tr><td><strong>{{ d.name }}</strong></td><td class="small">{{ d.n }}</td><td class="small">{{ d.use[L] }}</td><td class="small">{{ d.where[L] }}</td><td><span class="badge st-{{ d.status }}">{{ inv.STATUS[d.status][L] }}</span></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+{% if public %}
+<section class="site-card">
+  <h2>{{ _("Real plasma from other labs") }}</h2>
+  <p class="small muted">{{ _("Healthy background from healthy plasma controls. A behaviour check, not a validation.") }}</p>
+  <div class="table-wrap">
+  <table class="table map-table">
+    <thead><tr><th>{{ _("Dataset") }}</th><th>{{ _("Model") }}</th><th>{{ _("Signal found") }}</th><th>{{ _("Right tissue") }}</th><th>{{ _("Flagged without cancer") }}</th></tr></thead>
+    <tbody>
+    {% for gse, d in public.datasets.items() %}{% for name, bgs in d.models.items() %}{% set r = bgs['plasma controls'] %}
+      <tr>{% if loop.first %}<td rowspan="{{ d.models|length }}"><strong>{{ gse }}</strong><br><span class="small muted">{{ d.description }}</span></td>{% endif %}
+        <td>{{ _("Classic model") if name == 'classic' else _("Logistic regressions") }}</td>
+        <td class="num">{{ r.detected }} / {{ r.n_cancer }}</td>
+        <td class="num">{{ r.tissue_right }} / {{ r.n_cancer }}</td>
+        <td class="num">{% if r.n_no_cancer %}{{ r.flagged_no_cancer }} / {{ r.n_no_cancer }}{% else %}<span class="muted">-</span>{% endif %}</td></tr>
+    {% endfor %}{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endif %}
+
+<section class="site-card">
+  <h2>{{ _("Latest analyses: which model said what") }}</h2>
+  {% if recent %}
+  <div class="table-wrap">
+  <table class="table map-table">
+    <thead><tr><th>{{ _("Booking") }}</th><th>{{ _("Reported") }}</th>{% for k, n in [('classic', _("Classic model")), ('logreg', _("Logistic regressions")), ('meta', "Muse Glimmer"), ('cpgpt', "CpGPT")] %}<th>{{ n }}</th>{% endfor %}<th>{{ _("Consensus") }}</th></tr></thead>
+    <tbody>
+    {% for a in recent %}
+      <tr>
+        <td><a class="link" href="/bookings/{{ a.ref }}#compare">{{ a.ref }}</a><br><span class="small muted">{{ a.at[:16].replace('T', ' ') }} · {{ a.sample }}</span></td>
+        <td>{% if a.qc == 'fail' %}<span class="badge qc-fail">{{ _("Failed") }}</span>{% else %}<span class="badge {{ 'is-ok' if a.reported_signal else 'is-ko' }}">{{ _('Signal') if a.reported_signal else _('No signal') }}</span>{% if a.reported_signal and a.reported_tissue %}<br><span class="small">{{ tissue(a.reported_tissue, L)|capitalize }}</span>{% endif %}{% endif %}</td>
+        {% for k in ('classic', 'logreg', 'meta', 'cpgpt') %}{% set m = a.models.get(k) %}
+        <td class="small">{% if m %}<span class="dot {{ 'on' if m.signal else 'off' }}"></span>{{ tissue(m.tissue, L)|capitalize }}{% else %}<span class="muted">-</span>{% endif %}</td>
+        {% endfor %}
+        <td class="small">{% if a.consensus %}{{ _("{k} of {n}", k=a.consensus.signal_votes, n=a.consensus.n) }}<br>{{ tissue(a.consensus.tissue, L)|capitalize }}{% else %}<span class="muted">-</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="small muted"><span class="dot on"></span>{{ _("sees a signal") }} · <span class="dot off"></span>{{ _("no signal") }} · {{ _("then the tissue it names first.") }}</p>
+  {% else %}<p class="small muted">{{ _("No analysis yet.") }}</p>{% endif %}
+</section>
+
+<section class="site-card">
+  <h2>{{ _("Where the work stands") }}</h2>
+  <ul class="progress-list">
+    {% for st, text in inv.PROGRESS %}<li><span class="badge st-{{ st }}">{{ inv.STATUS[st][L] }}</span> {{ text[L] }}</li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

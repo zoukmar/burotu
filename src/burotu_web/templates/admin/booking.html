@@ -68,30 +68,45 @@
   </div>
 
   {% if analysis.models and analysis.models.classic %}
-  {% set c = analysis.models.classic %}{% set m = analysis.models.meta %}
+  {% set mods = analysis.models %}
   <div class="compare" id="compare">
-    <p class="lab-label">{{ _("Classic model vs Meta model") }}</p>
-    <div class="compare-grid">
-      <div class="compare-col">
-        <p class="compare-name">{{ _("Classic model") }} <span class="muted small">{{ _("gradient boosting, raises the alarm") }}</span></p>
-        <dl class="facts compact">
-          <div><dt>{{ _("Signal") }}</dt><dd>{{ _('Signal detected') if c.cancer_signal else _('No signal detected') }}</dd></div>
-          <div><dt>{{ _("Signal score") }}</dt><dd>{{ '%.4f' % c.score }} / {{ '%.4f' % c.threshold }}</dd></div>
-          <div><dt>{{ _("Top tissue") }}</dt><dd>{{ tissue(c.origin[0].class, alang)|capitalize }} ({{ '%.0f' % (c.origin[0].probability * 100) }}%)</dd></div>
-        </dl>
-      </div>
-      <div class="compare-col is-meta">
-        <p class="compare-name">{{ _("Meta model") }} <span class="muted small">{{ _("Muse Glimmer 30B fine-tuned, names the tissue") }}</span></p>
-        {% if m %}
-        <dl class="facts compact">
-          <div><dt>{{ _("Signal") }}</dt><dd>{{ _('Signal detected') if m.cancer_signal else _('No signal detected') }}</dd></div>
-          <div><dt>{{ _("Signal score") }}</dt><dd>{{ '%.2f' % m.score }} / {{ '%.2f' % m.threshold }}</dd></div>
-          <div><dt>{{ _("Top tissue") }}</dt><dd>{{ tissue(m.origin[0].class, alang)|capitalize }} ({{ '%.0f' % (m.origin[0].probability * 100) }}%)</dd></div>
-        </dl>
-        {% else %}<p class="small muted">{{ _("Meta model not served: classic model only.") }}</p>{% endif %}
-      </div>
+    <p class="lab-label">{{ _("Every model on this sample") }}</p>
+    <div class="table-wrap">
+    <table class="table models-table">
+      <thead><tr><th>{{ _("Model") }}</th><th>{{ _("Signal") }}</th><th>{{ _("Score / threshold") }}</th><th>{{ _("Tissue, 1st") }}</th><th>{{ _("Tissue, 2nd") }}</th></tr></thead>
+      <tbody>
+      {% for key, name, what in [
+          ('classic', _("Classic model"), _("gradient boosting · decides the signal")),
+          ('logreg', _("Logistic regressions"), _("GRAIL-style ensembles · cross-check")),
+          ('meta', _("Meta model"), _("Muse Glimmer 30B fine-tuned · names the tissue")),
+          ('cpgpt', "CpGPT", _("methylation foundation model + Burotu heads · cross-check")),
+      ] %}
+        {% set m = mods.get(key) %}
+        <tr class="{{ 'is-meta' if key == 'meta' else '' }}">
+          <td><strong>{{ name }}</strong><br><span class="small muted">{{ what }}</span></td>
+          {% if m %}
+          <td><span class="badge {{ 'is-ok' if m.cancer_signal else 'is-ko' }}">{{ _('Signal') if m.cancer_signal else _('No signal') }}</span></td>
+          <td class="num">{{ '%.4g' % m.score }} / {{ '%.4g' % m.threshold }}</td>
+          <td>{{ tissue(m.origin[0].class, alang)|capitalize }} <span class="muted small">{{ '%.0f' % (m.origin[0].probability * 100) }}%</span></td>
+          <td>{% if m.origin|length > 1 %}{{ tissue(m.origin[1].class, alang)|capitalize }} <span class="muted small">{{ '%.0f' % (m.origin[1].probability * 100) }}%</span>{% endif %}</td>
+          {% else %}
+          <td colspan="4" class="muted small">{{ _("Not served on this server.") }}</td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+      {% set cs = analysis.consensus %}
+      {% if cs %}
+        <tr class="is-consensus">
+          <td><strong>{{ _("Consensus") }}</strong><br><span class="small muted">{{ _("what the models say together") }}</span></td>
+          <td><span class="badge {{ 'is-ok' if cs.signal_votes * 2 > cs.n else 'is-ko' }}">{{ _("{k} of {n}", k=cs.signal_votes, n=cs.n) }}</span></td>
+          <td class="small muted">{{ _("Unanimous") if cs.unanimous else _("Models disagree: worth a second look") }}</td>
+          <td colspan="2">{{ tissue(cs.tissue, alang)|capitalize }} <span class="muted small">{{ _("{k} of {n} models", k=cs.tissue_votes, n=cs.n) }}</span></td>
+        </tr>
+      {% endif %}
+      </tbody>
+    </table>
     </div>
-    {% if m %}<p class="small">{{ _("The two models agree on the tissue.") if m.origin[0].class == c.origin[0].class else _("The two models differ on the tissue: the Meta model's answer is reported.") }}</p>{% endif %}
+    <p class="small muted">{{ _("The reported signal is the classic model's: its threshold is the one set so that 99.5% of healthy people are not flagged. The tissue is the Meta model's when it is served. The other models are independent cross-checks.") }}</p>
   </div>
   {% endif %}
 

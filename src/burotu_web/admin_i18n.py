@@ -443,3 +443,126 @@ def translator(lang: str) -> Callable[..., str]:
 def admin_lang(request) -> str:
     lang = request.cookies.get(COOKIE, "en")
     return lang if lang in ADMIN_LANGS else "en"
+
+
+# Every model on a sample, and their consensus.
+TR["fr"].update(
+    {
+        "Every model on this sample": "Tous les modèles sur cet échantillon",
+        "Model": "Modèle",
+        "Score / threshold": "Score / seuil",
+        "Tissue, 1st": "Tissu, 1er",
+        "Tissue, 2nd": "Tissu, 2e",
+        "Logistic regressions": "Régressions logistiques",
+        "gradient boosting · decides the signal": "gradient boosting · décide du signal",
+        "GRAIL-style ensembles · cross-check": "ensembles façon GRAIL · contrôle croisé",
+        "Muse Glimmer 30B fine-tuned · names the tissue": "Muse Glimmer 30B affiné · nomme le tissu",
+        "methylation foundation model + Burotu heads · cross-check": "modèle de fondation de la méthylation + têtes Burotu · contrôle croisé",
+        "No signal": "Pas de signal",
+        "Not served on this server.": "Non servi sur ce serveur.",
+        "Consensus": "Consensus",
+        "what the models say together": "ce que les modèles disent ensemble",
+        "{k} of {n}": "{k} sur {n}",
+        "Unanimous": "Unanimes",
+        "Models disagree: worth a second look": "Les modèles divergent : à revoir",
+        "{k} of {n} models": "{k} modèles sur {n}",
+        "The reported signal is the classic model's: its threshold is the one set so that 99.5% of healthy people are not flagged. The tissue is the Meta model's when it is served. The other models are independent cross-checks.": "Le signal rendu est celui du modèle classique : son seuil est réglé pour que 99,5 % des personnes saines ne soient pas signalées. Le tissu est celui du modèle Meta quand il est servi. Les autres modèles sont des contrôles croisés indépendants.",
+    }
+)
+TR["es"].update(
+    {
+        "Every model on this sample": "Todos los modelos en esta muestra",
+        "Model": "Modelo",
+        "Score / threshold": "Puntuación / umbral",
+        "Tissue, 1st": "Tejido, 1.º",
+        "Tissue, 2nd": "Tejido, 2.º",
+        "Logistic regressions": "Regresiones logísticas",
+        "gradient boosting · decides the signal": "gradient boosting · decide la señal",
+        "GRAIL-style ensembles · cross-check": "conjuntos al estilo GRAIL · control cruzado",
+        "Muse Glimmer 30B fine-tuned · names the tissue": "Muse Glimmer 30B ajustado · indica el tejido",
+        "methylation foundation model + Burotu heads · cross-check": "modelo fundacional de metilación + cabezas Burotu · control cruzado",
+        "No signal": "Sin señal",
+        "Not served on this server.": "No servido en este servidor.",
+        "Consensus": "Consenso",
+        "what the models say together": "lo que dicen los modelos juntos",
+        "{k} of {n}": "{k} de {n}",
+        "Unanimous": "Unánimes",
+        "Models disagree: worth a second look": "Los modelos discrepan: conviene revisarlo",
+        "{k} of {n} models": "{k} de {n} modelos",
+        "The reported signal is the classic model's: its threshold is the one set so that 99.5% of healthy people are not flagged. The tissue is the Meta model's when it is served. The other models are independent cross-checks.": "La señal informada es la del modelo clásico: su umbral está fijado para que el 99,5 % de las personas sanas no sean señaladas. El tejido es el del modelo Meta cuando está servido. Los demás modelos son controles cruzados independientes.",
+    }
+)
+
+# Map page.
+TR["fr"].update(
+    {
+        "Map": "Carte",
+        "Map of Burotu": "Carte de Burotu",
+        "What each blood sample goes through, which models read it, what they learned from, where they live, and where the work stands.": "Ce que traverse chaque prise de sang, quels modèles la lisent, sur quoi ils ont appris, où ils se trouvent, et où en est le travail.",
+        "The path of a sample": "Le parcours d'un échantillon",
+        "The reported signal is the classic model's; the tissue is Muse Glimmer's; the others are cross-checks. Muse Spark writes the letter from these facts and never decides.": "Le signal rendu est celui du modèle classique ; le tissu, celui de Muse Glimmer ; les autres sont des contrôles croisés. Muse Spark écrit la lettre à partir de ces faits et ne décide jamais.",
+        "What it is": "Ce que c'est",
+        "Learned from": "Appris sur",
+        "Where it lives": "Où il se trouve",
+        "Result": "Résultat",
+        "Analyses": "Analyses",
+        "{k} signals": "{k} signaux",
+        "Data": "Données",
+        "Dataset": "Jeu de données",
+        "Size": "Taille",
+        "Used for": "Sert à",
+        "Where": "Où",
+        "Status": "Statut",
+        "Real plasma from other labs": "Vrai plasma d'autres labos",
+        "Healthy background from healthy plasma controls. A behaviour check, not a validation.": "Fond sain tiré de plasmas témoins sains. Un test de comportement, pas une validation.",
+        "Signal found": "Signal trouvé",
+        "Right tissue": "Bon tissu",
+        "Flagged without cancer": "Signalés sans maladie",
+        "Latest analyses: which model said what": "Dernières analyses : quel modèle a dit quoi",
+        "Booking": "Rendez-vous",
+        "Reported": "Rendu",
+        "Failed": "Échec",
+        "sees a signal": "voit un signal",
+        "no signal": "pas de signal",
+        "then the tissue it names first.": "puis le tissu qu'il nomme en premier.",
+        "No analysis yet.": "Aucune analyse pour l'instant.",
+        "Where the work stands": "Où en est le travail",
+        "Classic model": "Modèle classique",
+        "Muse Glimmer v5 (Meta)": "Muse Glimmer v5 (Meta)",
+    }
+)
+TR["es"].update(
+    {
+        "Map": "Mapa",
+        "Map of Burotu": "Mapa de Burotu",
+        "What each blood sample goes through, which models read it, what they learned from, where they live, and where the work stands.": "Por dónde pasa cada muestra de sangre, qué modelos la leen, con qué aprendieron, dónde están y en qué punto está el trabajo.",
+        "The path of a sample": "El recorrido de una muestra",
+        "The reported signal is the classic model's; the tissue is Muse Glimmer's; the others are cross-checks. Muse Spark writes the letter from these facts and never decides.": "La señal informada es la del modelo clásico; el tejido, el de Muse Glimmer; los demás son controles cruzados. Muse Spark redacta la carta con estos hechos y nunca decide.",
+        "What it is": "Qué es",
+        "Learned from": "Aprendió con",
+        "Where it lives": "Dónde está",
+        "Result": "Resultado",
+        "Analyses": "Análisis",
+        "{k} signals": "{k} señales",
+        "Data": "Datos",
+        "Dataset": "Conjunto de datos",
+        "Size": "Tamaño",
+        "Used for": "Sirve para",
+        "Where": "Dónde",
+        "Status": "Estado",
+        "Real plasma from other labs": "Plasma real de otros laboratorios",
+        "Healthy background from healthy plasma controls. A behaviour check, not a validation.": "Fondo sano tomado de plasmas de control sanos. Una prueba de comportamiento, no una validación.",
+        "Signal found": "Señal encontrada",
+        "Right tissue": "Tejido correcto",
+        "Flagged without cancer": "Señalados sin enfermedad",
+        "Latest analyses: which model said what": "Últimos análisis: qué dijo cada modelo",
+        "Booking": "Cita",
+        "Reported": "Informado",
+        "Failed": "Fallido",
+        "sees a signal": "ve una señal",
+        "no signal": "sin señal",
+        "then the tissue it names first.": "y luego el tejido que nombra primero.",
+        "No analysis yet.": "Aún no hay análisis.",
+        "Where the work stands": "En qué punto está el trabajo",
+    }
+)

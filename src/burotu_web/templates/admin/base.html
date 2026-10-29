@@ -20,6 +20,7 @@
   <nav class="nav" aria-label="{{ _('Tracking') }}">
     <a href="/"{% if path == '/' or path.startswith('/bookings') %} aria-current="page"{% endif %}>{{ _("Bookings") }}</a>
     <a href="/sites"{% if path.startswith('/sites') %} aria-current="page"{% endif %}>{{ _("Sites and hours") }}</a>
+    <a href="/map"{% if path.startswith('/map') %} aria-current="page"{% endif %}>{{ _("Map") }}</a>
     <a href="/models"{% if path.startswith('/models') %} aria-current="page"{% endif %}>{{ _("Models") }}</a>
   </nav>
   <form method="post" action="/logout" class="topbar-end">

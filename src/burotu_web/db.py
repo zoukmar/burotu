@@ -321,6 +321,47 @@ class Database:
             ).fetchone()
         return None if row is None else {"at": row["at"], "actor": row["actor"], **json.loads(row["result_json"])}
 
+    def recent_analyses(self, limit: int = 25) -> list[dict]:
+        """Latest analyses with each model's answer, newest first (for the map page)."""
+        with self.connect() as con:
+            rows = con.execute(
+                """SELECT a.at, a.result_json, b.ref FROM analyses a JOIN bookings b ON b.id=a.booking_id
+                   ORDER BY a.id DESC LIMIT ?""",
+                (limit,),
+            ).fetchall()
+        out = []
+        for r in rows:
+            res = json.loads(r["result_json"])
+            models = {
+                k: {"signal": m["cancer_signal"], "tissue": m["origin"][0]["class"]}
+                for k, m in (res.get("models") or {}).items()
+                if m
+            }
+            det = res.get("detection") or {}
+            out.append(
+                {
+                    "ref": r["ref"],
+                    "at": r["at"],
+                    "sample": res.get("sample_id", ""),
+                    "qc": (res.get("quality") or {}).get("status", ""),
+                    "models": models,
+                    "consensus": res.get("consensus"),
+                    "reported_signal": det.get("cancer_signal"),
+                    "reported_tissue": (det.get("origin") or [{}])[0].get("class"),
+                }
+            )
+        return out
+
+    def model_counts(self) -> dict:
+        """How many analyses each model answered, and how many signals it raised."""
+        counts: dict[str, dict[str, int]] = {}
+        for a in self.recent_analyses(limit=100000):
+            for k, m in a["models"].items():
+                c = counts.setdefault(k, {"n": 0, "signals": 0})
+                c["n"] += 1
+                c["signals"] += int(bool(m["signal"]))
+        return counts
+
     def add_question(self, ref: str, lang: str, audience: str, question: str, answer: dict, actor: str) -> None:
         with self.connect() as con:
             row = con.execute("SELECT id FROM bookings WHERE ref=?", (ref,)).fetchone()

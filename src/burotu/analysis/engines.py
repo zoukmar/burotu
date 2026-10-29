@@ -94,6 +94,61 @@ class BaselineEngine:
         )
 
 
+class LogRegEngine:
+    """Ensembles of logistic regressions, GRAIL-style (burotu.model.logreg), run locally on CPU."""
+
+    def __init__(self, directory: Path = ASSETS / "logreg", panel: list[str] | None = None) -> None:
+        from burotu.model.logreg import LogRegEnsemble
+
+        self.model = LogRegEnsemble.load(directory)
+        self.panel = panel or json.loads((ASSETS / "baseline" / "meta.json").read_text())["panel"]
+
+    def analyse(self, sample: LabSample) -> Detection:
+        meth, total = counts_on_panel(sample, self.panel)
+        score = float(self.model.cancer_score(meth, total)[0])
+        proba = self.model.origin_proba(meth, total)[0]
+        return Detection(
+            engine="logreg",
+            engine_label="Logistic regression ensembles (GRAIL-style)",
+            cancer_signal=score > self.model.threshold,
+            score=round(score, 4),
+            threshold=round(self.model.threshold, 4),
+            origin=top_origins(proba, self.model.classes),
+        )
+
+
+class CpGPTHeads:
+    """Burotu's heads on a CpGPT sample embedding (the embedding itself comes from the GPU server)."""
+
+    def __init__(self, directory: Path = ASSETS / "cpgpt") -> None:
+        import lightgbm as lgb
+
+        meta = json.loads((directory / "meta.json").read_text())
+        self.classes: list[str] = meta["classes"]
+        self.threshold: float = meta["threshold"]
+        self.dim: int = meta["dim"]
+        self.detector = lgb.Booster(model_str=gzip.decompress((directory / "detector.txt.gz").read_bytes()).decode())
+        self.origin = lgb.Booster(model_str=gzip.decompress((directory / "origin.txt.gz").read_bytes()).decode())
+
+    def analyse(self, embedding: list[float]) -> Detection:
+        x = np.asarray(embedding, dtype=np.float32)[None, :]
+        if x.shape[1] != self.dim:
+            raise ValueError(f"CpGPT embedding has {x.shape[1]} values, heads expect {self.dim}")
+        score = float(self.detector.predict(x)[0])
+        return Detection(
+            engine="cpgpt",
+            engine_label="CpGPT 100M (methylation foundation model) + Burotu heads",
+            cancer_signal=score > self.threshold,
+            score=round(score, 6),
+            threshold=round(self.threshold, 6),
+            origin=top_origins(np.asarray(self.origin.predict(x))[0], self.classes),
+        )
+
+
+def cpgpt_heads() -> CpGPTHeads | None:
+    return CpGPTHeads() if (ASSETS / "cpgpt" / "meta.json").exists() else None
+
+
 class MuseEngine:
     """Fine-tuned Muse Glimmer behind an authenticated Modal web endpoint."""
 
@@ -101,6 +156,10 @@ class MuseEngine:
         self.url, self.token, self.panel, self.timeout = url, token, panel, timeout
 
     def analyse(self, sample: LabSample) -> Detection:
+        return self.analyse_all(sample)["meta"]
+
+    def analyse_all(self, sample: LabSample) -> dict[str, Detection]:
+        """Muse Glimmer's answer, plus CpGPT's when the same GPU server also runs it."""
         meth, total = counts_on_panel(sample, self.panel)
         r = httpx.post(
             self.url,
@@ -110,11 +169,17 @@ class MuseEngine:
         )
         r.raise_for_status()
         d = r.json()
-        return Detection(
-            engine="muse-glimmer",
-            engine_label=d.get("engine_label", "Muse Glimmer 30B, fine-tuned (Meta open weights)"),
-            cancer_signal=bool(d["cancer_signal"]),
-            score=float(d["score"]),
-            threshold=float(d["threshold"]),
-            origin=d["origin"],
-        )
+        out = {
+            "meta": Detection(
+                engine="muse-glimmer",
+                engine_label=d.get("engine_label", "Muse Glimmer 30B, fine-tuned (Meta open weights)"),
+                cancer_signal=bool(d["cancer_signal"]),
+                score=float(d["score"]),
+                threshold=float(d["threshold"]),
+                origin=d["origin"],
+            )
+        }
+        heads = cpgpt_heads()
+        if d.get("cpgpt_embedding") and heads is not None:
+            out["cpgpt"] = heads.analyse(d["cpgpt_embedding"])
+        return out

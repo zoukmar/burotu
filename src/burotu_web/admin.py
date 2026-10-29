@@ -205,6 +205,31 @@ def models_page(request: Request):
     )
 
 
+@router.get("/map", response_class=HTMLResponse)
+def map_page(request: Request):
+    """What Burotu runs, what each model learned from, where it lives, and where the work stands."""
+    require_admin(request)
+    import json as _json
+
+    from burotu_web import inventory
+
+    db = request.app.state.db
+    try:
+        public = _json.loads((Path(__file__).resolve().parents[2] / "reports" / "public_plasma.json").read_text())
+    except OSError:
+        public = None
+    return page(
+        request,
+        "map.html",
+        inv=inventory,
+        lang=admin_lang(request),
+        public=public,
+        counts=db.model_counts(),
+        recent=db.recent_analyses(),
+        tissue=tissue_name,
+    )
+
+
 def tissue_name(cls: str, lang: str) -> str:
     try:
         from burotu.analysis.wording import tissue
