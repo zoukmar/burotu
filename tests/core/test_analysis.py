@@ -74,15 +74,23 @@ def test_hybrid_role_takes_origin_from_muse_and_signal_from_baseline(monkeypatch
     from burotu.analysis.engines import Detection
 
     class FakeMuse:
-        def analyse(self, sample):
+        def analyse_all(self, sample):
             origin = [{"class": "Lung", "probability": 0.9}]
-            return Detection("muse-glimmer", "Muse", False, -5.0, 0.0, origin)
+            return {
+                "meta": Detection("muse-glimmer", "Muse", False, -5.0, 0.0, origin),
+                "cpgpt": Detection("cpgpt", "CpGPT", True, 2.0, 1.0, [{"class": "Kidney", "probability": 0.7}]),
+            }
 
     monkeypatch.setattr(service, "muse", lambda: FakeMuse())
     monkeypatch.setenv("BUROTU_MUSE_ROLE", "origin")
-    d = service.analyse(read_lab_file(DEMO / "BRT-DEMO-05.tsv"), "en")["detection"]
+    a = service.analyse(read_lab_file(DEMO / "BRT-DEMO-05.tsv"), "en")
+    d = a["detection"]
     assert d["cancer_signal"] is True  # from the benchmark classifier
     assert d["origin"][0]["class"] == "Lung" and d["engine"] == "baseline+muse-glimmer"
+    assert set(a["models"]) == {"classic", "logreg", "meta", "cpgpt"}
+    c = a["consensus"]
+    assert c["n"] == 4 and c["signal_votes"] == 3 and not c["unanimous"]  # Muse said no
+    assert c["tissue"] == "Kidney" and c["tissue_votes"] == 3
 
 
 def test_answer_text_handles_parts_and_empty_answers():

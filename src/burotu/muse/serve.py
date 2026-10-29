@@ -3,6 +3,9 @@
     POST /predict   {"sample_id": "...", "meth": [...], "total": [...]}   (panel order)
     GET  /health
 
+When the deployment also runs CpGPT, /predict adds "cpgpt_embedding" (its sample
+embedding); the tracking site applies Burotu's CpGPT heads to it.
+
 The API answers in the same shape as the tracking site's engines (burotu.analysis), so
 admin.burotu.com only needs BUROTU_MUSE_URL and BUROTU_MUSE_TOKEN to switch to Muse.
 Deployed on Modal GPUs by scripts/modal_muse.py; runs on CPU with the tiny test model.
@@ -70,7 +73,10 @@ class MuseService:
         }
 
 
-def make_app(service: MuseService, token: str):
+def make_app(service: MuseService, token: str, extra=None):
+    """`extra(meth, total)`, if given, starts more models before Muse runs and returns a function
+    giving their extra response fields (CpGPT on its own GPU in production); a failure there
+    never fails the request."""
     from fastapi import FastAPI, Header, HTTPException
     from pydantic import BaseModel, Field
 
@@ -96,6 +102,18 @@ def make_app(service: MuseService, token: str):
         meth, total = np.asarray(sample.meth), np.asarray(sample.total)
         if (meth < 0).any() or (meth > total).any():
             raise HTTPException(status_code=422, detail="counts must satisfy 0 <= meth <= total")
-        return {"sample_id": sample.sample_id, **service.predict(meth, total)}
+        waiter = None
+        if extra is not None:
+            try:
+                waiter = extra(meth, total)
+            except Exception:
+                waiter = None
+        out = {"sample_id": sample.sample_id, **service.predict(meth, total)}
+        if waiter is not None:
+            try:
+                out.update(waiter())
+            except Exception:
+                out["extra_error"] = "cpgpt unavailable"
+        return out
 
     return app
