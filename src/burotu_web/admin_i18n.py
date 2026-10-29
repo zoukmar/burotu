@@ -391,7 +391,7 @@ TR: dict[str, dict[str, str]] = {
     },
 }
 
-# "Why this result" panel on a booking (burotu.analysis.explain).
+# "Why this result" panel on a booking (burotu.models.classic.explain).
 TR["fr"].update(
     {
         "Why this result": "Pourquoi ce résultat",
@@ -566,3 +566,6 @@ TR["es"].update(
         "Where the work stands": "En qué punto está el trabajo",
     }
 )
+
+TR["fr"]["Model card"] = "Fiche du modèle"
+TR["es"]["Model card"] = "Ficha del modelo"

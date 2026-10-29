@@ -15,9 +15,9 @@ import json
 import numpy as np
 
 from burotu.config import HEALTHY, ROOT
+from burotu.core.labformat import write_lab_file
 from burotu.data.reference import Reference
-from burotu.labformat import write_lab_file
-from burotu.simulate.cfdna import SimConfig, mix_and_sequence
+from burotu.data.simulate import SimConfig, mix_and_sequence
 
 OUT = ROOT / "src" / "burotu_web" / "demo_samples"
 

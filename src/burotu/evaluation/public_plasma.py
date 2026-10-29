@@ -1,10 +1,10 @@
 """Score every model on the open real-plasma datasets from GEO (burotu.data.public).
 
-    python scripts/eval_public_plasma.py
+    python -m burotu.evaluation.public_plasma
 
 Real patient plasma, measured on 450K/EPIC arrays by other labs: a check of how the models
 trained on simulated plasma behave on real samples, not a validation. Two healthy
-backgrounds are tried, as for Moss 2018 (burotu.realplasma): whole blood (what the models
+backgrounds are tried, as for Moss 2018 (burotu.evaluation.realplasma): whole blood (what the models
 were trained with) and healthy plasma controls (the 12 healthy Moss samples, another lab,
 never used for training).
 
@@ -19,11 +19,13 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 
-from burotu import realplasma
 from burotu.config import DATA_DIR, HEALTHY, ROOT
-from burotu.model.baseline import BaselineModel
-from burotu.model.features import EPS
-from burotu.model.logreg import LogRegEnsemble
+from burotu.core.features import EPS
+from burotu.evaluation import realplasma
+from burotu.models.base import MODELS_DIR
+from burotu.models.base import panel as base_panel
+from burotu.models.classic.model import BaselineModel
+from burotu.models.logreg.model import LogRegEnsemble
 
 PUBLIC = DATA_DIR / "public"
 NO_CANCER = "No cancer"
@@ -69,9 +71,8 @@ def summary(model, s: np.ndarray, p: np.ndarray, y: np.ndarray) -> dict:
 
 def main() -> None:
     classic = BaselineModel.load(ROOT / "models" / "baseline.pkl")
-    logreg = LogRegEnsemble.load(ROOT / "src" / "burotu" / "analysis" / "assets" / "logreg")
-    assets = ROOT / "src" / "burotu" / "analysis" / "assets"
-    panel = json.loads((assets / "baseline" / "meta.json").read_text())["panel"]
+    logreg = LogRegEnsemble.load(MODELS_DIR / "logreg" / "assets")
+    panel = base_panel()
     moss, moss_labels, _, _ = realplasma.load(panel)
     with np.errstate(invalid="ignore"):
         plasma_mu = np.nanmean(moss[moss_labels == HEALTHY], axis=0)

@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from burotu.core.labformat import LabFormatError, read_lab_file, write_lab_file
 from burotu.data.reference import build_reference
-from burotu.labformat import LabFormatError, read_lab_file, write_lab_file
+from burotu.data.simulate import SimConfig, mix_and_sequence, simulate_cohort
 from burotu.llm.client import MetaClient
-from burotu.simulate.cfdna import SimConfig, mix_and_sequence, simulate_cohort
 
 
 def _toy_data(n_cpg=400, n_blood=20, per_class=10, seed=0):

@@ -222,6 +222,7 @@ def map_page(request: Request):
         request,
         "map.html",
         inv=inventory,
+        models=inventory.models(),
         lang=admin_lang(request),
         public=public,
         counts=db.model_counts(),
@@ -292,7 +293,7 @@ async def booking_analyse(
 
     try:
         from burotu.analysis.service import analyse
-        from burotu.labformat import LabFormatError, parse_lab_text
+        from burotu.core.labformat import LabFormatError, parse_lab_text
     except ImportError:
         return fail("Analysis is not installed on this server.")
     try:

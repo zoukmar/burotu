@@ -23,7 +23,7 @@ from pathlib import Path
 import torch
 from torch import nn
 
-from burotu.muse import prompts
+from burotu.models.glimmer import prompts
 
 
 class _Scale(nn.Module):

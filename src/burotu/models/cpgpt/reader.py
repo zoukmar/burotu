@@ -70,8 +70,9 @@ class CpGPTReader:
     def __init__(self, config_path: Path, ckpt_path: Path, panel_assets: Path, device: str | None = None) -> None:
         import hydra
         import torch
-        from cpgpt.model.components.legacy_numerics import enable_legacy_numerics
         from omegaconf import OmegaConf
+
+        from cpgpt.model.components.legacy_numerics import enable_legacy_numerics
 
         enable_legacy_numerics()
         self.torch = torch

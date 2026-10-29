@@ -1,10 +1,10 @@
 """Fine-tune a Meta model to read methylation, then score it on the frozen benchmark.
 
     # CPU smoke run with a tiny random Glimmer (seconds, no download)
-    python -m burotu.muse.train --model tiny --steps 30 --out runs/tiny
+    python -m burotu.models.glimmer.train --model tiny --steps 30 --out runs/tiny
 
     # The real run (on a GPU, see scripts/modal_muse.py)
-    python -m burotu.muse.train --model meta-models/Muse-Glimmer-30B --4bit --steps 1500 --out runs/glimmer
+    python -m burotu.models.glimmer.train --model meta-models/Muse-Glimmer-30B --4bit --steps 1500 --out runs/glimmer
 
 Trains the methylation adapter and LoRA weights together on the `fit_large` cohort,
 sets the detection threshold on the `calibration` cohort and reports metrics on the
@@ -23,11 +23,11 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from burotu import benchmark
 from burotu.config import HEALTHY, ROOT
+from burotu.core.features import Featurizer
 from burotu.data.reference import Reference
-from burotu.model.features import Featurizer
-from burotu.muse.reader import MuseReader
+from burotu.evaluation import benchmark
+from burotu.models.glimmer.reader import MuseReader
 
 # Linear layers of the language model only, as in Meta's official Glimmer QLoRA recipe
 # (meta-oss-cookbook/muse-glimmer/post-training): the vision tower stays frozen.
@@ -70,7 +70,7 @@ def load_lm(cfg: TrainConfig):
     from peft import LoraConfig, get_peft_model
 
     if cfg.model == "tiny":
-        from burotu.muse.tiny import tiny_glimmer
+        from burotu.models.glimmer.tiny import tiny_glimmer
 
         lm, tokenizer = tiny_glimmer()
         target = LORA_TARGETS
@@ -221,7 +221,7 @@ def score(reader: MuseReader, x: torch.Tensor, labels: np.ndarray, batch: int, w
 
 
 class ReaderAsModel:
-    """The baseline model's interface over a MuseReader, for burotu.realplasma."""
+    """The baseline model's interface over a MuseReader, for burotu.evaluation.realplasma."""
 
     def __init__(self, reader: MuseReader, featurizer: Featurizer, threshold: float, batch: int) -> None:
         self.reader, self.featurizer, self.threshold, self.batch = reader, featurizer, threshold, batch
@@ -259,7 +259,7 @@ def by_donor(scores: np.ndarray, meta) -> list[dict]:
 
 
 def save_for_serving(out: Path, cfg: TrainConfig, featurizer: Featurizer, panel, classes, threshold: float) -> None:
-    """Everything burotu.muse.serve needs next to trainable.pt to answer like the benchmark."""
+    """Everything burotu.models.glimmer.serve needs next to trainable.pt to answer like the benchmark."""
     np.save(out / "mu.npy", featurizer.mu.astype(np.float32))
     meta = {
         "model": cfg.model,
@@ -351,7 +351,7 @@ def run(cfg: TrainConfig) -> dict:
         "test": benchmark.evaluate(t_score, t_origin, classes, threshold, test.meta),
     }
     try:
-        from burotu import realplasma
+        from burotu.evaluation import realplasma
 
         model = ReaderAsModel(reader, featurizer, threshold, cfg.eval_batch)
         report["real_plasma"] = realplasma.report(model, ref.panel)
