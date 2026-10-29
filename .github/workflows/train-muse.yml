@@ -23,7 +23,7 @@ on:
       task:
         description: train, or diagnose an existing run (run_name) for a few minutes of GPU
         type: choice
-        options: [train, diagnose, logs, cpgpt]
+        options: [train, diagnose, logs, cpgpt, publish]
         default: train
       gpu:
         description: Modal GPU
@@ -62,6 +62,11 @@ jobs:
           if [ "${{ inputs.task }}" = logs ]; then
             modal app list || true
             timeout 90 modal app logs burotu-muse || true
+            exit 0
+          fi
+          if [ "${{ inputs.task }}" = publish ]; then
+            # extra = the Hugging Face repo, e.g. zoukmar/burotu-glimmer
+            HF_TOKEN="${{ secrets.HF_TOKEN }}" modal run scripts/modal_muse.py::publish --run "${{ inputs.run_name }}" --repo-id "${{ inputs.extra }}"
             exit 0
           fi
           if [ "${{ inputs.task }}" = cpgpt ]; then
