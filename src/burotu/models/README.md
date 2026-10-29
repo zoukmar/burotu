@@ -19,7 +19,7 @@ what they share: the `Detection` answer and the panel of 3,148 CpG sites.
 | [classic](classic/) | Decides the reported signal | Gradient-boosted trees | Server CPU |
 | [logreg](logreg/) | Cross-check | Logistic-regression ensembles (GRAIL-style) | Server CPU |
 | [glimmer](glimmer/) | Names the reported tissue | Muse Glimmer 30B + methylation adapter + QLoRA | Modal GPU |
-| [cpgpt](cpgpt/) | Cross-check | CpGPT foundation model + Burotu heads | Modal GPU |
+| [cpgpt](cpgpt/) | Experiment (not used on samples) | CpGPT foundation model + Burotu heads | Modal GPU |
 | [consensus](consensus/) | Fifth opinion | Vote over the models present | Server |
 
 Muse Spark (letters, Q&A) is a writer, not a model of the result: it lives in
