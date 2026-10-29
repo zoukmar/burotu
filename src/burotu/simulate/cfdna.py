@@ -32,6 +32,10 @@ class SimConfig:
     tf_min: float = 1e-4
     tf_max: float = 0.1
     seed: int = 0
+    # Pseudo-donors: with probability mix_prob, the healthy background is a random mix of
+    # 2..mix_donors real donors (Dirichlet weights), so a model cannot learn individual donors.
+    mix_donors: int = 1
+    mix_prob: float = 0.5
 
 
 def mix_and_sequence(
@@ -74,10 +78,21 @@ def simulate_cohort(
 
     rows, meths, totals = [], [], []
 
-    def add(tumor_idx: int | None, cls: str, tf: float) -> None:
+    donors = getattr(ref, f"blood_{split}")
+
+    def background() -> tuple[np.ndarray, str]:
         b = rng.integers(blood.shape[1])
+        if cfg.mix_donors <= 1 or rng.random() >= cfg.mix_prob:
+            return blood[:, b], ref_col(donors, b)
+        k = int(rng.integers(2, cfg.mix_donors + 1))
+        idx = rng.choice(blood.shape[1], size=k, replace=False)
+        w = rng.dirichlet(np.ones(k))
+        return blood[:, idx] @ w.astype(np.float32), "mix:" + "+".join(ref_col(donors, int(i)) for i in idx)
+
+    def add(tumor_idx: int | None, cls: str, tf: float) -> None:
+        bg, donor = background()
         t = None if tumor_idx is None else tumors_np[:, tumor_idx]
-        m, tot = mix_and_sequence(blood[:, b], t, tf, cfg, rng)
+        m, tot = mix_and_sequence(bg, t, tf, cfg, rng)
         meths.append(m)
         totals.append(tot)
         rows.append(
@@ -85,7 +100,7 @@ def simulate_cohort(
                 "label": cls,
                 "is_cancer": tumor_idx is not None,
                 "tumor_fraction": tf,
-                "blood_donor": ref_col(getattr(ref, f"blood_{split}"), b),
+                "blood_donor": donor,
                 "tumor_id": None if tumor_idx is None else tumors.columns[tumor_idx],
             }
         )
