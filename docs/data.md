@@ -4,12 +4,14 @@
 
 | Role | Dataset | Content |
 | --- | --- | --- |
-| Tumour profiles | TCGA via the GDC portal (open access) | 450K arrays, 8 classes × 48 tumours, one tumour per patient |
+| Tumour profiles | TCGA via the GDC portal (open access) | 450K arrays, 20 tissue classes × 48 tumours, one tumour per patient (8 in the first prototype) |
 | Blood background | Hannum et al. 2013, GEO GSE40279 | Whole blood from 164 adults, 450K |
 | Real plasma | Moss et al. 2018, GEO GSE122126 | Cell-free DNA (EPIC): 12 healthy, 4 lung, 4 colorectal, 3 breast, 4 unknown primary |
 
-Tissue-of-origin classes in the prototype: lung, colorectal, breast, pancreas, liver,
-oesophagus-stomach, head and neck, prostate. The product targets 50 cancer types.
+Tissue-of-origin classes in the prototype (20): lung, colorectal, breast, pancreas, liver,
+oesophagus-stomach, head and neck, prostate, kidney, bladder, uterus, cervix, thyroid, skin,
+brain, soft tissue, mesothelium, adrenal, testis, thymus; about 27 AJCC cancer categories. The
+product targets 50 cancer types.
 
 ## Split
 
@@ -34,7 +36,7 @@ training run.
 
 ## Targeted panel
 
-1,681 CpG sites, kept because they are almost never methylated in blood (mean below 0.10, 95th
+3,148 CpG sites (1,681 with the first 8 types), kept because they are almost never methylated in blood (mean below 0.10, 95th
 percentile below 0.20) and methylated in at least one tumour type. Background noise in plasma
 is low at these sites, so a few tumour fragments are enough to make them stand out.
 

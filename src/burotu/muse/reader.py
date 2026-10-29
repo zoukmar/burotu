@@ -174,17 +174,16 @@ class MuseReader(nn.Module):
         logp = torch.log_softmax(self._logits(embeds, mask, self._span(start - 1, start - 1 + len(option))).float(), -1)
         return sum(logp[:, j, tok] for j, tok in enumerate(option))
 
-    def _next_token_margin(
-        self, embeds: torch.Tensor, mask: torch.Tensor, pos: int, a: int, b: int, capped: bool = False
+    def _next_token_logits(
+        self, embeds: torch.Tensor, mask: torch.Tensor, pos: int, tokens: Sequence[int], capped: bool = False
     ) -> torch.Tensor:
-        """Margin between tokens `a` and `b` after `pos`, in float32 and before any soft cap.
+        """Logits of `tokens` for the token after `pos`, in float32, shape (batch, len(tokens)).
 
         Glimmer squeezes its logits with a tanh soft cap (20 * tanh(x / 20)) and returns
         them in bf16. Confident answers then saturate to the same value, healthy and cancer
-        alike, and ties at the top make a 99.5%-specificity threshold unreachable. The
-        margin before the cap keeps the same order and stays continuous, so we capture the
-        final hidden state going into the output head and project it ourselves.
-        `capped=True` reproduces the model's own logit difference (used in tests).
+        alike, and ties at the top make a 99.5%-specificity threshold unreachable. We capture
+        the final hidden state going into the output head and project it ourselves, before
+        the cap unless `capped=True` (which reproduces the model's own logits).
         """
         head = self.lm.get_output_embeddings()
         seen: dict = {}
@@ -195,28 +194,35 @@ class MuseReader(nn.Module):
             hook.remove()
         with torch.autocast(self.device.type, enabled=False):
             h = seen["h"][:, -1].float()
-            raw = h @ self._head_rows(a, b).T
+            raw = h @ self._head_rows(tuple(tokens)).T
             cfg = getattr(self.lm.config, "text_config", self.lm.config)
             logits = raw * float(getattr(cfg, "output_multiplier", 1.0) or 1.0)
             cap = getattr(cfg, "final_logit_softcapping", None)
             if cap and capped:
                 logits = cap * torch.tanh(logits / cap)
+        return logits
+
+    def _next_token_margin(
+        self, embeds: torch.Tensor, mask: torch.Tensor, pos: int, a: int, b: int, capped: bool = False
+    ) -> torch.Tensor:
+        """logit(a) - logit(b) after `pos`, in float32, before the soft cap unless `capped`."""
+        logits = self._next_token_logits(embeds, mask, pos, (a, b), capped)
         return logits[:, 0] - logits[:, 1]
 
     @torch.no_grad()
-    def _head_rows(self, a: int, b: int) -> torch.Tensor:
-        """Rows `a` and `b` of the output head in float32, dequantised if it was loaded in 4 bits."""
+    def _head_rows(self, tokens: tuple[int, ...]) -> torch.Tensor:
+        """These rows of the output head in float32, dequantised if it was loaded in 4 bits."""
         cache = self.__dict__.setdefault("_rows_cache", {})
-        if (a, b) not in cache:
+        if tokens not in cache:
             w = self.lm.get_output_embeddings().weight
             if w.is_floating_point():
-                rows = w[[a, b]].float()
+                rows = w[list(tokens)].float()
             else:  # bitsandbytes Params4bit
                 from bitsandbytes.functional import dequantize_4bit
 
-                rows = dequantize_4bit(w.data, w.quant_state)[[a, b]].float()
-            cache[(a, b)] = rows
-        return cache[(a, b)]
+                rows = dequantize_4bit(w.data, w.quant_state)[list(tokens)].float()
+            cache[tokens] = rows
+        return cache[tokens]
 
     @property
     def head_precision(self) -> str:
@@ -235,6 +241,19 @@ class MuseReader(nn.Module):
 
     @torch.no_grad()
     def origin_proba(self, features: torch.Tensor) -> torch.Tensor:
+        """Probability of each tissue class.
+
+        When every class name starts with its own token (true for Glimmer's tokenizer on the
+        20 classes), one forward pass is enough: the model's next-token distribution after
+        ORIGIN_LEAD, restricted to those first tokens. Otherwise each class name is scored in
+        full, one forward pass per class.
+        """
+        firsts = [o[0] for o in self._origin_options]
+        if len(set(firsts)) == len(firsts):
+            embeds, mask, head_len = self._sequences(features, [self._origin_lead] * len(features))
+            pos = head_len + len(self._origin_lead) - 1
+            logits = self._next_token_logits(embeds, mask, pos, firsts, capped=True)
+            return torch.softmax(logits, dim=1).cpu()
         scores = []
         for option in self._origin_options:
             ll = self._continuation_logprob(features, self._origin_lead, option)

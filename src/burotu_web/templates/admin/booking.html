@@ -95,6 +95,57 @@
   </div>
   {% endif %}
 
+  {% set x = analysis.explain %}
+  {% if x %}
+  {% set m = analysis.models.meta if analysis.models else None %}
+  {% set meta_p = {} %}{% if m %}{% for o in m.origin %}{% set _ignored = meta_p.update({o.class: o.probability}) %}{% endfor %}{% endif %}
+  <div class="why" id="why">
+    <p class="lab-label">{{ _("Why this result") }}</p>
+    <div class="why-grid">
+      <div class="why-block">
+        <h3>{{ _("Rank among healthy people") }}</h3>
+        <p class="why-big">{{ ('%.2f' % (x.healthy_rank * 100)).replace('.', ',' if alang != 'en' else '.') }} %</p>
+        <p class="small">{{ _("of {n} simulated healthy samples score lower than this one. A signal is raised above 99.5%.", n='{:,}'.format(x.n_healthy).replace(',', ' ' if alang != 'en' else ',')) }}</p>
+        <svg class="why-scale" viewBox="0 0 200 26" preserveAspectRatio="none" aria-hidden="true">
+          <rect class="track" x="0" y="8" width="200" height="6" rx="3"/>
+          <rect class="zone" x="130" y="8" width="70" height="6" rx="3"/>
+          <circle class="dot {{ 'is-signal' if x.healthy_rank > 0.995 else '' }}" cx="{{ '%.1f' % (5 + x.rank_pos * 190) }}" cy="11" r="5"/>
+        </svg>
+        <p class="small muted why-axis"><span>0%</span><span>90%</span><span class="is-cut">99.5%</span><span>99.9%</span></p>
+      </div>
+      <div class="why-block">
+        <h3>{{ _("Lit sites") }}</h3>
+        <p class="why-big">{{ x.lit }} <span class="small muted">/ {{ '{:,}'.format(x.sites).replace(',', ' ' if alang != 'en' else ',') }}</span></p>
+        <p class="small">{{ _("sites carry more methylated DNA than 99.5% of healthy samples do at that site. A healthy sample shows {p50} (median), up to {p99}.", p50=x.healthy_lit.p50, p99=x.healthy_lit.p99) }}</p>
+        <p class="small muted">{{ _("Weight in the classic model's decision: tissue marker sites {a}, other sites {b}.", a='%+.1f' % x.push.tissue_markers, b='%+.1f' % x.push.other_sites) }}</p>
+      </div>
+    </div>
+
+    <h3 class="why-h">{{ _("Tissue by tissue") }}</h3>
+    {% if analysis.detection and analysis.detection.cancer_signal %}
+    <div class="table-wrap">
+    <table class="table why-table">
+      <thead><tr><th>{{ _("Tissue") }}</th><th>{{ _("Marker sites lit") }}</th><th>{{ _("Above healthy?") }}</th><th>{{ _("Classic model") }}</th><th>{{ _("Meta model") }}</th></tr></thead>
+      <tbody>
+      {% set ranked = x.tissues|sort(attribute='probability', reverse=True) %}
+      {% for t in ranked[:6] %}
+        {% set above = t.lit > t.healthy_max %}
+        <tr>
+          <td>{{ tissue(t.class, alang)|capitalize }}</td>
+          <td><span class="why-lit"><svg class="bar" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><rect class="track" width="100" height="8" rx="4"/><rect class="healthy" width="{{ '%.1f' % (100 * t.healthy_max / t.markers) }}" height="8" rx="4"/><rect class="fill {{ 'is-above' if above else '' }}" width="{{ '%.1f' % (100 * t.lit / t.markers) }}" height="8" rx="4"/></svg><span class="num">{{ t.lit }} / {{ t.markers }}</span></span></td>
+          <td><span class="badge {{ 'is-ok' if above else 'is-ko' }}">{{ _("Yes") if above else _("No") }}</span> <span class="small muted">{{ _("healthy up to {n}", n=t.healthy_max) }}</span></td>
+          <td class="num">{{ '%.0f' % (t.probability * 100) }}%</td>
+          <td class="num">{% if t.class in meta_p %}{{ '%.0f' % (meta_p[t.class] * 100) }}%{% else %}<span class="muted">-</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <p class="small muted">{{ _("Each tissue has up to 150 marker sites: methylated in that tissue's tumour DNA, quiet in blood and in the other tissues. The grey part of the bar is the most a healthy sample shows. When only a little tumour DNA is in the blood, few sites light up: the model adds up weak evidence spread over thousands of sites, so the counts can stay at healthy levels even when a signal is detected. The Meta model returns its top three tissues only.") }}</p>
+    {% else %}<p class="small muted">{{ _("No signal: the split by tissue is only shown when a signal is detected.") }}</p>{% endif %}
+  </div>
+  {% endif %}
+
   {% set letters = analysis.reports or {b.lang: analysis.report} %}
   {% set shown = letter_lang if letter_lang in letters else (b.lang if b.lang in letters else (letters|list)[0]) %}
   {% set r = letters[shown] %}

@@ -196,6 +196,10 @@ def models_page(request: Request):
         runs=science.all_runs(),
         chart=science.origin_chart(),
         tfs=science.TFS,
+        coverage=science.COVERAGE,
+        not_yet=science.NOT_YET,
+        coverage_n=science.coverage_count(),
+        tissue=tissue_name,
         status=status,
         market=market,
     )

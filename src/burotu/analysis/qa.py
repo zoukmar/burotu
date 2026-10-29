@@ -76,7 +76,7 @@ def result_facts(analysis: dict, lang: str) -> dict:
     if lang in reports:
         facts["letter_already_sent"] = reports[lang]["text"]
     facts["about_burotu"] = (
-        "Demonstration prototype, not a medical device, not validated. Looks at 8 tissue types today. "
+        "Demonstration prototype, not a medical device, not validated. Looks at 20 tissue types today. "
         "Does not replace the screenings the doctor recommends."
     )
     return facts

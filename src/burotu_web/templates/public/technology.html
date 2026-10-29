@@ -64,6 +64,14 @@
   </div>
 </section>
 
+<section class="section" id="coverage">
+  <div class="wrap">
+    <h2>{{ s.coverage.format(n=coverage_n) }}</h2>
+    <p class="section-lead">{{ s.coverage_lead.format(n=coverage_n) }}</p>
+    {% set tlang = lang %}{% include "partials/coverage.html" %}
+  </div>
+</section>
+
 <section class="section" id="runs">
   <div class="wrap">
     <h2>{{ s.runs }}</h2>
@@ -73,7 +81,7 @@
       <li class="run-{{ r.role }}">
         <p class="run-name">{{ s.run_names[r.id] }}</p>
         <p class="run-note">{{ s.run_notes[r.id] }}</p>
-        <p class="run-figs muted small">AUC {{ '%.2f' % r.by_tf[0.01].auc }} · {{ '%.0f' % (r.by_tf[0.01].top1 * 100) }}% @ 1%{% if r.minutes and r.kind == 'meta' and r.id != 'glimmer-v2' %} · {{ '%.0f' % r.minutes }} min{% endif %}</p>
+        <p class="run-figs muted small">AUC {{ '%.2f' % r.by_tf[0.01].auc }} · {{ '%.0f' % (r.by_tf[0.01].top1 * 100) }}% @ 1%{% if r.minutes and r.kind == 'meta' and r.id != 'glimmer-v5' %} · {{ '%.0f' % r.minutes }} min{% endif %}</p>
       </li>
       {% endfor %}
     </ol>
@@ -83,7 +91,7 @@
 <section class="section section-ink" id="plasma">
   <div class="wrap">
     <h2>{{ s.plasma }}</h2>
-    {% set rp = classic.real_plasma %}
+    {% set rp = current.real_plasma %}
     <p class="section-lead">{{ s.plasma_text.format(auc=rp.auc, flagged=rp.healthy_flagged, n_healthy=rp.n_healthy, detected=rp.detected, n_cancer=rp.n_cancer) }}</p>
   </div>
 </section>

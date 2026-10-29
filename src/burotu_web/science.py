@@ -13,15 +13,18 @@ from pathlib import Path
 
 REPORTS = Path(__file__).resolve().parent / "model_reports"
 TFS = (0.003, 0.01, 0.03, 0.1)  # tumour DNA fractions shown
+# The classic and Meta runs compared head to head (same tissue types, same test set).
+COMPARE = ("baseline", "glimmer-v5")
 
 # Every run, in the order it happened. `role` is what Burotu uses it for today.
 RUNS = (
-    {"id": "baseline", "file": "baseline.json", "kind": "classic", "role": "signal"},
+    {"id": "baseline-8", "file": "baseline-8.json", "kind": "classic", "role": "history"},
     {"id": "glimmer-v1", "file": "muse_glimmer-v1.json", "kind": "meta", "role": "failed"},
-    {"id": "glimmer-v2", "file": "muse_glimmer-v2.json", "kind": "meta", "role": "tissue"},
+    {"id": "glimmer-v2", "file": "muse_glimmer-v2.json", "kind": "meta", "role": "history"},
     {"id": "glimmer-v3", "file": "muse_glimmer-v3.json", "kind": "meta", "role": "experiment"},
     {"id": "glimmer-v4", "file": "muse_glimmer-v4.json", "kind": "meta", "role": "experiment"},
-    {"id": "baseline-20", "file": "baseline-20.json", "kind": "classic", "role": "experiment"},
+    {"id": "baseline", "file": "baseline.json", "kind": "classic", "role": "signal"},
+    {"id": "glimmer-v5", "file": "muse_glimmer-v5.json", "kind": "meta", "role": "tissue"},
 )
 
 
@@ -62,7 +65,7 @@ def all_runs() -> list[dict]:
 
 def origin_chart(width: int = 640, height: int = 240) -> dict:
     """Grouped bars: tissue right first time, classic vs Meta, per tumour DNA fraction (SVG geometry)."""
-    classic, meta = run_metrics("baseline"), run_metrics("glimmer-v2")
+    classic, meta = run_metrics(COMPARE[0]), run_metrics(COMPARE[1])
     left, bottom, top = 44, 34, 16
     plot_h = height - bottom - top
     group = (width - left - 10) / len(TFS)
@@ -89,8 +92,72 @@ def origin_chart(width: int = 640, height: int = 240) -> dict:
     return {"width": width, "height": height, "left": left, "base": top + plot_h, "groups": groups, "ticks": ticks}
 
 
+# Our 20 tissues, and the AJCC 8th edition cancer categories (the way "50+ types" are counted
+# by multi-cancer tests) that the TCGA projects behind each tissue cover. Conservative mapping.
+COVERAGE = [
+    ("Lung", ["Lung"]),
+    ("Colorectal", ["Colon and rectum"]),
+    ("Breast", ["Breast"]),
+    ("Pancreas", ["Exocrine pancreas"]),
+    ("Liver", ["Liver"]),
+    ("Oesophagus-Stomach", ["Oesophagus and oesophagogastric junction", "Stomach"]),
+    ("Head and neck", ["Oral cavity", "Oropharynx (HPV-mediated)", "Oropharynx (p16-) and hypopharynx", "Larynx"]),
+    ("Prostate", ["Prostate"]),
+    ("Kidney", ["Kidney"]),
+    ("Bladder", ["Urinary bladder"]),
+    ("Uterus", ["Uterus, carcinoma and carcinosarcoma"]),
+    ("Cervix", ["Cervix"]),
+    ("Thyroid", ["Thyroid"]),
+    ("Skin", ["Melanoma of the skin"]),
+    ("Brain", ["Brain and spinal cord (gliomas)"]),
+    (
+        "Soft tissue",
+        [
+            "Soft tissue sarcoma of the trunk and extremities",
+            "Soft tissue sarcoma of the retroperitoneum",
+            "Soft tissue sarcoma of the abdomen and thoracic visceral organs",
+        ],
+    ),
+    ("Mesothelium", ["Malignant pleural mesothelioma"]),
+    ("Adrenal", ["Adrenal cortical carcinoma", "Adrenal neuroendocrine tumours"]),
+    ("Testis", ["Testis"]),
+    ("Thymus", ["Thymus"]),
+]
+NOT_YET = [
+    "Ovary, fallopian tube and peritoneum",
+    "Bile ducts (3 categories)",
+    "Gallbladder",
+    "Ampulla of Vater",
+    "Small intestine",
+    "Appendix",
+    "Anus",
+    "Neuroendocrine tumours (appendix, colon and rectum, pancreas)",
+    "Gastrointestinal stromal tumour",
+    "Nasal cavity and nasopharynx",
+    "Merkel cell carcinoma",
+    "Bone",
+    "Ureter and renal pelvis",
+    "Vagina",
+    "Vulva",
+    "Gestational trophoblastic neoplasms",
+    "Blood cancers (leukaemia, lymphoma, myeloma)",
+]
+
+
+def coverage_count() -> int:
+    return sum(len(c) for _, c in COVERAGE)
+
+
 TEXT = {
     "en": {
+        "coverage": "20 tissues, about {n} cancer categories",
+        "coverage_lead": 'Multi-cancer tests count "types" with the AJCC staging manual, where one organ can count '
+        "several times (five soft tissue sarcoma sites, three bile duct categories). Burotu names tissues instead. "
+        "Counted the AJCC way, the public tumours behind our 20 tissues cover about {n} categories. The others are "
+        "missing from public methylation data, which is why going to 50 needs a partner lab's sequenced samples.",
+        "col_tissue": "Burotu tissue",
+        "col_ajcc": "AJCC categories covered",
+        "not_yet": "Not covered yet (no public data on the same array)",
         "title": "Under the hood",
         "lead": "Every number on this page comes from the experiments in Burotu's public repository. Burotu is a "
         "demonstration prototype: its models are trained and tested on public data, mostly simulated plasma.",
@@ -130,7 +197,7 @@ TEXT = {
         ],
         "data": "Where the data comes from",
         "data_rows": [
-            ("Tumour profiles", "TCGA (GDC portal), 8 tissue types, 48 tumours each"),
+            ("Tumour profiles", "TCGA (GDC portal), 20 tissue types, 48 tumours each"),
             ("Healthy background", "Whole blood of 164 adults (Hannum et al. 2013)"),
             ("Real plasma", "27 cell-free DNA samples, 12 healthy and 15 with a tumour (Moss et al. 2018)"),
             ("Split", "People are split before anything else: 80 to train, 35 to set the threshold, 49 to test"),
@@ -153,20 +220,22 @@ TEXT = {
         "runs_lead": "Muse Glimmer was fine-tuned on Modal GPUs (one 48 GB L40S, about 70 minutes per run) with "
         "QLoRA, following Meta's recipe.",
         "run_names": {
-            "baseline": "Classic model: gradient boosting",
+            "baseline-8": "Classic model, 8 tissue types (first prototype)",
             "glimmer-v1": "Muse Glimmer v1: adapter and LoRA trained together",
             "glimmer-v2": "Muse Glimmer v2: adapter first, then LoRA",
             "glimmer-v3": "Muse Glimmer v3: smaller, regularised adapter",
             "glimmer-v4": "Muse Glimmer v4: pseudo-donors (mixes of real donors)",
-            "baseline-20": "Classic model, 20 tissue types (experiment)",
+            "glimmer-v5": "Muse Glimmer v5: 20 tissue types, pseudo-donors",
+            "baseline": "Classic model, 20 tissue types",
         },
         "run_notes": {
-            "baseline": "Raises the alarm in Burotu.",
+            "baseline-8": "Where Burotu started: the benchmark Glimmer v1 to v4 were measured against.",
             "glimmer-v1": "Learned the answer format, not the sample: the same answer for everyone.",
-            "glimmer-v2": "Names the tissue in Burotu: best at low tumour DNA.",
+            "glimmer-v2": "Named the tissue on the 8-type prototype: right first time 70% at 1% tumour DNA, against 57%.",
             "glimmer-v3": "Fewer healthy people flagged, but too few signals found.",
             "glimmer-v4": "Best Glimmer alarm so far (42% of signals found at 1%), still below the classic model.",
-            "baseline-20": "Same alarm with 20 tissue types instead of 8; tissue right 55% at 1%, against 5% by chance.",
+            "glimmer-v5": "Names the tissue in Burotu: right first time 60% of the time at 1% tumour DNA, against 55% for the classic model; 7 of 11 on real plasma.",
+            "baseline": "Raises the alarm in Burotu: same performance with 20 types as with 8; tissue right 55% at 1%, against 5% by chance.",
         },
         "plasma": "Real patient plasma",
         "plasma_text": "On 27 real samples measured on arrays, against the whole-blood background every sample "
@@ -184,12 +253,21 @@ TEXT = {
         "limits": "Limits",
         "limit_items": [
             "Plasma is simulated site by site; real tests also use patterns within each DNA fragment.",
-            "8 tissue types today; the product targets 50.",
+            "20 tissue types today; the product targets 50.",
             "Real plasma check on 27 samples only. Burotu is not a validated test and not a medical device.",
         ],
         "repo": "Code, data pipeline and every report",
     },
     "fr": {
+        "coverage": "20 tissus, environ {n} catégories de cancer",
+        "coverage_lead": "Les tests multi-cancers comptent les « types » avec le manuel de classification AJCC, où un "
+        "même organe peut compter plusieurs fois (cinq localisations de sarcomes, trois catégories de voies biliaires). "
+        "Burotu désigne des tissus. Comptées à la manière AJCC, les tumeurs publiques derrière nos 20 tissus couvrent "
+        "environ {n} catégories. Les autres manquent dans les données publiques de méthylation : pour aller à 50, il faut "
+        "les échantillons séquencés d'un laboratoire partenaire.",
+        "col_tissue": "Tissu Burotu",
+        "col_ajcc": "Catégories AJCC couvertes",
+        "not_yet": "Pas encore couvert (pas de données publiques sur la même puce)",
         "title": "Sous le capot",
         "lead": "Chaque chiffre de cette page vient des expériences du dépôt public de Burotu. Burotu est un "
         "prototype de démonstration : ses modèles sont entraînés et testés sur des données publiques, surtout du "
@@ -231,7 +309,7 @@ TEXT = {
         ],
         "data": "D'où viennent les données",
         "data_rows": [
-            ("Profils tumoraux", "TCGA (portail GDC), 8 types de tissus, 48 tumeurs chacun"),
+            ("Profils tumoraux", "TCGA (portail GDC), 20 types de tissus, 48 tumeurs chacun"),
             ("Bruit de fond sain", "Sang total de 164 adultes (Hannum et al. 2013)"),
             ("Plasma réel", "27 échantillons d'ADN circulant, 12 sains et 15 avec une tumeur (Moss et al. 2018)"),
             (
@@ -258,20 +336,22 @@ TEXT = {
         "runs_lead": "Muse Glimmer a été affiné sur des GPU Modal (une L40S de 48 Go, environ 70 minutes par "
         "entraînement) avec QLoRA, en suivant la recette de Meta.",
         "run_names": {
-            "baseline": "Modèle classique : gradient boosting",
+            "baseline-8": "Modèle classique, 8 types de tissus (premier prototype)",
             "glimmer-v1": "Muse Glimmer v1 : adaptateur et LoRA entraînés ensemble",
             "glimmer-v2": "Muse Glimmer v2 : l'adaptateur d'abord, puis LoRA",
             "glimmer-v3": "Muse Glimmer v3 : adaptateur réduit et régularisé",
             "glimmer-v4": "Muse Glimmer v4 : pseudo-donneurs (mélanges de vrais donneurs)",
-            "baseline-20": "Modèle classique, 20 types de tissus (expérience)",
+            "glimmer-v5": "Muse Glimmer v5 : 20 types de tissus, pseudo-donneurs",
+            "baseline": "Modèle classique, 20 types de tissus",
         },
         "run_notes": {
-            "baseline": "Donne l'alarme dans Burotu.",
+            "baseline-8": "Le point de départ : la référence de Glimmer v1 à v4.",
             "glimmer-v1": "A appris le format de la réponse, pas l'échantillon : la même réponse pour tous.",
-            "glimmer-v2": "Désigne le tissu dans Burotu : le meilleur à faible dose.",
+            "glimmer-v2": "Désignait le tissu sur le prototype à 8 types : juste du premier coup 70 % à 1 % d'ADN tumoral, contre 57 %.",
             "glimmer-v3": "Moins de personnes saines signalées, mais trop peu de signaux trouvés.",
             "glimmer-v4": "Meilleure alarme Glimmer à ce jour (42 % des signaux trouvés à 1 %), encore sous le modèle classique.",
-            "baseline-20": "Même alarme avec 20 types de tissus au lieu de 8 ; tissu trouvé 55 % à 1 %, contre 5 % au hasard.",
+            "glimmer-v5": "Désigne le tissu dans Burotu : juste du premier coup 60 % du temps à 1 % d'ADN tumoral, contre 55 % pour le modèle classique ; 7 sur 11 sur vrai plasma.",
+            "baseline": "Donne l'alarme dans Burotu : mêmes performances avec 20 types qu'avec 8 ; tissu trouvé 55 % à 1 %, contre 5 % au hasard.",
         },
         "plasma": "Plasma de vrais patients",
         "plasma_text": "Sur 27 vrais échantillons mesurés sur puces, face au bruit de fond du sang total, tous "
@@ -292,13 +372,22 @@ TEXT = {
         "limit_items": [
             "Le plasma est simulé site par site ; les vrais tests exploitent aussi les motifs au sein de chaque "
             "fragment d'ADN.",
-            "8 types de tissus aujourd'hui ; le produit en vise 50.",
+            "20 types de tissus aujourd'hui ; le produit en vise 50.",
             "Vérification sur plasma réel avec 27 échantillons seulement. Burotu n'est pas un test validé ni un "
             "dispositif médical.",
         ],
         "repo": "Code, chaîne de données et tous les rapports",
     },
     "es": {
+        "coverage": "20 tejidos, unas {n} categorías de cáncer",
+        "coverage_lead": "Las pruebas multicáncer cuentan los «tipos» con el manual de clasificación AJCC, donde un "
+        "mismo órgano puede contar varias veces (cinco localizaciones de sarcomas, tres categorías de vías biliares). "
+        "Burotu indica tejidos. Contadas al modo AJCC, las muestras tumorales públicas detrás de nuestros 20 tejidos "
+        "cubren unas {n} categorías. Las demás faltan en los datos públicos de metilación: para llegar a 50 hacen falta "
+        "las muestras secuenciadas de un laboratorio colaborador.",
+        "col_tissue": "Tejido Burotu",
+        "col_ajcc": "Categorías AJCC cubiertas",
+        "not_yet": "Aún no cubierto (sin datos públicos en el mismo chip)",
         "title": "Bajo el capó",
         "lead": "Cada cifra de esta página procede de los experimentos del repositorio público de Burotu. Burotu es "
         "un prototipo de demostración: sus modelos se entrenan y evalúan con datos públicos, sobre todo plasma "
@@ -340,7 +429,7 @@ TEXT = {
         ],
         "data": "De dónde vienen los datos",
         "data_rows": [
-            ("Perfiles tumorales", "TCGA (portal GDC), 8 tipos de tejido, 48 tumores cada uno"),
+            ("Perfiles tumorales", "TCGA (portal GDC), 20 tipos de tejido, 48 tumores cada uno"),
             ("Fondo sano", "Sangre total de 164 adultos (Hannum et al. 2013)"),
             ("Plasma real", "27 muestras de ADN circulante, 12 sanas y 15 con un tumor (Moss et al. 2018)"),
             (
@@ -367,20 +456,22 @@ TEXT = {
         "runs_lead": "Muse Glimmer se ajustó en GPU de Modal (una L40S de 48 GB, unos 70 minutos por "
         "entrenamiento) con QLoRA, siguiendo la receta de Meta.",
         "run_names": {
-            "baseline": "Modelo clásico: gradient boosting",
+            "baseline-8": "Modelo clásico, 8 tipos de tejido (primer prototipo)",
             "glimmer-v1": "Muse Glimmer v1: adaptador y LoRA entrenados a la vez",
             "glimmer-v2": "Muse Glimmer v2: primero el adaptador, luego LoRA",
             "glimmer-v3": "Muse Glimmer v3: adaptador reducido y regularizado",
             "glimmer-v4": "Muse Glimmer v4: pseudodonantes (mezclas de donantes reales)",
-            "baseline-20": "Modelo clásico, 20 tipos de tejido (experimento)",
+            "glimmer-v5": "Muse Glimmer v5: 20 tipos de tejido, pseudodonantes",
+            "baseline": "Modelo clásico, 20 tipos de tejido",
         },
         "run_notes": {
-            "baseline": "Da la alarma en Burotu.",
+            "baseline-8": "El punto de partida: la referencia de Glimmer v1 a v4.",
             "glimmer-v1": "Aprendió el formato de la respuesta, no la muestra: la misma respuesta para todos.",
-            "glimmer-v2": "Indica el tejido en Burotu: el mejor con poco ADN tumoral.",
+            "glimmer-v2": "Indicaba el tejido en el prototipo de 8 tipos: acertaba a la primera el 70 % con un 1 % de ADN tumoral, frente al 57 %.",
             "glimmer-v3": "Menos personas sanas señaladas, pero demasiado pocas señales encontradas.",
             "glimmer-v4": "La mejor alarma de Glimmer hasta ahora (42 % de señales encontradas al 1 %), aún por debajo del modelo clásico.",
-            "baseline-20": "La misma alarma con 20 tipos de tejido en lugar de 8; tejido acertado el 55 % al 1 %, frente al 5 % por azar.",
+            "glimmer-v5": "Indica el tejido en Burotu: acierta a la primera el 60 % de las veces con un 1 % de ADN tumoral, frente al 55 % del modelo clásico; 7 de 11 en plasma real.",
+            "baseline": "Da la alarma en Burotu: el mismo rendimiento con 20 tipos que con 8; tejido acertado el 55 % al 1 %, frente al 5 % por azar.",
         },
         "plasma": "Plasma de pacientes reales",
         "plasma_text": "En 27 muestras reales medidas con chips, frente al fondo de la sangre total todas parecían "
@@ -400,7 +491,7 @@ TEXT = {
         "limit_items": [
             "El plasma se simula sitio a sitio; las pruebas reales también usan patrones dentro de cada fragmento "
             "de ADN.",
-            "8 tipos de tejido hoy; el producto apunta a 50.",
+            "20 tipos de tejido hoy; el producto apunta a 50.",
             "Comprobación en plasma real con solo 27 muestras. Burotu no es una prueba validada ni un dispositivo "
             "médico.",
         ],

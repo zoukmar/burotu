@@ -1,0 +1,10 @@
+{# Our 20 tissues and the AJCC categories they cover. Needs: s, coverage, not_yet, coverage_n, tissue, tlang #}
+<div class="table-wrap">
+  <table class="table coverage-table">
+    <thead><tr><th>{{ s.col_tissue }}</th><th>{{ s.col_ajcc }}</th></tr></thead>
+    <tbody>
+      {% for cls, cats in coverage %}<tr><td><strong>{{ tissue(cls, tlang)|capitalize }}</strong></td><td>{{ cats|join(' · ') }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="coverage-missing"><strong>{{ s.not_yet }}:</strong> {{ not_yet|join(' · ') }}.</p>

@@ -22,8 +22,7 @@ CANCER_CLASSES: dict[str, list[str]] = {
     "Head and neck": ["TCGA-HNSC"],
     "Prostate": ["TCGA-PRAD"],
 }
-# Experimental extension to 20 classes (BUROTU_CLASSES=20, with a separate BUROTU_DATA_DIR).
-# The site and its demo samples keep the 8 classes above until this is validated.
+# 12 more TCGA types: 20 classes in total since October 29, 2026 (the first prototype had 8).
 EXTRA_CLASSES: dict[str, list[str]] = {
     "Kidney": ["TCGA-KIRC", "TCGA-KIRP", "TCGA-KICH"],
     "Bladder": ["TCGA-BLCA"],
@@ -38,7 +37,7 @@ EXTRA_CLASSES: dict[str, list[str]] = {
     "Testis": ["TCGA-TGCT"],
     "Thymus": ["TCGA-THYM"],
 }
-if os.environ.get("BUROTU_CLASSES") == "20":
+if os.environ.get("BUROTU_CLASSES", "20") == "20":  # BUROTU_CLASSES=8 rebuilds the first prototype
     CANCER_CLASSES = {**CANCER_CLASSES, **EXTRA_CLASSES}
 HEALTHY = "Healthy"
 

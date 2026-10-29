@@ -27,10 +27,12 @@ CASES = [
     ("Colorectal", 0.03, 500),
     ("Lung", 0.03, 500),
     (HEALTHY, 0.0, 500),
-    ("Pancreas", 0.10, 500),
+    ("Kidney", 0.10, 500),
     ("Breast", 0.01, 500),
-    ("Liver", 0.03, 500),
+    ("Brain", 0.03, 500),
     ("Colorectal", 0.03, 40),  # under-sequenced: quality control should stop it
+    ("Pancreas", 0.03, 500),
+    ("Skin", 0.01, 500),
 ]
 
 

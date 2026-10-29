@@ -62,7 +62,7 @@ def download(model: str, revision: str) -> str:
     return path
 
 
-@app.function(gpu=GPU, volumes={"/runs": runs, "/cache": hf_cache}, timeout=6 * 3600)
+@app.function(gpu=GPU, volumes={"/runs": runs, "/cache": hf_cache}, timeout=6 * 3600, memory=32768)
 def train(args: dict) -> dict:
     from burotu.muse.train import TrainConfig, run
 
