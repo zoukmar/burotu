@@ -1,6 +1,6 @@
 """Export the trained baseline as portable assets for the tracking site.
 
-    python scripts/export_baseline.py   (after scripts/train_baseline.py)
+    python -m burotu.models.classic.export   (after python -m burotu.models.classic.train)
 
 Writes src/burotu/analysis/assets/baseline/: LightGBM text models (gzipped), the healthy
 background per CpG, the panel order, classes and the calibrated threshold. Text models
@@ -11,16 +11,17 @@ from __future__ import annotations
 
 import gzip
 import json
+from pathlib import Path
 
 import numpy as np
 
-from burotu.analysis.explain import build_explainer, build_markers
-from burotu.benchmark import load_cohort
 from burotu.config import ROOT
 from burotu.data.reference import Reference
-from burotu.model.baseline import BaselineModel
+from burotu.evaluation.benchmark import load_cohort
+from burotu.models.classic.explain import build_explainer, build_markers
+from burotu.models.classic.model import BaselineModel
 
-OUT = ROOT / "src" / "burotu" / "analysis" / "assets" / "baseline"
+OUT = Path(__file__).resolve().parent / "assets"
 
 
 def main() -> None:

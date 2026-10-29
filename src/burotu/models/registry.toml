@@ -1,0 +1,83 @@
+# Every model Burotu runs: what it is, what it learned from, where its weights live.
+# One entry per model package in src/burotu/models/<id>/ (each has a README.md model card).
+# Read by burotu.models.registry, the admin map page and the technology page.
+
+[[model]]
+id = "classic"
+name = "Classic model"
+version = "20-tissues-2026-10-28"
+role = "signal"            # decides the reported signal
+status = "live"
+family = "Gradient-boosted trees (LightGBM), one detector + one tissue classifier"
+inputs = "3,148 binomial z-scores + 3 summary features"
+trained_on = "fit cohort: 14,000 simulated plasma samples (680 TCGA tumours, 20 tissues, 80 blood donors)"
+runs_on = "tracking server, CPU"
+weights = ["git:src/burotu/models/classic/assets"]
+report = "reports/baseline.json"
+
+[[model]]
+id = "logreg"
+name = "Logistic regressions"
+version = "20-tissues-2026-10-29"
+role = "cross-check"
+status = "live"
+family = "Bagged L2 logistic regressions (8 for the signal, 8 for the tissue), GRAIL-style"
+inputs = "3,148 binomial z-scores + 3 summary features, standardised"
+trained_on = "fit cohort: 14,000 simulated plasma samples"
+runs_on = "tracking server, CPU (numpy only)"
+weights = ["git:src/burotu/models/logreg/assets"]
+report = "reports/logreg.json"
+
+[[model]]
+id = "glimmer"
+name = "Muse Glimmer v5"
+version = "glimmer-v5"
+role = "tissue"            # names the reported tissue
+status = "live"
+family = "Meta Muse Glimmer 30B (open weights, Apache-2.0), 4-bit, + methylation adapter (16 soft tokens) + QLoRA r16"
+base_model = "meta-models/Muse-Glimmer-30B@a4e59da52a7bc87ae7251dd5545c0dd437c44b68"
+inputs = "3,148 binomial z-scores + 3 summary features"
+trained_on = "fit_mix cohort: 32,000 simulated plasma samples, half the healthy backgrounds pseudo-donors"
+runs_on = "Modal GPU (L40S), scales to zero"
+weights = ["hf:zoukmar75/burotu-glimmer", "modal:burotu-runs/glimmer-v5"]
+report = "reports/muse_glimmer-v5.json"
+
+[[model]]
+id = "cpgpt"
+name = "CpGPT"
+version = "large + heads"
+role = "cross-check"
+status = "training"
+family = "CpGPT large (methylation foundation model, ~100M parameters, MIT), frozen, + two LightGBM heads"
+base_model = "lucascamillomd/cpgpt-models:large"
+inputs = "3,148 beta values + Nucleotide Transformer v2 embeddings of each site's DNA"
+trained_on = "pre-trained by its authors on 150,000+ arrays; heads on the fit cohort (14,000 samples)"
+runs_on = "Modal GPU (L4); heads on the tracking server"
+weights = ["hf:lucascamillomd/cpgpt-models", "git:src/burotu/models/cpgpt/assets"]
+report = "reports/cpgpt.json"
+
+[[model]]
+id = "consensus"
+name = "Consensus"
+version = "1"
+role = "cross-check"
+status = "live"
+family = "Vote over the models present: signals raised, most-named tissue"
+inputs = "the other models' answers"
+trained_on = "nothing"
+runs_on = "tracking server"
+weights = []
+report = ""
+
+[[model]]
+id = "spark"
+name = "Muse Spark 1.3"
+version = "muse-spark-1.3"
+role = "writer"            # letters, Q&A, lab notes; never decides
+status = "live"
+family = "Meta language model through the Meta Model API"
+inputs = "the facts of one result (never the raw data)"
+trained_on = "not trained by Burotu"
+runs_on = "Meta Model API"
+weights = []
+report = ""

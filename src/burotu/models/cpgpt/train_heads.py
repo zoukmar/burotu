@@ -1,6 +1,6 @@
 """Train Burotu's two heads on frozen CpGPT embeddings, and score them like every other model.
 
-    python scripts/train_cpgpt_heads.py cpgpt_out/   (embeddings.npz + embeddings_meta.json)
+    python -m burotu.models.cpgpt.train_heads cpgpt_out/   (embeddings.npz + embeddings_meta.json)
 
 The embeddings come from `modal run scripts/modal_muse.py::cpgpt_benchmark` (Train Muse
 workflow, task "cpgpt"): CpGPT `large`, frozen, on the fit / calibration / test cohorts,
@@ -21,12 +21,12 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from burotu import benchmark
-from burotu.benchmark import TARGET_SPECIFICITY
 from burotu.config import HEALTHY, ROOT
-from burotu.model.baseline import LGB_PARAMS
+from burotu.evaluation import benchmark
+from burotu.evaluation.benchmark import TARGET_SPECIFICITY
+from burotu.models.classic.model import LGB_PARAMS
 
-OUT = ROOT / "src" / "burotu" / "analysis" / "assets" / "cpgpt"
+OUT = Path(__file__).resolve().parent / "assets"
 
 
 def main(src: Path) -> None:

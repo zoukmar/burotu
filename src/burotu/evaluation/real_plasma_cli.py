@@ -1,16 +1,16 @@
 """Re-run the real plasma check on the saved baseline and update reports/baseline.json.
 
-python scripts/eval_real_plasma.py   (after scripts/train_baseline.py)
+python -m burotu.evaluation.real_plasma_cli   (after python -m burotu.models.classic.train)
 """
 
 from __future__ import annotations
 
 import json
 
-from burotu import realplasma
 from burotu.config import ROOT
 from burotu.data.reference import Reference
-from burotu.model.baseline import BaselineModel
+from burotu.evaluation import realplasma
+from burotu.models.classic.model import BaselineModel
 
 
 def main() -> None:

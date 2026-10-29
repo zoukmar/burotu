@@ -9,7 +9,7 @@
 Usually launched from GitHub Actions ("Train Muse" and "Deploy Muse" workflows), which
 hold the Modal token. The base model is cached in a Modal volume after the first
 download; adapter and LoRA weights and every report are kept in the `burotu-runs` volume.
-The served API (burotu.muse.serve) needs the `burotu-muse` Modal secret, holding
+The served API (burotu.models.glimmer.serve) needs the `burotu-muse` Modal secret, holding
 BUROTU_MUSE_TOKEN, the same bearer token admin.burotu.com sends.
 """
 
@@ -24,6 +24,7 @@ import modal
 ROOT = Path(__file__).resolve().parents[1]
 GPU = os.environ.get("BUROTU_GPU", "L40S")  # 48 GB: enough for Glimmer 30B in 4-bit
 RUN = os.environ.get("BUROTU_MUSE_RUN", "glimmer")  # run served by `modal deploy`
+CPGPT_ON = os.environ.get("BUROTU_CPGPT", "0")  # "1": the served API also runs CpGPT (once its heads exist)
 
 image = (
     modal.Image.debian_slim(python_version="3.12")
@@ -103,7 +104,7 @@ def download(model: str, revision: str) -> str:
 
 @app.function(gpu=GPU, volumes={"/runs": runs, "/cache": hf_cache}, timeout=6 * 3600, memory=32768)
 def train(args: dict) -> dict:
-    from burotu.muse.train import TrainConfig, run
+    from burotu.models.glimmer.train import TrainConfig, run
 
     cfg = TrainConfig(**args)
     cfg.out = f"/runs/{cfg.out}"
@@ -120,7 +121,7 @@ def train(args: dict) -> dict:
 def diagnose(name: str) -> dict:
     from pathlib import Path
 
-    from burotu.muse.diagnose import run as diagnose_run_dir
+    from burotu.models.glimmer.diagnose import run as diagnose_run_dir
 
     return diagnose_run_dir(Path(f"/runs/{name}"))
 
@@ -129,10 +130,10 @@ def _cpgpt_reader():
     """Download CpGPT (weights + the human DNA embeddings) once into the cache volume, keep the panel's slice."""
     from huggingface_hub import hf_hub_download, snapshot_download
 
-    from burotu.analysis.engines import ASSETS
-    from burotu.cpgpt_reader import DEPS_REPO, MODEL_REPO, CpGPTReader, prepare_panel
+    from burotu.models.base import panel as base_panel
+    from burotu.models.cpgpt.reader import DEPS_REPO, MODEL_REPO, CpGPTReader, prepare_panel
 
-    panel = json.loads((ASSETS / "baseline" / "meta.json").read_text())["panel"]
+    panel = base_panel()
     config = Path(hf_hub_download(MODEL_REPO, f"config/{CPGPT_MODEL}.yaml"))
     ckpt = Path(hf_hub_download(MODEL_REPO, f"weights/{CPGPT_MODEL}.ckpt"))
     assets = Path(f"/runs/cpgpt/panel_{len(panel)}.npz")
@@ -154,9 +155,9 @@ def cpgpt_embed_benchmark() -> dict:
     import numpy as np
     import pandas as pd
 
-    from burotu import benchmark, realplasma
-    from burotu.cpgpt_reader import beta_from_counts
     from burotu.data.reference import Reference
+    from burotu.evaluation import benchmark, realplasma
+    from burotu.models.cpgpt.reader import beta_from_counts
 
     reader = _cpgpt_reader()
     ref = Reference.load()
@@ -200,7 +201,7 @@ methylation profile: a methylation adapter (3,148 CpG sites -> 16 soft tokens) a
 (rank 16), trained in two stages on simulated plasma (TCGA tumours mixed into healthy blood).
 The base model is not included: load it from `meta-models/Muse-Glimmer-30B` (revision
 `a4e59da52a7bc87ae7251dd5545c0dd437c44b68`, 4-bit nf4) and apply these weights with the code in
-[github.com/zoukmar/burotu](https://github.com/zoukmar/burotu) (`burotu.muse`).
+[github.com/zoukmar/burotu](https://github.com/zoukmar/burotu) (`burotu.models.glimmer`).
 
 **Research prototype, not a medical device.** Trained and tested on simulated data; the tests on
 real plasma are small sanity checks.
@@ -268,27 +269,31 @@ if SERVE:
         gpu=GPU,
         volumes={"/runs": runs, "/cache": hf_cache},
         # The run name travels as a secret: image.env() after add_local_dir would force a rebuild step.
-        secrets=[modal.Secret.from_name("burotu-muse"), modal.Secret.from_dict({"BUROTU_MUSE_RUN": RUN})],
+        secrets=[
+            modal.Secret.from_name("burotu-muse"),
+            modal.Secret.from_dict({"BUROTU_MUSE_RUN": RUN, "BUROTU_CPGPT": CPGPT_ON}),
+        ],
         scaledown_window=15 * 60,  # stay warm through a demo, then scale to zero
         timeout=600,
     )
     class Detector:
         @modal.enter()
         def load(self) -> None:
-            from burotu.muse.serve import MuseService
+            from burotu.models.glimmer.serve import MuseService
 
             self.service = MuseService(f"/runs/{os.environ['BUROTU_MUSE_RUN']}")
 
         @modal.asgi_app(label="burotu-muse")
         def web(self):
-            from burotu.muse.serve import make_app
+            from burotu.models.glimmer.serve import make_app
 
             def cpgpt(meth, total):
                 """Start CpGPT on its own GPU while Glimmer reads the sample; returns a waiter."""
                 call = CpGPTEmbedder().embed.spawn(meth.tolist(), total.tolist())
                 return lambda: {"cpgpt_embedding": call.get(timeout=300)}
 
-            return make_app(self.service, os.environ["BUROTU_MUSE_TOKEN"], extra=cpgpt)
+            extra = cpgpt if os.environ.get("BUROTU_CPGPT") == "1" else None
+            return make_app(self.service, os.environ["BUROTU_MUSE_TOKEN"], extra=extra)
 
     @app.cls(
         image=cpgpt_image,
@@ -306,7 +311,7 @@ if SERVE:
         def embed(self, meth: list[int], total: list[int]) -> list[float]:
             import numpy as np
 
-            from burotu.cpgpt_reader import beta_from_counts
+            from burotu.models.cpgpt.reader import beta_from_counts
 
             beta = beta_from_counts(np.asarray([meth]), np.asarray([total]))
             return self.reader.embed(beta)[0].round(5).tolist()

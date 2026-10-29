@@ -7,10 +7,12 @@ from datetime import datetime
 from functools import lru_cache
 
 from burotu.analysis import qc as qc_mod
-from burotu.analysis.consensus import consensus
-from burotu.analysis.engines import BaselineEngine, LogRegEngine, MuseEngine
 from burotu.analysis.report import write_reports
-from burotu.labformat import LabSample
+from burotu.core.labformat import LabSample
+from burotu.models.classic.engine import BaselineEngine
+from burotu.models.consensus.model import consensus
+from burotu.models.glimmer.engine import MuseEngine
+from burotu.models.logreg.engine import LogRegEngine
 
 
 @lru_cache(maxsize=1)

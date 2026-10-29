@@ -9,7 +9,12 @@ on:
     inputs:
       run_name:
         description: Trained run to serve (the run_name used in Train Muse)
-        default: glimmer
+        default: glimmer-v5
+      cpgpt:
+        description: Also run CpGPT on each request (needs its heads in src/burotu/models/cpgpt/assets)
+        type: choice
+        options: ["0", "1"]
+        default: "0"
       gpu:
         description: Modal GPU
         type: choice
@@ -53,6 +58,7 @@ jobs:
         env:
           BUROTU_GPU: ${{ inputs.gpu }}
           BUROTU_MUSE_RUN: ${{ inputs.run_name }}
+          BUROTU_CPGPT: ${{ inputs.cpgpt }}
           BUROTU_MUSE_SERVE: "1"
         run: modal deploy scripts/modal_muse.py | tee deploy.log
 

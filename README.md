@@ -145,7 +145,7 @@ measured on methylation arrays rather than sequencing. Healthy plasma is not pur
 background every sample crosses the threshold. A lab fixes this the way it calibrates any new
 assay: with healthy controls. Re-estimating the background from the healthy samples, always
 leaving out the donor being scored, with the same model and threshold
-([realplasma.py](src/burotu/realplasma.py)):
+([realplasma.py](src/burotu/evaluation/realplasma.py)):
 
 | Real plasma (Moss et al.) | AUC | Healthy flagged | Cancers detected | Origin correct |
 | --- | --- | --- | --- | --- |
@@ -214,7 +214,7 @@ training code runs on CPU with a tiny random Glimmer, for tests and smoke runs:
 
 ```bash
 pip install -e ".[dev,muse]"
-python -m burotu.muse.train --model tiny --steps 30 --eval-stride 20
+python -m burotu.models.glimmer.train --model tiny --steps 30 --eval-stride 20
 ```
 
 **Open weights.** Our trained Muse Glimmer weights (methylation adapter + QLoRA, not the base
@@ -224,7 +224,7 @@ for how to load them on top of `meta-models/Muse-Glimmer-30B`. **Actions → Tra
 `publish`** uploads a run (`HF_TOKEN` secret, Hugging Face repo in `extra`).
 
 Once trained, **Actions → Deploy Muse** serves the run on a Modal GPU behind an authenticated API
-([serve.py](src/burotu/muse/serve.py), scales to zero when idle; needs a `BUROTU_MUSE_TOKEN`
+([serve.py](src/burotu/models/glimmer/serve.py), scales to zero when idle; needs a `BUROTU_MUSE_TOKEN`
 secret). Setting `BUROTU_MUSE_URL`, `BUROTU_MUSE_TOKEN` and `BUROTU_MUSE_ROLE=origin` on the
 server makes the tracking site take the tissue of origin from Muse Glimmer (`full` would also
 take the cancer signal from it). Run reports: [`reports/muse_glimmer-v5.json`](reports/muse_glimmer-v5.json)
@@ -240,13 +240,30 @@ lists every command.
 ## Repository
 
 ```
-src/burotu/        pipeline: data, panel, cfDNA simulator, benchmark, models, Muse reader, Meta client
-src/burotu_web/    burotu.com (one-pager) and admin.burotu.com (tracking)
-tests/             pipeline, models, site, booking, tracking, security
-deploy/            production compose, Caddy block, deploy script
-docs/              architecture, data and method, deployment
-.github/workflows  CI (lint, tests, image) and continuous deployment
+src/burotu/
+├── core/            lab file format (burotu-bmc), features (binomial z-scores)
+├── data/            sources (GDC, GEO, open plasma sets), reference panel, cfDNA simulator
+├── models/          one package per model + registry.toml (see models/README.md)
+│   ├── classic/     gradient-boosted trees · decides the signal · weights in git
+│   ├── logreg/      logistic-regression ensembles (GRAIL-style) · cross-check · weights in git
+│   ├── glimmer/     Muse Glimmer 30B + methylation adapter + QLoRA · names the tissue · HF + Modal
+│   ├── cpgpt/       CpGPT foundation model + Burotu heads · cross-check · HF + Modal
+│   └── consensus/   vote over the models present
+├── evaluation/      frozen benchmark, real-plasma checks (Moss 2018, open GEO sets)
+├── analysis/        the pipeline for one sample: QC → models → consensus → letters, Q&A, PDF
+└── llm/             Meta Model API client (Muse Spark)
+src/burotu_web/      burotu.com (site) and admin.burotu.com (tracking, map of models and data)
+scripts/             Modal app (train, serve, CpGPT, publish), demo lab files
+reports/             one JSON report per trained run
+data/                processed panel data and open plasma sets (raw downloads stay local)
+tests/ deploy/ docs/ .github/workflows/
 ```
+
+Each model package has the same shape: a model card (`README.md`), `model.py`, `train.py`,
+`engine.py` (`analyse(sample) -> Detection`, the only thing the pipeline calls) and `assets/`.
+[`models/registry.toml`](src/burotu/models/registry.toml) is the single list of models, their
+versions, roles, and where their weights live; the admin map page reads it. A new model is a
+new package plus a registry entry, scored by the same evaluation code on the same benchmark.
 
 Every push to `main` runs the tests, publishes `ghcr.io/zoukmar/burotu-web:<sha>` and deploys it,
 with automatic rollback if the site does not answer. See [docs/deployment.md](docs/deployment.md).

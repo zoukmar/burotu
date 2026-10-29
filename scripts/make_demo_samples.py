@@ -9,9 +9,9 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from burotu.core.labformat import write_lab_file
 from burotu.data.reference import Reference
-from burotu.labformat import write_lab_file
-from burotu.simulate.cfdna import SimConfig, simulate_cohort
+from burotu.data.simulate import SimConfig, simulate_cohort
 
 
 def main() -> None:

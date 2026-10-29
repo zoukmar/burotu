@@ -1,6 +1,6 @@
 """Why does a Muse run score every sample the same? A few minutes of GPU instead of a full run.
 
-    python -m burotu.muse.diagnose --run runs/glimmer          (locally, tiny model)
+    python -m burotu.models.glimmer.diagnose --run runs/glimmer          (locally, tiny model)
     modal run scripts/modal_muse.py::diagnose_run --name glimmer
 
 On a handful of test samples (healthy, and cancers at 10% tumour DNA) it reports:
@@ -19,12 +19,12 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from burotu import benchmark
 from burotu.config import HEALTHY
+from burotu.core.features import Featurizer
 from burotu.data.reference import Reference
-from burotu.model.features import Featurizer
-from burotu.muse.reader import MethylationAdapter, MuseReader
-from burotu.muse.train import TrainConfig, load_lm
+from burotu.evaluation import benchmark
+from burotu.models.glimmer.reader import MethylationAdapter, MuseReader
+from burotu.models.glimmer.train import TrainConfig, load_lm
 
 
 def _spread(t: torch.Tensor) -> float:
@@ -59,7 +59,7 @@ def run(run_dir: Path, n: int = 16) -> dict:
 
     lm, tok = load_lm(cfg)
     classes = meta["classes"] if meta else sorted(set(test.labels) - {HEALTHY})
-    from burotu.muse.train import adapter_kwargs
+    from burotu.models.glimmer.train import adapter_kwargs
 
     reader = MuseReader(lm, tok, x.shape[1], classes, n_tokens=cfg.n_tokens, adapter_kwargs=adapter_kwargs(cfg))
     fresh = MethylationAdapter(x.shape[1], reader.adapter.d_model, cfg.n_tokens, **adapter_kwargs(cfg))
