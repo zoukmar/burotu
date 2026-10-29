@@ -32,7 +32,7 @@ on:
         default: L40S
 
 concurrency:
-  group: train-muse
+  group: train-muse-${{ inputs.task }}
   cancel-in-progress: false
 
 permissions:
