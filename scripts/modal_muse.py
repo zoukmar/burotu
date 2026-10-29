@@ -187,6 +187,62 @@ def cpgpt_benchmark() -> None:
     print(json.dumps(cpgpt_embed_benchmark.remote(), indent=2))
 
 
+MODEL_CARD = """---
+license: apache-2.0
+base_model: meta-models/Muse-Glimmer-30B
+tags: [dna-methylation, cfdna, liquid-biopsy, qlora, peft, burotu]
+---
+
+# Burotu methylation reader for Muse Glimmer 30B ({run})
+
+Trainable weights that teach Meta's open-weight **Muse Glimmer 30B** to read a cell-free DNA
+methylation profile: a methylation adapter (3,148 CpG sites -> 16 soft tokens) and QLoRA weights
+(rank 16), trained in two stages on simulated plasma (TCGA tumours mixed into healthy blood).
+The base model is not included: load it from `meta-models/Muse-Glimmer-30B` (revision
+`a4e59da52a7bc87ae7251dd5545c0dd437c44b68`, 4-bit nf4) and apply these weights with the code in
+[github.com/zoukmar/burotu](https://github.com/zoukmar/burotu) (`burotu.muse`).
+
+**Research prototype, not a medical device.** Trained and tested on simulated data; the tests on
+real plasma are small sanity checks.
+
+| Tumour DNA in plasma (20 tissue types, held-out people and tumours) | 0.3% | 1% | 3% | 10% |
+| --- | --- | --- | --- | --- |
+| Tissue of origin right first time | 15% | 60% | 88% | 92% |
+
+Files: `trainable.pt` (adapter + LoRA), `serving.json` (panel, classes, threshold, adapter
+settings), `mu.npy` (healthy background per CpG), `report.json` (full benchmark).
+Built for the Meta Global AI Developer Hackathon (2026).
+"""
+
+
+@app.function(volumes={"/runs": runs}, timeout=3600)
+def publish_hf(run: str, repo_id: str, token: str) -> str:
+    """Upload a trained run's own weights (not the base model) to a Hugging Face model repo."""
+    import shutil
+    import tempfile
+
+    from huggingface_hub import HfApi
+
+    src = Path(f"/runs/{run}")
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d)
+        for name in ("trainable.pt", "serving.json", "mu.npy"):
+            shutil.copy(src / name, out / name)
+        if (src / "report.json").exists():
+            shutil.copy(src / "report.json", out / "report.json")
+        (out / "README.md").write_text(MODEL_CARD.format(run=run))
+        api = HfApi(token=token)
+        api.create_repo(repo_id, repo_type="model", exist_ok=True)
+        api.upload_folder(folder_path=str(out), repo_id=repo_id, commit_message=f"Burotu {run}")
+    return f"https://huggingface.co/{repo_id}"
+
+
+@app.local_entrypoint()
+def publish(run: str = "glimmer-v5", repo_id: str = "") -> None:
+    """HF_TOKEN=... modal run scripts/modal_muse.py::publish --run glimmer-v5 --repo-id user/name"""
+    print(publish_hf.remote(run, repo_id, os.environ["HF_TOKEN"]))
+
+
 @app.local_entrypoint()
 def diagnose_run(name: str = "glimmer") -> None:
     """modal run scripts/modal_muse.py::diagnose_run --name glimmer"""
