@@ -20,6 +20,7 @@ RUNS = (
     {"id": "glimmer-v1", "file": "muse_glimmer-v1.json", "kind": "meta", "role": "failed"},
     {"id": "glimmer-v2", "file": "muse_glimmer-v2.json", "kind": "meta", "role": "tissue"},
     {"id": "glimmer-v3", "file": "muse_glimmer-v3.json", "kind": "meta", "role": "experiment"},
+    {"id": "glimmer-v4", "file": "muse_glimmer-v4.json", "kind": "meta", "role": "experiment"},
 )
 
 
@@ -155,12 +156,14 @@ TEXT = {
             "glimmer-v1": "Muse Glimmer v1: adapter and LoRA trained together",
             "glimmer-v2": "Muse Glimmer v2: adapter first, then LoRA",
             "glimmer-v3": "Muse Glimmer v3: smaller, regularised adapter",
+            "glimmer-v4": "Muse Glimmer v4: pseudo-donors (mixes of real donors)",
         },
         "run_notes": {
             "baseline": "Raises the alarm in Burotu.",
             "glimmer-v1": "Learned the answer format, not the sample: the same answer for everyone.",
             "glimmer-v2": "Names the tissue in Burotu: best at low tumour DNA.",
             "glimmer-v3": "Fewer healthy people flagged, but too few signals found.",
+            "glimmer-v4": "Best Glimmer alarm so far (42% of signals found at 1%), still below the classic model.",
         },
         "plasma": "Real patient plasma",
         "plasma_text": "On 27 real samples measured on arrays, against the whole-blood background every sample "
@@ -256,12 +259,14 @@ TEXT = {
             "glimmer-v1": "Muse Glimmer v1 : adaptateur et LoRA entraînés ensemble",
             "glimmer-v2": "Muse Glimmer v2 : l'adaptateur d'abord, puis LoRA",
             "glimmer-v3": "Muse Glimmer v3 : adaptateur réduit et régularisé",
+            "glimmer-v4": "Muse Glimmer v4 : pseudo-donneurs (mélanges de vrais donneurs)",
         },
         "run_notes": {
             "baseline": "Donne l'alarme dans Burotu.",
             "glimmer-v1": "A appris le format de la réponse, pas l'échantillon : la même réponse pour tous.",
             "glimmer-v2": "Désigne le tissu dans Burotu : le meilleur à faible dose.",
             "glimmer-v3": "Moins de personnes saines signalées, mais trop peu de signaux trouvés.",
+            "glimmer-v4": "Meilleure alarme Glimmer à ce jour (42 % des signaux trouvés à 1 %), encore sous le modèle classique.",
         },
         "plasma": "Plasma de vrais patients",
         "plasma_text": "Sur 27 vrais échantillons mesurés sur puces, face au bruit de fond du sang total, tous "
@@ -361,12 +366,14 @@ TEXT = {
             "glimmer-v1": "Muse Glimmer v1: adaptador y LoRA entrenados a la vez",
             "glimmer-v2": "Muse Glimmer v2: primero el adaptador, luego LoRA",
             "glimmer-v3": "Muse Glimmer v3: adaptador reducido y regularizado",
+            "glimmer-v4": "Muse Glimmer v4: pseudodonantes (mezclas de donantes reales)",
         },
         "run_notes": {
             "baseline": "Da la alarma en Burotu.",
             "glimmer-v1": "Aprendió el formato de la respuesta, no la muestra: la misma respuesta para todos.",
             "glimmer-v2": "Indica el tejido en Burotu: el mejor con poco ADN tumoral.",
             "glimmer-v3": "Menos personas sanas señaladas, pero demasiado pocas señales encontradas.",
+            "glimmer-v4": "La mejor alarma de Glimmer hasta ahora (42 % de señales encontradas al 1 %), aún por debajo del modelo clásico.",
         },
         "plasma": "Plasma de pacientes reales",
         "plasma_text": "En 27 muestras reales medidas con chips, frente al fondo de la sangre total todas parecían "

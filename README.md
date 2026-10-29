@@ -119,9 +119,11 @@ tumour DNA. For the alarm itself it ranks samples almost as well (AUC 0.97 to 0.
 not hold 99.5% specificity on new people: trained on 80 blood donors, it also learned each
 donor's background, so some healthy people it never saw score like cancers (their median score
 ranges from -21 to +23 depending on the donor). A smaller, regularised adapter narrows the gap
-(99.9% specificity, 26% of cancers caught at 1%, 37% at 3%) without closing it. Burotu therefore
-uses each model for what it does best: the benchmark classifier raises the alarm, Muse Glimmer
-names the tissue. More blood donors, or pseudo-donors mixed from real ones, is the next step.
+(99.9% specificity, 26% of cancers caught at 1%, 37% at 3%), and training on pseudo-donors
+(half the healthy backgrounds mixed from 2-3 real donors) narrows it further (99.7% specificity,
+42% at 1%, 49% at 3%), without closing it. Burotu therefore uses each model for what it does best:
+the benchmark classifier raises the alarm, Muse Glimmer names the tissue. More real blood donors
+is the next step. Reports: [`reports/`](reports/) (`muse_glimmer-v1` to `v4`).
 
 **Real patient plasma.** 27 cell-free DNA samples from Moss et al. (12 healthy, 15 cancer),
 measured on methylation arrays rather than sequencing. Healthy plasma is not pure blood
@@ -236,7 +238,8 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [x] Lab-file analysis in the tracking site, with a GPU serving API for the fine-tuned model
 - [x] Full QLoRA fine-tuning of Muse Glimmer 30B on Modal (two stages)
 - [x] Muse Glimmer vs benchmark on the same held-out data: better tissue of origin at low tumour DNA
-- [ ] Muse Glimmer for the alarm too: donor-robust training (pseudo-donors, more donors)
+- [x] Donor-robust training with pseudo-donors (Glimmer alarm from 1% to 42% of signals at 1%)
+- [ ] Muse Glimmer for the alarm too: more real blood donors
 - [x] Muse Spark: patient letters (EN/FR/ES, signal only), lab notes on failed quality control, Q&A on a result
 - [x] Background calibration on real patient plasma (healthy controls)
 - [ ] Validation on a large real plasma cohort, sequenced
