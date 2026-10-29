@@ -51,6 +51,9 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
         else:
             detection = models["classic"]
     reports = write_reports(quality, detection)
+    from burotu.analysis.qa import qc_notes
+
+    notes_for_lab = qc_notes(quality)
     return {
         "sample_id": sample.sample_id,
         "lab": sample.header.get("lab", ""),
@@ -61,4 +64,5 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
         "reports": reports,
         "report": reports.get(lang, reports["en"]),
         "notes": notes,
+        "qc_notes": notes_for_lab,
     }

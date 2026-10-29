@@ -237,7 +237,7 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [x] Full QLoRA fine-tuning of Muse Glimmer 30B on Modal (two stages)
 - [x] Muse Glimmer vs benchmark on the same held-out data: better tissue of origin at low tumour DNA
 - [ ] Muse Glimmer for the alarm too: donor-robust training (pseudo-donors, more donors)
-- [ ] Muse Spark quality control, patient report and Q&A
+- [x] Muse Spark: patient letters (EN/FR/ES, signal only), lab notes on failed quality control, Q&A on a result
 - [x] Background calibration on real patient plasma (healthy controls)
 - [ ] Validation on a large real plasma cohort, sequenced
 - [ ] From 8 to 50 cancer types

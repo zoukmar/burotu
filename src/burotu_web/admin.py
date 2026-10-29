@@ -143,6 +143,7 @@ def booking_detail(request: Request, ref: str):
         events=db.events(ref),
         analysis=db.latest_analysis(ref),
         followup=db.patient_analyses(b["email"]),
+        questions=db.questions(ref),
         letter_lang=letter if letter in ADMIN_LANGS else "en",
         demo_samples=demo_samples(),
         error=request.query_params.get("error"),
@@ -282,6 +283,32 @@ async def booking_analyse(
         verdict = "Signal detected" if detection["cancer_signal"] else "No signal detected"
         db.set_status(ref, "analysed", f"{verdict} ({detection['engine_label']}).", actor=user)
     return RedirectResponse(f"/bookings/{ref}#lab", status_code=303)
+
+
+@router.post("/bookings/{ref}/ask")
+async def booking_ask(
+    request: Request,
+    ref: str,
+    csrf: str = Form(""),
+    question: str = Form(""),
+    lang: str = Form("en"),
+    audience: str = Form("patient"),
+):
+    """A question about the latest result, answered by Muse Spark from that result only."""
+    user = require_admin(request)
+    check_csrf(request, csrf)
+    db = request.app.state.db
+    analysis = db.latest_analysis(ref)
+    question = question.strip()
+    if analysis is None or not question:
+        return RedirectResponse(f"/bookings/{ref}#ask", status_code=303)
+    from burotu.analysis.qa import AUDIENCES, MAX_QUESTION, answer
+
+    lang = lang if lang in ADMIN_LANGS else "en"
+    audience = audience if audience in AUDIENCES else "patient"
+    result = await run_in_threadpool(answer, analysis, question, lang, audience)
+    db.add_question(ref, lang, audience, question[:MAX_QUESTION], result, user)
+    return RedirectResponse(f"/bookings/{ref}#ask", status_code=303)
 
 
 @router.post("/bookings/{ref}/status")
