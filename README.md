@@ -218,7 +218,8 @@ python -m burotu.muse.train --model tiny --steps 30 --eval-stride 20
 ```
 
 **Open weights.** Our trained Muse Glimmer weights (methylation adapter + QLoRA, not the base
-model) are published on Hugging Face under Apache 2.0, like the base model: see the model card
+model) are published on Hugging Face under Apache 2.0, like the base model:
+[huggingface.co/zoukmar75/burotu-glimmer](https://huggingface.co/zoukmar75/burotu-glimmer). See the model card
 for how to load them on top of `meta-models/Muse-Glimmer-30B`. **Actions → Train Muse → task
 `publish`** uploads a run (`HF_TOKEN` secret, Hugging Face repo in `extra`).
 
