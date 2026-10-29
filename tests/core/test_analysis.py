@@ -93,3 +93,47 @@ def test_answer_text_handles_parts_and_empty_answers():
     assert _answer_text(parts) == "Bonjour"
     with pytest.raises(ValueError, match="finish_reason=length"):
         _answer_text({"choices": [{"message": {"content": None}, "finish_reason": "length"}]})
+
+
+def _analysis():
+    return analyse(read_lab_file(DEMO / "BRT-DEMO-02.tsv"), "en")
+
+
+def test_question_is_answered_from_the_result_only():
+    from burotu.analysis.qa import answer
+    from burotu.llm.client import MetaClient
+
+    seen = {}
+
+    def handler(messages):
+        seen["payload"] = messages[-1]["content"]
+        return "The signal most resembles tissue from the colon and rectum. Your doctor decides what comes next."
+
+    out = answer(_analysis(), "What does this mean?", "en", client=MetaClient(mock=True, mock_handler=handler))
+    assert out["text"].startswith("The signal") and "colon and rectum" in seen["payload"]
+    assert "cancer" not in seen["payload"].lower()
+
+
+def test_an_answer_naming_a_disease_is_rewritten_then_replaced():
+    from burotu.analysis.qa import FALLBACK, answer
+    from burotu.llm.client import MetaClient
+
+    calls = []
+
+    def always_bad(messages):
+        calls.append(1)
+        return "You may have colorectal cancer."
+
+    out = answer(_analysis(), "Is it cancer?", "fr", client=MetaClient(mock=True, mock_handler=always_bad))
+    assert len(calls) == 2 and out["text"] == FALLBACK["fr"]
+
+
+def test_offline_answers_and_lab_notes_fall_back(monkeypatch):
+    from burotu.analysis.qa import FALLBACK, answer, qc_notes
+
+    monkeypatch.delenv("MODEL_API_KEY", raising=False)
+    assert answer(_analysis(), "Hello?", "es")["text"] == FALLBACK["es"]
+    failed = analyse(read_lab_file(DEMO / "BRT-DEMO-08.tsv"), "en")
+    notes = failed["qc_notes"]
+    assert set(notes) == {"en", "fr", "es"} and "re-sequence" in notes["en"]["text"]
+    assert qc_notes({"status": "pass"}) == {}

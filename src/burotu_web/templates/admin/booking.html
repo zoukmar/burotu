@@ -36,6 +36,9 @@
         <div><dt>{{ _("Low-depth sites") }}</dt><dd>{{ '%.1f' % (q.low_depth_share * 100) }}%</dd></div>
       </dl>
       {% for issue in qc_findings(q, alang) %}<p class="small muted">{{ issue[:1]|upper }}{{ issue[1:] }}.</p>{% endfor %}
+      {% if analysis.qc_notes and analysis.qc_notes.get(alang) %}{% set qn = analysis.qc_notes[alang] %}
+      <div class="qc-note"><p class="lab-label">{{ _("Lab note") }}</p><p class="small">{{ qn.text }}</p><p class="small muted">{{ _("By Muse Spark") if qn.author.lower().startswith('muse') else _("Standard wording") }}</p></div>
+      {% endif %}
     </div>
 
     <div>
@@ -110,6 +113,29 @@
       {% else %}{{ _("Written from a fixed template ({why}).", why=r.author[10:-1]) }}{% endif %}
       · {{ _("Patient's language") }}: {{ b.lang|upper }}
     </p>
+  </div>
+  <div class="ask" id="ask">
+    <p class="lab-label">{{ _("Ask Muse Spark about this result") }}</p>
+    <form class="ask-form" method="post" action="/bookings/{{ b.ref }}/ask">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <label class="field wide">{{ _("Question from the patient or the doctor") }}<textarea name="question" rows="2" maxlength="600" required placeholder="{{ _('For example: What does colon and rectum mean? Should I repeat the test?') }}"></textarea></label>
+      <div class="ask-opts">
+        <label class="field">{{ _("Answer for") }}<select name="audience"><option value="patient">{{ _("the patient") }}</option><option value="doctor">{{ _("the doctor") }}</option></select></label>
+        <label class="field">{{ _("Language") }}<select name="lang">{% for l in ADMIN_LANGS %}<option value="{{ l }}"{% if l == b.lang %} selected{% endif %}>{{ l|upper }}</option>{% endfor %}</select></label>
+        <button class="btn btn-small" type="submit">{{ _("Ask") }}</button>
+      </div>
+    </form>
+    {% if questions %}
+    <ol class="qa">
+      {% for qa in questions %}
+      <li>
+        <p class="qa-q"><span class="badge">{{ _("the patient") if qa.audience == 'patient' else _("the doctor") }} · {{ qa.lang|upper }}</span> {{ qa.question }}</p>
+        <blockquote lang="{{ qa.lang }}">{{ qa.answer }}</blockquote>
+        <p class="small muted">{{ _("Written by Muse Spark (Meta Model API).") if qa.author.lower().startswith('muse') else _("Automatic answer unavailable: standard sentence.") }} · {{ qa.at.replace('T', ' ')[:16] }}, {{ _("by {who}", who=qa.actor) }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+    {% endif %}
   </div>
   {% for n in analysis.notes %}<p class="small muted">{{ n }}</p>{% endfor %}
   {% if analysis.ground_truth %}

@@ -67,6 +67,18 @@ CREATE TABLE IF NOT EXISTS analyses (
     actor TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS ix_analyses_booking ON analyses(booking_id);
+CREATE TABLE IF NOT EXISTS questions (
+    id INTEGER PRIMARY KEY,
+    booking_id INTEGER NOT NULL REFERENCES bookings(id),
+    at TEXT NOT NULL,
+    lang TEXT NOT NULL,
+    audience TEXT NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    author TEXT NOT NULL,
+    actor TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_questions_booking ON questions(booking_id);
 """
 
 DEMO_SITES = [
@@ -308,6 +320,25 @@ class Database:
                 (ref,),
             ).fetchone()
         return None if row is None else {"at": row["at"], "actor": row["actor"], **json.loads(row["result_json"])}
+
+    def add_question(self, ref: str, lang: str, audience: str, question: str, answer: dict, actor: str) -> None:
+        with self.connect() as con:
+            row = con.execute("SELECT id FROM bookings WHERE ref=?", (ref,)).fetchone()
+            if row is None:
+                raise KeyError(ref)
+            con.execute(
+                """INSERT INTO questions(booking_id, at, lang, audience, question, answer, author, actor)
+                   VALUES (?,?,?,?,?,?,?,?)""",
+                (row["id"], _now(), lang, audience, question, answer["text"], answer["author"], actor),
+            )
+
+    def questions(self, ref: str) -> list[sqlite3.Row]:
+        with self.connect() as con:
+            return con.execute(
+                """SELECT q.* FROM questions q JOIN bookings b ON b.id=q.booking_id
+                   WHERE b.ref=? ORDER BY q.id DESC LIMIT 30""",
+                (ref,),
+            ).fetchall()
 
     def patient_analyses(self, email: str, limit: int = 20) -> list[dict]:
         """Every analysis for this patient (same email, any booking), newest first, summarised."""

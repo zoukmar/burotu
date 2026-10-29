@@ -144,3 +144,13 @@ def test_models_page_lists_every_run(logged_admin):
     assert r.status_code == 200
     for name in ("Muse Glimmer v1", "Muse Glimmer v2", "Muse Glimmer v3", "Shield", "Galleri"):
         assert name in r.text
+
+
+def test_ask_a_question_about_the_result(public, logged_admin):
+    ref = _ref(public)
+    token = csrf(logged_admin, f"/bookings/{ref}")
+    logged_admin.post(f"/bookings/{ref}/analyse", data={"csrf": token, "demo": "BRT-DEMO-02"})
+    token = csrf(logged_admin, f"/bookings/{ref}")
+    data = {"csrf": token, "question": "Should I repeat the test?", "lang": "fr", "audience": "patient"}
+    page = logged_admin.post(f"/bookings/{ref}/ask", data=data).text
+    assert "Should I repeat the test?" in page and "Posez-la au médecin" in page  # offline in tests
