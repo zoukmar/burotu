@@ -123,3 +123,18 @@ def main(argv: list[str]) -> None:
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+
+
+BLOOD_DONORS = ("GSE55763", "GSE87571")
+
+
+def extra_blood_donors(panel: list[str], fill: pd.Series) -> pd.DataFrame:
+    """Healthy-population blood from the open GEO cohorts (panel × donors), gaps filled with `fill`."""
+    parts = []
+    for gse in BLOOD_DONORS:
+        b = pd.read_parquet(OUT / f"{gse}.parquet").reindex(panel)
+        b.columns = [f"{gse}:{c}" for c in b.columns]
+        parts.append(b)
+    blood = pd.concat(parts, axis=1)
+    blood = blood.loc[:, blood.notna().mean() > 0.9]  # drop failed arrays
+    return blood.apply(lambda col: col.fillna(fill)).clip(0, 1).astype(np.float32)
