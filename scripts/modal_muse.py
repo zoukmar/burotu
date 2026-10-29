@@ -232,6 +232,8 @@ def publish_hf(run: str, repo_id: str, token: str) -> str:
             shutil.copy(src / "report.json", out / "report.json")
         (out / "README.md").write_text(MODEL_CARD.format(run=run))
         api = HfApi(token=token)
+        if "/" not in repo_id:  # only a name, or nothing: publish under the token's own account
+            repo_id = f"{api.whoami()['name']}/{repo_id or 'burotu-glimmer'}"
         api.create_repo(repo_id, repo_type="model", exist_ok=True)
         api.upload_folder(folder_path=str(out), repo_id=repo_id, commit_message=f"Burotu {run}")
     return f"https://huggingface.co/{repo_id}"
