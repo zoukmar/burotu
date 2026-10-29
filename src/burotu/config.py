@@ -22,6 +22,24 @@ CANCER_CLASSES: dict[str, list[str]] = {
     "Head and neck": ["TCGA-HNSC"],
     "Prostate": ["TCGA-PRAD"],
 }
+# Experimental extension to 20 classes (BUROTU_CLASSES=20, with a separate BUROTU_DATA_DIR).
+# The site and its demo samples keep the 8 classes above until this is validated.
+EXTRA_CLASSES: dict[str, list[str]] = {
+    "Kidney": ["TCGA-KIRC", "TCGA-KIRP", "TCGA-KICH"],
+    "Bladder": ["TCGA-BLCA"],
+    "Uterus": ["TCGA-UCEC", "TCGA-UCS"],
+    "Cervix": ["TCGA-CESC"],
+    "Thyroid": ["TCGA-THCA"],
+    "Skin": ["TCGA-SKCM"],
+    "Brain": ["TCGA-LGG", "TCGA-GBM"],
+    "Soft tissue": ["TCGA-SARC"],
+    "Mesothelium": ["TCGA-MESO"],
+    "Adrenal": ["TCGA-ACC", "TCGA-PCPG"],
+    "Testis": ["TCGA-TGCT"],
+    "Thymus": ["TCGA-THYM"],
+}
+if os.environ.get("BUROTU_CLASSES") == "20":
+    CANCER_CLASSES = {**CANCER_CLASSES, **EXTRA_CLASSES}
 HEALTHY = "Healthy"
 
 # Number of TCGA tumours downloaded per class.

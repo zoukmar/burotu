@@ -12,6 +12,7 @@ Writes models/baseline.pkl, reports/baseline.json and docs/assets/baseline_sensi
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 
@@ -118,11 +119,13 @@ def main() -> None:
         "test": result,
         "real_plasma": realplasma.report(model, ref.panel),
     }
-    model.save(ROOT / "models" / "baseline.pkl")
-    out = ROOT / "reports" / "baseline.json"
+    tag = os.environ.get("BUROTU_RUN_TAG", "")  # experiments write next to, not over, the main run
+    model.save(ROOT / "models" / f"baseline{tag}.pkl")
+    out = ROOT / "reports" / f"baseline{tag}.json"
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps(report, indent=2))
-    plot(report, ROOT / "docs" / "assets" / "baseline_sensitivity.png")
+    if not tag:
+        plot(report, ROOT / "docs" / "assets" / "baseline_sensitivity.png")
 
     print(f"observed specificity: {result['specificity_observed']:.4f}")
     for r in result["by_tumor_fraction"]:
