@@ -39,7 +39,7 @@ understand.
 ## How Meta models power Burotu
 
 ```
-Blood draw ─► Partner lab ─► burotu-bmc file (read counts on 1,681 CpG sites)
+Blood draw ─► Partner lab ─► burotu-bmc file (read counts on 3,148 CpG sites)
                                    │
                                    ▼
                    ┌───────────────────────────────────────┐
@@ -68,12 +68,12 @@ Muse is measured against it on the same held-out data.
 
 ## Muse Glimmer learns to read methylation
 
-Feeding 1,681 numbers to a language model as text does not work well: the model reads digits, not
+Feeding 3,148 numbers to a language model as text does not work well: the model reads digits, not
 biology. Burotu follows the recipe that taught language models to see images instead.
 
 ```
 read counts ─► binomial z-scores ─► methylation adapter (MLP) ─► 16 soft tokens
-  (1,681 CpG)    vs healthy blood                                      │
+  (3,148 CpG)    vs healthy blood                                      │
                                                                        ▼
                               "Cancer signal: yes. Most likely origin: colorectal (0.71) ..."
                                                      ▲
@@ -96,42 +96,42 @@ same way.
 
 ## Benchmark
 
-The bar Muse Glimmer has to clear. Simulated plasma built only from **held-out people and
-tumours**; the detection threshold is set on blood donors no model ever saw.
+The bar Muse Glimmer has to clear, on **20 tissue types**. Simulated plasma built only from
+**held-out people and tumours**; the detection threshold is set on blood donors no model ever saw.
 
 <p align="center"><img src="docs/assets/baseline_sensitivity.png" alt="Sensitivity by tumour fraction" width="640"></p>
 
-| Tumour fraction in plasma | 0.3% | 1% | 3% | 10% |
+| Tumour fraction in plasma (20 tissue types) | 0.3% | 1% | 3% | 10% |
 | --- | --- | --- | --- | --- |
-| Cancer signal detected, baseline | 7% | 71% | 99.7% | 100% |
-| Tissue of origin top-1, baseline | 25% | 57% | 87% | 96% |
-| Tissue of origin top-2, baseline | 41% | 74% | 95% | 99.7% |
-| Tissue of origin top-1, **Muse Glimmer** | **30%** | **70%** | **88%** | 96% |
-| Tissue of origin top-2, **Muse Glimmer** | **47%** | **82%** | **98%** | 99.1% |
-| Cancer vs healthy AUC, baseline | 0.83 | 0.99 | 1.00 | 1.00 |
-| Cancer vs healthy AUC, Muse Glimmer | 0.79 | 0.97 | 0.99 | 0.98 |
+| Cancer signal detected, classic model | 9% | 71% | 97% | 99.6% |
+| Tissue of origin top-1, classic model (chance: 5%) | 15% | 55% | 88% | 93% |
+| Tissue of origin top-2, classic model | 26% | 70% | 94% | 97% |
+| Cancer vs healthy AUC, classic model | 0.81 | 0.98 | 1.00 | 1.00 |
+| Tissue of origin top-1, **Muse Glimmer** | *training* | *training* | *training* | *training* |
 
-Specificity measured on unseen healthy donors: **99.8%** (target 99.5%).
+Specificity measured on unseen healthy donors: **99.9%** (target 99.5%). Testis (21% caught at
+1%) and thymus (31%) are the weak spots; brain (93%), prostate (95%) and breast (90%) the strong
+ones. Report: [`reports/baseline.json`](reports/baseline.json).
 
-**What Muse Glimmer learned, and where it stops.** Once a cancer signal is found, Glimmer names
-the tissue better than the benchmark where it is hardest: 70% vs 57% right first time at 1%
-tumour DNA. For the alarm itself it ranks samples almost as well (AUC 0.97 to 0.99), but it does
-not hold 99.5% specificity on new people: trained on 80 blood donors, it also learned each
-donor's background, so some healthy people it never saw score like cancers (their median score
-ranges from -21 to +23 depending on the donor). A smaller, regularised adapter narrows the gap
-(99.9% specificity, 26% of cancers caught at 1%, 37% at 3%), and training on pseudo-donors
-(half the healthy backgrounds mixed from 2-3 real donors) narrows it further (99.7% specificity,
-42% at 1%, 49% at 3%), without closing it. Burotu therefore uses each model for what it does best:
-the benchmark classifier raises the alarm, Muse Glimmer names the tissue. More real blood donors
-is the next step. Reports: [`reports/`](reports/) (`muse_glimmer-v1` to `v4`).
+**20 tissues, about 27 cancer categories.** Multi-cancer tests count "types" with the AJCC
+staging manual, where one organ can count several times (five soft tissue sarcoma sites, three
+bile duct categories). Burotu names tissues instead. Counted the AJCC way, the public tumours
+behind our 20 tissues cover about 27 categories (table on the
+[technology page](https://burotu.com/en/technology#coverage)). The others (ovary, bile ducts,
+small intestine, neuroendocrine tumours, blood cancers...) are missing from public methylation
+data: reaching 50 needs a partner lab's sequenced samples.
 
-**From 8 to 20 tissue types (experiment).** The same pipeline with 12 more TCGA types (kidney,
-bladder, uterus, cervix, thyroid, skin, brain, soft tissue, mesothelium, adrenal, testis, thymus;
-48 tumours each) builds a 3,148-site panel and keeps the alarm: 99.9% specificity, 71% of cancers
-caught at 1% tumour DNA, 97% at 3%. The tissue is right first time 55% of the time at 1% and 88% at
-3%, among 20 choices instead of 8. Testis (21% caught at 1%) and thymus (31%) are the weak spots.
-Report: [`reports/baseline-20.json`](reports/baseline-20.json). The site stays on 8 types until
-Muse Glimmer is retrained on the 20-type panel.
+**What Muse Glimmer learned on the first 8-type prototype.** Once a cancer signal is found,
+Glimmer named the tissue better than the classic model where it is hardest: 70% vs 57% right first
+time at 1% tumour DNA (88% vs 87% at 3%, 96% for both at 10%). For the alarm itself it ranks samples
+almost as well (AUC 0.97 to 0.99), but it does not hold 99.5% specificity on new people: trained on
+80 blood donors, it also learned each donor's background, so some healthy people it never saw score
+like cancers (their median score ranges from -21 to +23 depending on the donor). A smaller,
+regularised adapter narrows the gap (99.9% specificity, 26% of cancers caught at 1%, 37% at 3%), and
+training on pseudo-donors (half the healthy backgrounds mixed from 2-3 real donors) narrows it
+further (99.7% specificity, 42% at 1%, 49% at 3%), without closing it. Burotu therefore uses each
+model for what it does best: the classic model raises the alarm, Muse Glimmer names the tissue.
+Reports: [`reports/`](reports/) (`baseline-8`, `muse_glimmer-v1` to `v4`).
 
 **Real patient plasma.** 27 cell-free DNA samples from Moss et al. (12 healthy, 15 cancer),
 measured on methylation arrays rather than sequencing. Healthy plasma is not pure blood
@@ -157,7 +157,7 @@ All public, no patient data collected.
 
 | Role | Dataset |
 | --- | --- |
-| Tumour methylation, 8 types × 48 tumours | TCGA via the GDC portal (open access, Illumina 450K) |
+| Tumour methylation, 20 tissue types × 48 tumours | TCGA via the GDC portal (open access, Illumina 450K) |
 | Healthy blood background, 164 adults | Hannum et al., *Mol Cell* 2013, GEO GSE40279 |
 | Real plasma for validation | Moss et al., *Nat Commun* 2018, GEO GSE122126 |
 
@@ -165,8 +165,10 @@ Plasma is simulated by mixing real tumour profiles into real healthy blood at tu
 from 0.01% to 10%, then sampling sequencing reads. People and tumours are split into training and
 test sets **before** simulation and panel selection. Details in [docs/data.md](docs/data.md).
 
-**Coverage.** The product targets 50 cancer types. The prototype starts with **8**: lung,
-colorectal, breast, pancreas, liver, oesophagus and stomach, head and neck, prostate.
+**Coverage.** The product targets 50 cancer types. The prototype reads **20 tissues** (about 27
+AJCC cancer categories): lung, colorectal, breast, pancreas, liver, oesophagus and stomach, head
+and neck, prostate, kidney, bladder, uterus, cervix, thyroid, skin (melanoma), brain, soft tissue,
+mesothelium, adrenal, testis, thymus. The first prototype had 8; `BUROTU_CLASSES=8` rebuilds it.
 
 ## The product
 
@@ -251,5 +253,6 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [x] Muse Spark: patient letters (EN/FR/ES, signal only), lab notes on failed quality control, Q&A on a result
 - [x] Background calibration on real patient plasma (healthy controls)
 - [ ] Validation on a large real plasma cohort, sequenced
-- [x] From 8 to 20 tissue types with the classic model (experiment, same alarm performance)
-- [ ] Muse Glimmer on 20 types, then towards 50
+- [x] From 8 to 20 tissues (about 27 AJCC cancer categories), same alarm performance
+- [ ] Muse Glimmer on 20 tissues (training)
+- [ ] Towards 50: sequenced samples from a partner lab

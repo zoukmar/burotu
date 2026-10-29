@@ -144,6 +144,14 @@ def home(request: Request, lang: str, booked: str | None = None):
     return render_page(request, lang, booking=booking)
 
 
+def _tissue(cls: str, lang: str) -> str:
+    try:
+        from burotu.analysis.wording import tissue
+    except ImportError:
+        return cls
+    return tissue(cls, lang)
+
+
 @router.get("/{lang}/technology", response_class=HTMLResponse)
 def technology(request: Request, lang: str):
     from burotu_web import science
@@ -164,6 +172,10 @@ def technology(request: Request, lang: str):
             "meta": science.run_metrics(science.COMPARE[1]),
             "current": science.run_metrics("baseline"),
             "tfs": science.TFS,
+            "coverage": science.COVERAGE,
+            "not_yet": science.NOT_YET,
+            "coverage_n": science.coverage_count(),
+            "tissue": _tissue,
         },
     )
 

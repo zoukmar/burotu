@@ -69,6 +69,12 @@
   <p class="small muted">{{ _("Real plasma: background calibrated on healthy controls, leaving out the donor scored.") }}</p>
 </section>
 
+<section class="site-card">
+  <h2>{{ s.coverage.format(n=coverage_n) }}</h2>
+  <p class="small muted">{{ s.coverage_lead.format(n=coverage_n) }}</p>
+  {% set tlang = alang %}{% include "partials/coverage.html" %}
+</section>
+
 <div class="admin-split">
   <section class="site-card">
     <h2>{{ s.lessons }}</h2>

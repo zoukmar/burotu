@@ -482,3 +482,6 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
 .qa-q { font-weight: 600; }
 .qa-q .badge { font-weight: 500; margin-right: .4rem; }
 .qa blockquote { margin: .35rem 0; padding: .7rem 1rem; background: #F5F8FF; border-left: 3px solid var(--focus); border-radius: 0 var(--radius) var(--radius) 0; line-height: 1.55; }
+.coverage-table { background: var(--white); }
+.coverage-table td:first-child { white-space: nowrap; width: 14rem; }
+.coverage-missing { margin-top: 1rem; color: var(--ink-soft); line-height: 1.6; max-width: 60rem; }

@@ -64,6 +64,14 @@
   </div>
 </section>
 
+<section class="section" id="coverage">
+  <div class="wrap">
+    <h2>{{ s.coverage.format(n=coverage_n) }}</h2>
+    <p class="section-lead">{{ s.coverage_lead.format(n=coverage_n) }}</p>
+    {% set tlang = lang %}{% include "partials/coverage.html" %}
+  </div>
+</section>
+
 <section class="section" id="runs">
   <div class="wrap">
     <h2>{{ s.runs }}</h2>
