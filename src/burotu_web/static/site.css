@@ -515,3 +515,5 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
 .why-axis span:nth-child(3) { left: 65%; }
 .why-axis span:nth-child(4) { left: 84%; }
 .why-axis .is-cut { color: var(--venous); font-weight: 600; }
+.models-table tr.is-meta td { background: #F5F8FF; }
+.models-table tr.is-consensus td { border-top: 2px solid var(--ink); font-weight: 500; }

@@ -7,7 +7,8 @@ from datetime import datetime
 from functools import lru_cache
 
 from burotu.analysis import qc as qc_mod
-from burotu.analysis.engines import BaselineEngine, MuseEngine
+from burotu.analysis.consensus import consensus
+from burotu.analysis.engines import BaselineEngine, LogRegEngine, MuseEngine
 from burotu.analysis.report import write_reports
 from burotu.labformat import LabSample
 
@@ -15,6 +16,14 @@ from burotu.labformat import LabSample
 @lru_cache(maxsize=1)
 def baseline() -> BaselineEngine:
     return BaselineEngine()
+
+
+@lru_cache(maxsize=1)
+def logreg() -> LogRegEngine | None:
+    try:
+        return LogRegEngine(panel=baseline().panel)
+    except FileNotFoundError:
+        return None
 
 
 def muse() -> MuseEngine | None:
@@ -35,10 +44,13 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
     if quality["status"] != "fail":
         models["classic"] = baseline().analyse(sample).to_dict()
         explain = baseline().explain(sample)
+        if logreg() is not None:
+            models["logreg"] = logreg().analyse(sample).to_dict()
         engine = muse()
         if engine is not None:
             try:
-                models["meta"] = engine.analyse(sample).to_dict()
+                for key, det in engine.analyse_all(sample).items():
+                    models[key] = det.to_dict()
             except Exception as e:  # Muse unreachable: fall back, and say so
                 notes.append(f"Muse Glimmer was unavailable ({type(e).__name__}); the classic model answered alone.")
         meta = models.get("meta")
@@ -63,6 +75,7 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
         "detection": detection,
         "models": models,
         "explain": explain,
+        "consensus": consensus(models),
         "reports": reports,
         "report": reports.get(lang, reports["en"]),
         "notes": notes,

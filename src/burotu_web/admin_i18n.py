@@ -443,3 +443,52 @@ def translator(lang: str) -> Callable[..., str]:
 def admin_lang(request) -> str:
     lang = request.cookies.get(COOKIE, "en")
     return lang if lang in ADMIN_LANGS else "en"
+
+
+# Every model on a sample, and their consensus.
+TR["fr"].update(
+    {
+        "Every model on this sample": "Tous les modèles sur cet échantillon",
+        "Model": "Modèle",
+        "Score / threshold": "Score / seuil",
+        "Tissue, 1st": "Tissu, 1er",
+        "Tissue, 2nd": "Tissu, 2e",
+        "Logistic regressions": "Régressions logistiques",
+        "gradient boosting · decides the signal": "gradient boosting · décide du signal",
+        "GRAIL-style ensembles · cross-check": "ensembles façon GRAIL · contrôle croisé",
+        "Muse Glimmer 30B fine-tuned · names the tissue": "Muse Glimmer 30B affiné · nomme le tissu",
+        "methylation foundation model + Burotu heads · cross-check": "modèle de fondation de la méthylation + têtes Burotu · contrôle croisé",
+        "No signal": "Pas de signal",
+        "Not served on this server.": "Non servi sur ce serveur.",
+        "Consensus": "Consensus",
+        "what the models say together": "ce que les modèles disent ensemble",
+        "{k} of {n}": "{k} sur {n}",
+        "Unanimous": "Unanimes",
+        "Models disagree: worth a second look": "Les modèles divergent : à revoir",
+        "{k} of {n} models": "{k} modèles sur {n}",
+        "The reported signal is the classic model's: its threshold is the one set so that 99.5% of healthy people are not flagged. The tissue is the Meta model's when it is served. The other models are independent cross-checks.": "Le signal rendu est celui du modèle classique : son seuil est réglé pour que 99,5 % des personnes saines ne soient pas signalées. Le tissu est celui du modèle Meta quand il est servi. Les autres modèles sont des contrôles croisés indépendants.",
+    }
+)
+TR["es"].update(
+    {
+        "Every model on this sample": "Todos los modelos en esta muestra",
+        "Model": "Modelo",
+        "Score / threshold": "Puntuación / umbral",
+        "Tissue, 1st": "Tejido, 1.º",
+        "Tissue, 2nd": "Tejido, 2.º",
+        "Logistic regressions": "Regresiones logísticas",
+        "gradient boosting · decides the signal": "gradient boosting · decide la señal",
+        "GRAIL-style ensembles · cross-check": "conjuntos al estilo GRAIL · control cruzado",
+        "Muse Glimmer 30B fine-tuned · names the tissue": "Muse Glimmer 30B ajustado · indica el tejido",
+        "methylation foundation model + Burotu heads · cross-check": "modelo fundacional de metilación + cabezas Burotu · control cruzado",
+        "No signal": "Sin señal",
+        "Not served on this server.": "No servido en este servidor.",
+        "Consensus": "Consenso",
+        "what the models say together": "lo que dicen los modelos juntos",
+        "{k} of {n}": "{k} de {n}",
+        "Unanimous": "Unánimes",
+        "Models disagree: worth a second look": "Los modelos discrepan: conviene revisarlo",
+        "{k} of {n} models": "{k} de {n} modelos",
+        "The reported signal is the classic model's: its threshold is the one set so that 99.5% of healthy people are not flagged. The tissue is the Meta model's when it is served. The other models are independent cross-checks.": "La señal informada es la del modelo clásico: su umbral está fijado para que el 99,5 % de las personas sanas no sean señaladas. El tejido es el del modelo Meta cuando está servido. Los demás modelos son controles cruzados independientes.",
+    }
+)

@@ -94,6 +94,29 @@ class BaselineEngine:
         )
 
 
+class LogRegEngine:
+    """Ensembles of logistic regressions, GRAIL-style (burotu.model.logreg), run locally on CPU."""
+
+    def __init__(self, directory: Path = ASSETS / "logreg", panel: list[str] | None = None) -> None:
+        from burotu.model.logreg import LogRegEnsemble
+
+        self.model = LogRegEnsemble.load(directory)
+        self.panel = panel or json.loads((ASSETS / "baseline" / "meta.json").read_text())["panel"]
+
+    def analyse(self, sample: LabSample) -> Detection:
+        meth, total = counts_on_panel(sample, self.panel)
+        score = float(self.model.cancer_score(meth, total)[0])
+        proba = self.model.origin_proba(meth, total)[0]
+        return Detection(
+            engine="logreg",
+            engine_label="Logistic regression ensembles (GRAIL-style)",
+            cancer_signal=score > self.model.threshold,
+            score=round(score, 4),
+            threshold=round(self.model.threshold, 4),
+            origin=top_origins(proba, self.model.classes),
+        )
+
+
 class MuseEngine:
     """Fine-tuned Muse Glimmer behind an authenticated Modal web endpoint."""
 
@@ -101,6 +124,10 @@ class MuseEngine:
         self.url, self.token, self.panel, self.timeout = url, token, panel, timeout
 
     def analyse(self, sample: LabSample) -> Detection:
+        return self.analyse_all(sample)["meta"]
+
+    def analyse_all(self, sample: LabSample) -> dict[str, Detection]:
+        """Muse Glimmer's answer, plus CpGPT's when the same GPU server also runs it."""
         meth, total = counts_on_panel(sample, self.panel)
         r = httpx.post(
             self.url,
@@ -110,11 +137,24 @@ class MuseEngine:
         )
         r.raise_for_status()
         d = r.json()
-        return Detection(
-            engine="muse-glimmer",
-            engine_label=d.get("engine_label", "Muse Glimmer 30B, fine-tuned (Meta open weights)"),
-            cancer_signal=bool(d["cancer_signal"]),
-            score=float(d["score"]),
-            threshold=float(d["threshold"]),
-            origin=d["origin"],
-        )
+        out = {
+            "meta": Detection(
+                engine="muse-glimmer",
+                engine_label=d.get("engine_label", "Muse Glimmer 30B, fine-tuned (Meta open weights)"),
+                cancer_signal=bool(d["cancer_signal"]),
+                score=float(d["score"]),
+                threshold=float(d["threshold"]),
+                origin=d["origin"],
+            )
+        }
+        c = d.get("cpgpt")
+        if c:
+            out["cpgpt"] = Detection(
+                engine="cpgpt",
+                engine_label=c.get("engine_label", "CpGPT 100M (methylation foundation model) + Burotu heads"),
+                cancer_signal=bool(c["cancer_signal"]),
+                score=float(c["score"]),
+                threshold=float(c["threshold"]),
+                origin=c["origin"],
+            )
+        return out
