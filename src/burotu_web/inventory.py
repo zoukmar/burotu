@@ -362,3 +362,24 @@ PROGRESS = [
         },
     ),
 ]
+
+
+REGISTRY_ID = {"meta": "glimmer"}  # inventory key -> registry id, where they differ
+REGISTRY_STATUS = {"live": LIVE, "training": RUNNING, "ready": READY, "experiment": EXPERIMENT}
+
+
+def models() -> list[dict]:
+    """MODELS with status, version and card link taken from the model registry (single source)."""
+    from burotu.models.registry import get
+
+    out = []
+    for m in MODELS:
+        try:
+            info = get(REGISTRY_ID.get(m["key"], m["key"]))
+        except KeyError:
+            out.append(m)
+            continue
+        out.append(
+            {**m, "status": REGISTRY_STATUS.get(info.status, m["status"]), "version": info.version, "card": info.card}
+        )
+    return out

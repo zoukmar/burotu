@@ -24,7 +24,7 @@ from sklearn.metrics import roc_auc_score
 
 from burotu.config import DATA_DIR, HEALTHY
 from burotu.data.reference import Reference
-from burotu.simulate.cfdna import SimConfig, simulate_cohort
+from burotu.data.simulate import SimConfig, simulate_cohort
 
 BENCHMARK_DIR = DATA_DIR / "benchmark"
 TARGET_SPECIFICITY = 0.995

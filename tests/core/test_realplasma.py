@@ -3,9 +3,9 @@
 import numpy as np
 import pytest
 
-from burotu import realplasma
-from burotu.analysis.engines import BaselineEngine
-from burotu.model.features import Featurizer
+from burotu.core.features import Featurizer
+from burotu.evaluation import realplasma
+from burotu.models.classic.engine import BaselineEngine
 
 pytestmark = pytest.mark.skipif(not realplasma.SUBSET.exists(), reason="real plasma subset not available")
 

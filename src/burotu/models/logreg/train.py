@@ -1,8 +1,8 @@
 """Train and evaluate the logistic-regression ensembles (GRAIL-style) on the frozen benchmark.
 
-    python scripts/train_logreg.py
+    python -m burotu.models.logreg.train
 
-Same cohorts, same threshold rule and same metrics as scripts/train_baseline.py. Writes the
+Same cohorts, same threshold rule and same metrics as burotu.models.classic.train. Writes the
 portable model to src/burotu/analysis/assets/logreg/ and the report to reports/logreg.json.
 """
 
@@ -11,17 +11,18 @@ from __future__ import annotations
 import json
 import os
 import time
+from pathlib import Path
 
 import numpy as np
 
-from burotu import benchmark, realplasma
-from burotu.benchmark import TARGET_SPECIFICITY
 from burotu.config import HEALTHY, ROOT
+from burotu.core.features import Featurizer
 from burotu.data.reference import Reference
-from burotu.model.features import Featurizer
-from burotu.model.logreg import LogRegEnsemble
+from burotu.evaluation import benchmark, realplasma
+from burotu.evaluation.benchmark import TARGET_SPECIFICITY
+from burotu.models.logreg.model import LogRegEnsemble
 
-OUT = ROOT / "src" / "burotu" / "analysis" / "assets" / "logreg"
+OUT = Path(__file__).resolve().parent / "assets"
 
 
 def main() -> None:

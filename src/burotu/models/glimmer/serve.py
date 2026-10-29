@@ -19,9 +19,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from burotu.model.features import Featurizer
-from burotu.muse.reader import MuseReader
-from burotu.muse.train import TrainConfig, load_lm
+from burotu.core.features import Featurizer
+from burotu.models.glimmer.reader import MuseReader
+from burotu.models.glimmer.train import TrainConfig, load_lm
 
 ENGINE_LABEL = "Muse Glimmer 30B, fine-tuned (Meta open weights)"
 
@@ -58,7 +58,7 @@ class MuseService:
 
     @torch.no_grad()
     def predict(self, meth: np.ndarray, total: np.ndarray) -> dict:
-        from burotu.analysis.engines import top_origins
+        from burotu.models.base import top_origins
 
         x = torch.from_numpy(self.featurizer.transform(meth[None, :], total[None, :]))
         with self._lock, torch.autocast("cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
