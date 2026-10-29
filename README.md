@@ -125,6 +125,14 @@ ranges from -21 to +23 depending on the donor). A smaller, regularised adapter n
 the benchmark classifier raises the alarm, Muse Glimmer names the tissue. More real blood donors
 is the next step. Reports: [`reports/`](reports/) (`muse_glimmer-v1` to `v4`).
 
+**From 8 to 20 tissue types (experiment).** The same pipeline with 12 more TCGA types (kidney,
+bladder, uterus, cervix, thyroid, skin, brain, soft tissue, mesothelium, adrenal, testis, thymus;
+48 tumours each) builds a 3,148-site panel and keeps the alarm: 99.9% specificity, 71% of cancers
+caught at 1% tumour DNA, 97% at 3%. The tissue is right first time 55% of the time at 1% and 88% at
+3%, among 20 choices instead of 8. Testis (21% caught at 1%) and thymus (31%) are the weak spots.
+Report: [`reports/baseline-20.json`](reports/baseline-20.json). The site stays on 8 types until
+Muse Glimmer is retrained on the 20-type panel.
+
 **Real patient plasma.** 27 cell-free DNA samples from Moss et al. (12 healthy, 15 cancer),
 measured on methylation arrays rather than sequencing. Healthy plasma is not pure blood
 (endothelial and liver DNA add background) and the platform differs, so against the whole-blood
@@ -243,4 +251,5 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [x] Muse Spark: patient letters (EN/FR/ES, signal only), lab notes on failed quality control, Q&A on a result
 - [x] Background calibration on real patient plasma (healthy controls)
 - [ ] Validation on a large real plasma cohort, sequenced
-- [ ] From 8 to 50 cancer types
+- [x] From 8 to 20 tissue types with the classic model (experiment, same alarm performance)
+- [ ] Muse Glimmer on 20 types, then towards 50
