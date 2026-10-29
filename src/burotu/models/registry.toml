@@ -47,13 +47,13 @@ id = "cpgpt"
 name = "CpGPT"
 version = "large + heads"
 role = "cross-check"
-status = "training"
+status = "experiment"     # frozen embeddings miss low tumour fractions: not used on samples
 family = "CpGPT large (methylation foundation model, ~100M parameters, MIT), frozen, + two LightGBM heads"
 base_model = "lucascamillomd/cpgpt-models:large"
 inputs = "3,148 beta values + Nucleotide Transformer v2 embeddings of each site's DNA"
 trained_on = "pre-trained by its authors on 150,000+ arrays; heads on the fit cohort (14,000 samples)"
 runs_on = "Modal GPU (L4); heads on the tracking server"
-weights = ["hf:lucascamillomd/cpgpt-models", "git:src/burotu/models/cpgpt/assets"]
+weights = ["hf:lucascamillomd/cpgpt-models"]
 report = "reports/cpgpt.json"
 
 [[model]]

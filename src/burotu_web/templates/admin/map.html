@@ -12,7 +12,7 @@
     <li class="flow-step flow-models">
       <span class="flow-n">2</span>{{ inv.FLOW[1][1][L] }}
       <ul class="flow-sub">
-        {% for m in models if m.key in ('classic', 'logreg', 'meta', 'cpgpt') %}
+        {% for m in models if m.key in ('classic', 'logreg', 'meta') %}
         <li class="st-{{ m.status }}"><strong>{{ _(m.name) }}</strong> <span class="small muted">{{ m.role[L] }}</span></li>
         {% endfor %}
       </ul>
