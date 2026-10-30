@@ -33,12 +33,12 @@ PINS = {
     "models": (
         "store-models-2026-10-30",
         "burotu-models.tar.gz",
-        "a698ba84a91ce6faabc7b4be67ce26a646a292dedfc5877b0829f5bb6f340162",
+        "ab6181cb2a9e4e2e5158634d35885debd5c6eaa94e8088a431abc2a36a04ef13",
     ),
     "refined": (
         f"store-refined-{REFINED_VERSION}",
         f"burotu-refined-{REFINED_VERSION}.tar.gz",
-        "58a939ad071a3b300849c8e6aff9e2ffcafa85adffb5966151fa510e494b5b9f",
+        "a11051d0fd85c8851b7c729088805eaa4bf6e796699236a208a64119ccff90af",
     ),
 }
 
