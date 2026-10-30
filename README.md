@@ -194,7 +194,7 @@ A model alone does not reach patients, so Burotu ships as a product from day one
 ## Quick start
 
 ```bash
-make install        # Python 3.11+
+make install        # Python 3.11+, then fetches the refined data and weights in use
 make check          # lint + tests, same as CI
 make dev            # http://localhost:8000 (site) · http://admin.localhost:8000 (tracking, password "dev")
 ```
@@ -230,12 +230,29 @@ server makes the tracking site take the tissue of origin from Muse Glimmer (`ful
 take the cancer signal from it). Run reports: [`reports/muse_glimmer-v5.json`](reports/muse_glimmer-v5.json)
 (served, 20 tissues) and [`reports/muse_glimmer-v2.json`](reports/muse_glimmer-v2.json) (8-type prototype).
 
-Every model is scored on the same frozen benchmark (`data/benchmark/`): the calibration cohort
+Every model is scored on the same frozen benchmark (`<store>/refined/v1/benchmark/`): the calibration cohort
 sets the threshold, the test cohort gives the numbers.
 
 Set `MODEL_API_KEY` to call Muse Spark through the Meta Model API. Without it, the
 [client](src/burotu/llm/client.py) runs in mock mode so everything works offline. `make help`
 lists every command.
+
+## Data and weights: outside Git
+
+Git holds code only. Data and model weights live in a **store** (`BUROTU_STORE`, by default
+`./store`; the full store is on the project workstation), in three layers that the pipeline
+fills in order:
+
+```
+<store>/raw/<origin>/<dataset>/      1. ingest   downloads, never modified (GEO, GDC, Zenodo...)
+<store>/refined/<version>/          2. refine   Burotu format: panel, cohorts, open plasma sets
+<store>/models/<model>/<version>/   3. train    weights + report; registry.toml says which is in use
+```
+
+Machines that only need part of it (CI, the web server, Modal) fetch versioned bundles attached
+to GitHub Releases: `python -m burotu.store fetch models` (weights in use, 14 MB) and
+`python -m burotu.store fetch refined` (refined data v1, 66 MB). See
+[`src/burotu/store.py`](src/burotu/store.py).
 
 ## Repository
 
@@ -255,7 +272,6 @@ src/burotu/
 src/burotu_web/      burotu.com (site) and admin.burotu.com (tracking, map of models and data)
 scripts/             Modal app (train, serve, CpGPT, publish), demo lab files
 reports/             one JSON report per trained run
-data/                processed panel data and open plasma sets (raw downloads stay local)
 tests/ deploy/ docs/ .github/workflows/
 ```
 
