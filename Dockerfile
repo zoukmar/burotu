@@ -16,6 +16,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # libgomp1: OpenMP runtime needed by LightGBM.
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+# Weights of the models in use, fetched from the store by CI (python -m burotu.store fetch models).
+COPY store/models /app/store/models
+ENV BUROTU_STORE=/app/store
 RUN --mount=type=bind,from=build,source=/wheels,target=/wheels \
     pip install --no-cache-dir --no-index --find-links=/wheels "burotu[web,analysis]" \
  && useradd --system --uid 10001 --home /nonexistent burotu \

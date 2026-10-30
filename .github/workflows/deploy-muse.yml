@@ -47,6 +47,11 @@ jobs:
       - name: Install Modal
         run: pip install "modal==1.6.2"
 
+      - name: Refined data and weights from the store (GitHub Releases, outside Git)
+        run: |
+          PYTHONPATH=src python -m burotu.store fetch refined
+          PYTHONPATH=src python -m burotu.store fetch models
+
       - name: Store the API token on Modal
         run: |
           if [ "${#BUROTU_MUSE_TOKEN}" -lt 24 ]; then
