@@ -6,9 +6,18 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]  # repository root (src/burotu/config.py)
-DATA_DIR = Path(os.environ.get("BUROTU_DATA_DIR", ROOT / "data"))
-RAW_DIR = DATA_DIR / "raw"
+
+# Data and model weights live outside Git, in one store (D:\Burotu\Data on the workstation):
+#   <store>/raw/<origin>/<dataset>/      downloads, never modified          (pipeline step 1: ingest)
+#   <store>/refined/<version>/          Burotu format, ready for training   (step 2: refine)
+#   <store>/models/<model>/<version>/   weights + report of each trained run (step 3: train)
+# See burotu.store for moving it between the workstation, the servers and Modal.
+STORE = Path(os.environ.get("BUROTU_STORE", ROOT / "store"))
+RAW_DIR = Path(os.environ.get("BUROTU_RAW_DIR", STORE / "raw"))
+REFINED_VERSION = os.environ.get("BUROTU_REFINED", "v1")
+DATA_DIR = Path(os.environ.get("BUROTU_DATA_DIR", STORE / "refined" / REFINED_VERSION))  # the refined data in use
 PROCESSED_DIR = DATA_DIR / "processed"
+MODELS_STORE = Path(os.environ.get("BUROTU_MODELS_DIR", STORE / "models"))
 
 # Cancer signal origin (CSO) classes -> matching TCGA projects.
 # Chosen for screening: common cancers and/or cancers with no screening today.

@@ -12,7 +12,7 @@ family = "Gradient-boosted trees (LightGBM), one detector + one tissue classifie
 inputs = "3,148 binomial z-scores + 3 summary features"
 trained_on = "fit cohort: 14,000 simulated plasma samples (680 TCGA tumours, 20 tissues, 80 blood donors)"
 runs_on = "tracking server, CPU"
-weights = ["git:src/burotu/models/classic/assets"]
+weights = ["store:models/classic/20-tissues-2026-10-28"]
 report = "reports/baseline.json"
 
 [[model]]
@@ -25,7 +25,7 @@ family = "Bagged L2 logistic regressions (8 for the signal, 8 for the tissue), G
 inputs = "3,148 binomial z-scores + 3 summary features, standardised"
 trained_on = "fit cohort: 14,000 simulated plasma samples"
 runs_on = "tracking server, CPU (numpy only)"
-weights = ["git:src/burotu/models/logreg/assets"]
+weights = ["store:models/logreg/20-tissues-2026-10-29"]
 report = "reports/logreg.json"
 
 [[model]]

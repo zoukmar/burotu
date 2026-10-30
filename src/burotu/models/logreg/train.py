@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import os
 import time
-from pathlib import Path
 
 import numpy as np
 
@@ -20,9 +19,10 @@ from burotu.core.features import Featurizer
 from burotu.data.reference import Reference
 from burotu.evaluation import benchmark, realplasma
 from burotu.evaluation.benchmark import TARGET_SPECIFICITY
+from burotu.models.base import asset_dir
 from burotu.models.logreg.model import LogRegEnsemble
 
-OUT = Path(__file__).resolve().parent / "assets"
+OUT = asset_dir("logreg")  # <store>/models/logreg/<version in registry.toml>
 
 
 def main() -> None:
