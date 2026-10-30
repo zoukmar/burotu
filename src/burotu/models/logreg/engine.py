@@ -5,19 +5,17 @@ from __future__ import annotations
 from pathlib import Path
 
 from burotu.core.labformat import LabSample
-from burotu.models.base import Detection, counts_on_panel, top_origins
+from burotu.models.base import Detection, asset_dir, counts_on_panel, top_origins
 from burotu.models.base import panel as base_panel
-
-ASSETS = Path(__file__).resolve().parent / "assets"
 
 
 class LogRegEngine:
     """Ensembles of logistic regressions, GRAIL-style (burotu.models.logreg.model), run locally on CPU."""
 
-    def __init__(self, directory: Path = ASSETS, panel: list[str] | None = None) -> None:
+    def __init__(self, directory: Path | None = None, panel: list[str] | None = None) -> None:
         from burotu.models.logreg.model import LogRegEnsemble
 
-        self.model = LogRegEnsemble.load(directory)
+        self.model = LogRegEnsemble.load(directory or asset_dir("logreg"))
         self.panel = panel or base_panel()
 
     def analyse(self, sample: LabSample) -> Detection:
