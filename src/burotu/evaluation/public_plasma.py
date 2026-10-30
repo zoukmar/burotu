@@ -22,7 +22,7 @@ from sklearn.metrics import roc_auc_score
 from burotu.config import DATA_DIR, HEALTHY, ROOT
 from burotu.core.features import EPS
 from burotu.evaluation import realplasma
-from burotu.models.base import MODELS_DIR
+from burotu.models.base import asset_dir
 from burotu.models.base import panel as base_panel
 from burotu.models.classic.model import BaselineModel
 from burotu.models.logreg.model import LogRegEnsemble
@@ -71,7 +71,7 @@ def summary(model, s: np.ndarray, p: np.ndarray, y: np.ndarray) -> dict:
 
 def main() -> None:
     classic = BaselineModel.load(ROOT / "models" / "baseline.pkl")
-    logreg = LogRegEnsemble.load(MODELS_DIR / "logreg" / "assets")
+    logreg = LogRegEnsemble.load(asset_dir("logreg"))
     panel = base_panel()
     moss, moss_labels, _, _ = realplasma.load(panel)
     with np.errstate(invalid="ignore"):

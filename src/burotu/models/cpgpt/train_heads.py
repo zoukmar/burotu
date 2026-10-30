@@ -24,9 +24,10 @@ import pandas as pd
 from burotu.config import HEALTHY, ROOT
 from burotu.evaluation import benchmark
 from burotu.evaluation.benchmark import TARGET_SPECIFICITY
+from burotu.models.base import asset_dir
 from burotu.models.classic.model import LGB_PARAMS
 
-OUT = Path(__file__).resolve().parent / "assets"
+OUT = asset_dir("cpgpt")  # <store>/models/cpgpt/<version in registry.toml>
 
 
 def main(src: Path) -> None:

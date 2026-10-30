@@ -26,6 +26,11 @@ jobs:
       - name: Install
         run: pip install -e ".[dev]"
 
+      - name: Data and weights from the store (GitHub Releases, outside Git)
+        run: |
+          python -m burotu.store fetch models
+          python -m burotu.store fetch refined
+
       - name: Ruff
         run: |
           ruff check src tests scripts --output-format github
@@ -35,4 +40,4 @@ jobs:
         run: pytest
 
       - name: Docker image (build only)
-        run: docker build -t burotu-web:ci .
+        run: docker build -t burotu-web:ci .  # copies store/models fetched above

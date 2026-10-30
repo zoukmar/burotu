@@ -22,6 +22,8 @@ from pathlib import Path
 import modal
 
 ROOT = Path(__file__).resolve().parents[1]
+# Refined data come from the store, not from Git: `python -m burotu.store fetch refined` first.
+REFINED = Path(os.environ.get("BUROTU_STORE", ROOT / "store")) / "refined" / os.environ.get("BUROTU_REFINED", "v1")
 GPU = os.environ.get("BUROTU_GPU", "L40S")  # 48 GB: enough for Glimmer 30B in 4-bit
 RUN = os.environ.get("BUROTU_MUSE_RUN", "glimmer")  # run served by `modal deploy`
 CPGPT_ON = os.environ.get("BUROTU_CPGPT", "0")  # "1": the served API also runs CpGPT (once its heads exist)
@@ -42,8 +44,8 @@ image = (
         "fastapi==0.162.0",
     )
     .env({"BUROTU_DATA_DIR": "/root/data", "HF_HOME": "/cache/hf", "PYTHONPATH": "/root/src"})
-    .add_local_dir(ROOT / "data" / "processed", "/root/data/processed")
-    .add_local_dir(ROOT / "data" / "benchmark", "/root/data/benchmark")
+    .add_local_dir(REFINED / "processed", "/root/data/processed")
+    .add_local_dir(REFINED / "benchmark", "/root/data/benchmark")
     .add_local_dir(ROOT / "src", "/root/src")
 )
 
@@ -78,9 +80,10 @@ cpgpt_image = (
     )
     .pip_install("cpgpt==0.0.13", extra_options="--no-deps")
     .env({"BUROTU_DATA_DIR": "/root/data", "HF_HOME": "/cache/hf", "PYTHONPATH": "/root/src"})
-    .add_local_dir(ROOT / "data" / "processed", "/root/data/processed")
-    .add_local_dir(ROOT / "data" / "benchmark", "/root/data/benchmark")
-    .add_local_dir(ROOT / "data" / "public", "/root/data/public")
+    .add_local_dir(REFINED / "processed", "/root/data/processed")
+    .add_local_dir(REFINED / "benchmark", "/root/data/benchmark")
+    .add_local_dir(REFINED / "public", "/root/data/public")
+    .add_local_dir(REFINED.parents[1] / "models", "/root/store/models")
     .add_local_dir(ROOT / "src", "/root/src")
 )
 CPGPT_GPU = os.environ.get("BUROTU_CPGPT_GPU", "L4")

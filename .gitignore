@@ -11,16 +11,9 @@ dist/
 # Secrets
 .env
 
-# Data (downloaded or generated: see docs/data.md)
-# Downloaded and generated data stay local, except the small reference panel and the
-# frozen calibration/test cohorts: every model must be scored on exactly these samples.
-/data/*
-!/data/processed/
-!/data/benchmark/
-/data/benchmark/*
-!/data/benchmark/calibration.csv
-!/data/benchmark/test.csv
-!/data/public/
+# Data and model weights live in the store, outside Git (src/burotu/store.py)
+/data/
+/store/
 /runs/
 /models/
 
@@ -29,3 +22,4 @@ dist/
 .idea/
 .DS_Store
 /data_v20/
+

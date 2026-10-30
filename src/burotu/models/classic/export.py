@@ -11,17 +11,17 @@ from __future__ import annotations
 
 import gzip
 import json
-from pathlib import Path
 
 import numpy as np
 
 from burotu.config import ROOT
 from burotu.data.reference import Reference
 from burotu.evaluation.benchmark import load_cohort
+from burotu.models.base import asset_dir
 from burotu.models.classic.explain import build_explainer, build_markers
 from burotu.models.classic.model import BaselineModel
 
-OUT = Path(__file__).resolve().parent / "assets"
+OUT = asset_dir("classic")  # <store>/models/classic/<version in registry.toml>
 
 
 def main() -> None:
