@@ -8,7 +8,7 @@ on:
     inputs:
       source_ref:
         description: Commit or branch that still contains data/ and the model assets
-        default: main
+        default: e067f363bce7c401ca4f988ba1d8686005239e6a  # last commit with the old data/ (remove once the old tags are deleted)
 
 permissions:
   contents: write
