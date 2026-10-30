@@ -31,7 +31,7 @@ The fix is the one any lab applies to a new assay: healthy controls run on the s
 The healthy background is re-estimated from the healthy plasma samples, leaving out the donor
 group being scored (both replicates of a pool, or one individual). Model, threshold and depth
 are unchanged; nothing is tuned on cancer samples. The panel subset of the data is committed in
-`data/processed/real_plasma_panel.parquet`, so the check also runs at the end of every Muse
+`<store>/refined/v1/processed/real_plasma_panel.parquet`, so the check also runs at the end of every Muse
 training run.
 
 ## Targeted panel
@@ -54,5 +54,6 @@ Commercial tests use those patterns and are more sensitive at very low tumour fr
 ## Reproduce
 
 ```bash
-make data reference baseline demo-samples
+make fetch                                  # refined data v1 and weights in use
+make data reference baseline demo-samples   # or rebuild them from the public sources
 ```

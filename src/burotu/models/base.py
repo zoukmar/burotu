@@ -19,9 +19,21 @@ from burotu.core.labformat import LabSample
 MODELS_DIR = Path(__file__).resolve().parent
 
 
+def asset_dir(model_id: str, version: str | None = None) -> Path:
+    """Where a model's weights live in the store: <store>/models/<id>/<version>.
+
+    The version defaults to the one the registry marks as in use (registry.toml), so serving
+    a new version is a one-line registry change once its weights are in the store.
+    """
+    from burotu.config import MODELS_STORE
+    from burotu.models.registry import get
+
+    return MODELS_STORE / model_id / (version or get(model_id).version)
+
+
 def panel() -> list[str]:
-    """The 3,148 CpG sites every model reads, in order (the classic model's assets define it)."""
-    return json.loads((MODELS_DIR / "classic" / "assets" / "meta.json").read_text())["panel"]
+    """The 3,148 CpG sites every model reads, in order (the classic model's weights define it)."""
+    return json.loads((asset_dir("classic") / "meta.json").read_text())["panel"]
 
 
 @dataclass

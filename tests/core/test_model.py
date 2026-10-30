@@ -62,6 +62,8 @@ def test_registry_lists_every_model_package_with_a_card():
             assert (MODELS_DIR / m.id / "README.md").exists(), m.id
         for w in m.weights:
             kind, _, where = w.partition(":")
-            assert kind in {"git", "hf", "modal"}
-            if kind == "git" and m.status == "live":
-                assert (MODELS_DIR.parents[2] / where).exists(), where
+            assert kind in {"store", "hf", "modal"}
+            if kind == "store" and m.status == "live":
+                from burotu.config import STORE
+
+                assert (STORE / where).exists(), where

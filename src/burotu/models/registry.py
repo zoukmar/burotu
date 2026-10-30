@@ -4,8 +4,8 @@
     get("glimmer").weights   # ["hf:zoukmar75/burotu-glimmer", "modal:burotu-runs/glimmer-v5"]
 
 Adding a model = a package in burotu/models/<id>/ (engine.py, README.md model card) and an
-entry in registry.toml. Weights are referenced as `git:<path>`, `hf:<repo>` or
-`modal:<volume>/<run>`; `links()` turns them into URLs for people.
+entry in registry.toml. Weights are referenced as `store:<path in the store>`,
+`hf:<repo>` or `modal:<volume>/<run>`; `links()` turns them into URLs for people.
 """
 
 from __future__ import annotations
@@ -48,6 +48,8 @@ class ModelInfo:
                 out.append(("GitHub", f"{REPO}/tree/main/{where}"))
             elif kind == "hf":
                 out.append(("Hugging Face", f"https://huggingface.co/{where}"))
+            elif kind == "store":
+                out.append(("Burotu store", ""))
             elif kind == "modal":
                 out.append(("Modal", ""))
         return out

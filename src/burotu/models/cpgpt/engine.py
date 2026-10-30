@@ -8,17 +8,16 @@ from pathlib import Path
 
 import numpy as np
 
-from burotu.models.base import Detection, top_origins
-
-ASSETS = Path(__file__).resolve().parent / "assets"
+from burotu.models.base import Detection, asset_dir, top_origins
 
 
 class CpGPTHeads:
     """Burotu's heads on a CpGPT sample embedding (the embedding itself comes from the GPU server)."""
 
-    def __init__(self, directory: Path = ASSETS) -> None:
+    def __init__(self, directory: Path | None = None) -> None:
         import lightgbm as lgb
 
+        directory = directory or asset_dir("cpgpt")
         meta = json.loads((directory / "meta.json").read_text())
         self.classes: list[str] = meta["classes"]
         self.threshold: float = meta["threshold"]
@@ -42,4 +41,4 @@ class CpGPTHeads:
 
 
 def cpgpt_heads() -> CpGPTHeads | None:
-    return CpGPTHeads() if (ASSETS / "meta.json").exists() else None
+    return CpGPTHeads() if (asset_dir("cpgpt") / "meta.json").exists() else None
