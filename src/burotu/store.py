@@ -31,14 +31,14 @@ REPO = "zoukmar/burotu"
 # bundle -> (release tag, file name, sha256 or "" to trust the .sha256 file published with it).
 PINS = {
     "models": (
-        "store-models-2026-10-30",
+        "store-models-2026-10-30-r2",
         "burotu-models.tar.gz",
-        "ab6181cb2a9e4e2e5158634d35885debd5c6eaa94e8088a431abc2a36a04ef13",
+        "",
     ),
     "refined": (
-        f"store-refined-{REFINED_VERSION}",
+        f"store-refined-{REFINED_VERSION}-r2",
         f"burotu-refined-{REFINED_VERSION}.tar.gz",
-        "a11051d0fd85c8851b7c729088805eaa4bf6e796699236a208a64119ccff90af",
+        "",
     ),
 }
 
