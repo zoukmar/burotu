@@ -29,3 +29,6 @@ dist/
 .idea/
 .DS_Store
 /data_v20/
+
+# Data and model store (outside Git, see src/burotu/store.py)
+/store/

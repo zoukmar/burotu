@@ -9,19 +9,18 @@ from pathlib import Path
 import numpy as np
 
 from burotu.core.labformat import LabSample
-from burotu.models.base import Detection, counts_on_panel, top_origins
-
-ASSETS = Path(__file__).resolve().parent / "assets"
+from burotu.models.base import Detection, asset_dir, counts_on_panel, top_origins
 
 
 class BaselineEngine:
     """LightGBM benchmark exported as portable text models (burotu.models.classic.export)."""
 
-    def __init__(self, directory: Path = ASSETS) -> None:
+    def __init__(self, directory: Path | None = None) -> None:
         import lightgbm as lgb
 
         from burotu.core.features import Featurizer
 
+        directory = directory or asset_dir("classic")
         meta = json.loads((directory / "meta.json").read_text())
         self.panel: list[str] = meta["panel"]
         self.classes: list[str] = meta["classes"]
