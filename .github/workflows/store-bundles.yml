@@ -1,0 +1,60 @@
+name: Store bundles
+
+# Manual: attach versioned data/weights bundles to GitHub Releases (they are not in the Git
+# history). Builds them from `source_ref`, a commit that still had the files, or from files
+# uploaded as a workflow artifact by `artifact_run`.
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Commit or branch that still contains data/ and the model assets
+        default: main
+
+permissions:
+  contents: write
+
+jobs:
+  bundles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref }}
+          path: src-ref
+      - uses: actions/checkout@v4
+        with:
+          path: current
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Assemble the store from the old layout
+        run: |
+          S=store
+          mkdir -p $S/refined/v1/benchmark $S/models/classic/20-tissues-2026-10-28 $S/models/logreg/20-tissues-2026-10-29
+          cp -r src-ref/data/processed src-ref/data/public $S/refined/v1/
+          cp src-ref/data/benchmark/calibration.csv src-ref/data/benchmark/test.csv $S/refined/v1/benchmark/
+          cp -r src-ref/src/burotu/models/classic/assets/. $S/models/classic/20-tissues-2026-10-28/
+          cp -r src-ref/src/burotu/models/logreg/assets/. $S/models/logreg/20-tissues-2026-10-29/
+          cp src-ref/reports/baseline.json $S/models/classic/20-tissues-2026-10-28/report.json
+          cp src-ref/reports/logreg.json $S/models/logreg/20-tissues-2026-10-29/report.json
+          find $S -maxdepth 4 | head -40
+      - name: Pack and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUROTU_STORE: ${{ github.workspace }}/store
+        run: |
+          pip install -q -e "current"
+          cd current
+          python - <<'PY'
+          import subprocess
+          from burotu import store
+          for bundle in ("models", "refined"):
+              tag, name, _ = store.PINS[bundle]
+              path = store.pack(bundle)
+              (path.parent / f"{name}.sha256").write_text(store.sha256(path) + "\n")
+              if subprocess.run(["gh", "release", "view", tag], capture_output=True).returncode != 0:
+                  subprocess.run(["gh", "release", "create", tag, "--title", tag, "--notes",
+                                  f"Burotu store bundle ({bundle}): data and weights live outside Git, see src/burotu/store.py."], check=True)
+              subprocess.run(["gh", "release", "upload", tag, str(path), str(path.parent / f"{name}.sha256"), "--clobber"], check=True)
+          PY
