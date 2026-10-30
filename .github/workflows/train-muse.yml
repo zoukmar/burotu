@@ -53,6 +53,11 @@ jobs:
       - name: Install Modal
         run: pip install "modal==1.6.2"
 
+      - name: Refined data and weights from the store (GitHub Releases, outside Git)
+        run: |
+          PYTHONPATH=src python -m burotu.store fetch refined
+          PYTHONPATH=src python -m burotu.store fetch models
+
       - name: Train on Modal
         env:
           MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}

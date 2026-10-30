@@ -1,13 +1,19 @@
 .DEFAULT_GOAL := help
 PY ?= python3
 
-.PHONY: help install data public-data reference baseline logreg models evaluate demo-samples dev lint format test check docker
+.PHONY: help install fetch data public-data reference baseline logreg models evaluate demo-samples dev lint format test check docker
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1m%-14s\033[0m %s\n", $$1, $$2}'
 
-install: ## Install the project and development tools
+install: ## Install the project and development tools, and fetch data and weights
 	$(PY) -m pip install -e ".[dev]"
+	$(PY) -m burotu.store fetch models
+	$(PY) -m burotu.store fetch refined
+
+fetch: ## Get the refined data and the weights in use from the store (GitHub Releases)
+	$(PY) -m burotu.store fetch models
+	$(PY) -m burotu.store fetch refined
 
 data: ## Download public data (TCGA, GEO)
 	$(PY) -m burotu.data.gdc
