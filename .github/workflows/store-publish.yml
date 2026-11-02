@@ -1,0 +1,77 @@
+name: Store publish
+
+# Manual: publish store bundles (data / weights, never in the Git history) as GitHub Releases.
+# The workstation pushes the files to a short-lived staging branch holding only `store/`;
+# this job packs them with the code of `main` (burotu.store, the pins of the next commit are
+# given as inputs), attaches them to their releases, then deletes the staging branch.
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Staging branch holding store/ (deleted at the end)
+        default: store-staging
+      code_ref:
+        description: Code used to pack (its registry.toml says which model versions go in the bundle)
+        default: main
+      bundles:
+        description: Space-separated bundles to publish
+        default: models refined
+      refined:
+        description: Refined data version (BUROTU_REFINED)
+        default: v2
+      models_tag:
+        description: Release tag of the models bundle
+        default: store-models-2026-11-02
+      refined_tag:
+        description: Release tag of the refined bundle
+        default: store-refined-v2
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.code_ref }}
+          path: current
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          path: staging
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Pack and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUROTU_STORE: ${{ github.workspace }}/staging/store
+          BUROTU_REFINED: ${{ inputs.refined }}
+        run: |
+          pip install -q -e "current"
+          cd current
+          find "$BUROTU_STORE" -maxdepth 4 -type d | head -40
+          python - <<'PY'
+          import subprocess
+          from burotu import store
+          tags = {"models": "${{ inputs.models_tag }}", "refined": "${{ inputs.refined_tag }}"}
+          names = {"models": "burotu-models.tar.gz", "refined": "burotu-refined-${{ inputs.refined }}.tar.gz"}
+          for bundle in "${{ inputs.bundles }}".split():
+              tag, name = tags[bundle], names[bundle]
+              store.PINS[bundle] = (tag, name, "")
+              path = store.pack(bundle)
+              (path.parent / f"{name}.sha256").write_text(store.sha256(path) + "\n")
+              if subprocess.run(["gh", "release", "view", tag], capture_output=True).returncode != 0:
+                  subprocess.run(["gh", "release", "create", tag, "--title", tag, "--notes",
+                                  f"Burotu store bundle ({bundle}): data and weights live outside Git, see src/burotu/store.py."], check=True)
+              subprocess.run(["gh", "release", "upload", tag, str(path), str(path.parent / f"{name}.sha256"), "--clobber"], check=True)
+              print(bundle, tag, store.sha256(path))
+          PY
+      - name: Delete the staging branch
+        if: always()
+        working-directory: current
+        run: git push origin --delete "${{ inputs.branch }}" || true
