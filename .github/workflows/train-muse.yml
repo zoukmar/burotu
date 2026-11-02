@@ -25,6 +25,9 @@ on:
         type: choice
         options: [train, diagnose, logs, cpgpt, publish]
         default: train
+      refined:
+        description: Refined data version (v1, v2)
+        default: v1
       gpu:
         description: Modal GPU
         type: choice
@@ -54,6 +57,8 @@ jobs:
         run: pip install "modal==1.6.2"
 
       - name: Refined data and weights from the store (GitHub Releases, outside Git)
+        env:
+          BUROTU_REFINED: ${{ inputs.refined }}
         run: |
           PYTHONPATH=src python -m burotu.store fetch refined
           PYTHONPATH=src python -m burotu.store fetch models
@@ -63,6 +68,7 @@ jobs:
           MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
           MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
           BUROTU_GPU: ${{ inputs.gpu }}
+          BUROTU_REFINED: ${{ inputs.refined }}
         run: |
           if [ "${{ inputs.task }}" = logs ]; then
             modal app list || true

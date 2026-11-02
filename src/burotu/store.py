@@ -29,17 +29,25 @@ from burotu.config import MODELS_STORE, REFINED_VERSION, STORE
 REPO = "zoukmar/burotu"
 
 # bundle -> (release tag, file name, sha256 or "" to trust the .sha256 file published with it).
+REFINED_PINS = {
+    "v1": (
+        "store-refined-v1-r2",
+        "burotu-refined-v1.tar.gz",
+        "f1fe4cefe2aaea58b8a9453059d1db603409ad87381b864a14384e5c5afe5c5b",
+    ),
+    "v2": (
+        "store-refined-v2",
+        "burotu-refined-v2.tar.gz",
+        "6c51b9d672747a2273b18ec8ad8f40e12fdd77e50efbae58769a9dc4fc6bb5ce",
+    ),
+}
 PINS = {
     "models": (
         "store-models-2026-10-30-r2",
         "burotu-models.tar.gz",
         "5e4319ec97f73faba10bc8e653d3859643bba736fa081d90ec53ac4fb8537220",
     ),
-    "refined": (
-        f"store-refined-{REFINED_VERSION}-r2",
-        f"burotu-refined-{REFINED_VERSION}.tar.gz",
-        "f1fe4cefe2aaea58b8a9453059d1db603409ad87381b864a14384e5c5afe5c5b",
-    ),
+    "refined": REFINED_PINS[REFINED_VERSION],
 }
 
 # Paths inside the store that each bundle carries.
