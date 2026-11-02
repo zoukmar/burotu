@@ -254,6 +254,14 @@ to GitHub Releases: `python -m burotu.store fetch models` (weights in use, 14 MB
 `python -m burotu.store fetch refined` (refined data v1, 66 MB). See
 [`src/burotu/store.py`](src/burotu/store.py).
 
+The pipeline runs stage by stage: `python -m burotu.pipeline {status|ingest|refine|train|evaluate|publish}`.
+Refine ([`src/burotu/pipeline/refine.py`](src/burotu/pipeline/refine.py)) turns every raw dataset,
+whatever its origin (GDC files, GEO matrices, the Loyfer whole-genome atlas), into the same three
+files on the panel: `beta.parquet`, `samples.csv` (standard columns: role, tissue, subtype, age,
+sex, platform, coverage), `info.json`; plus one `catalog.csv` of every sample. Refined data v2 on
+the workstation: about 26,000 samples from 45 datasets (15,200 tumours, 6,300 blood, 2,100 normal
+tissues, 680 real plasma, 280 purified cell types).
+
 ## Repository
 
 ```
