@@ -36,9 +36,9 @@ REFINED_PINS = {
         "f1fe4cefe2aaea58b8a9453059d1db603409ad87381b864a14384e5c5afe5c5b",
     ),
     "v2": (
-        "store-refined-v2",
+        "store-refined-v2-r2",
         "burotu-refined-v2.tar.gz",
-        "6c51b9d672747a2273b18ec8ad8f40e12fdd77e50efbae58769a9dc4fc6bb5ce",
+        "7823aa99580cf2f284eceee270b8ed30cad2ad6bf5893fdd18ad9b72283bcca2",
     ),
 }
 PINS = {
