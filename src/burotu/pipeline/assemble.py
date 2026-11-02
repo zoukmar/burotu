@@ -41,7 +41,7 @@ TEST_FRAC = 0.3
 # Healthy whole blood (no cancer): population cohorts, ageing, twins, and non-cancer disease
 # controls (rheumatoid arthritis, IBD) so that inflammation is part of "healthy" too.
 BLOOD_SETS = ["GSE40279", "GSE55763", "GSE87571", "GSE56105", "GSE72680", "GSE72775", "GSE42861",
-              "GSE87648", "GSE184047", "GSE234190"]  # fmt: skip
+              "GSE234190"]  # fmt: skip
 # Non-blood DNA in healthy plasma: component -> (Loyfer cell types, maximum share in a sample).
 PLASMA_COMPONENTS = {"endothelium": ("Endothelium", 0.12), "erythroid": ("Erythrocyte progenitors", 0.25),
                      "hepatocyte": ("Hepatocyte", 0.08)}  # fmt: skip
@@ -89,7 +89,18 @@ def _load(src, cat: pd.DataFrame) -> pd.DataFrame:
     return pd.concat(parts, axis=1)[list(cat["uid"])]
 
 
-def assemble(store=STORE, seed: int = SEED) -> Reference:
+# Each array cohort comes with its own lab batch (between-cohort spread of the per-site mean is
+# about 3x the spread between people of one cohort). Every cohort is moved onto the reference
+# batch (Hannum, the v1 background) site by site, keeping the differences between its people.
+HARMONIZE_TO = "GSE40279"
+# A targeted panel only works on sites that stay unmethylated in every healthy cell type that
+# sheds DNA into plasma: sites above this mean beta in a plasma component are left out.
+COMPONENT_MAX_BETA = 0.2
+
+
+def assemble(
+    store=STORE, seed: int = SEED, harmonize: bool = True, components: bool = False, panel_filter: bool = False
+) -> Reference:
     root = store / "refined" / VERSION
     src = root / "sources"
     rng = np.random.default_rng(seed)
@@ -101,11 +112,20 @@ def assemble(store=STORE, seed: int = SEED) -> Reference:
     good = cat["coverage"] >= MIN_COVERAGE
 
     # Healthy blood donors, split within each cohort.
-    blood_cat = cat[good & cat["dataset"].isin(BLOOD_SETS) & cat["role"].eq("blood")]
+    import os
+
+    blood_sets = os.environ.get("BUROTU_ASSEMBLE_BLOOD", ",".join(BLOOD_SETS)).split(",")
+    blood_cat = cat[good & cat["dataset"].isin(blood_sets) & cat["role"].eq("blood")]
     blood = _load(src, blood_cat)
     blood_med = pd.Series(np.nanmedian(blood.to_numpy(np.float32), axis=1), index=blood.index)
     blood_med = blood_med.fillna(float(np.nanmedian(blood_med)))
     blood = _impute_rows(blood, blood_med.to_numpy())
+    cohort = pd.Series([u.split(":")[0] for u in blood.columns], index=blood.columns)
+    if harmonize:
+        target = blood.loc[:, cohort == HARMONIZE_TO].mean(axis=1)
+        for _, cols in cohort.groupby(cohort).groups.items():
+            shift = (target - blood[cols].mean(axis=1)).to_numpy()[:, None]
+            blood[cols] = np.clip(blood[cols].to_numpy() + shift, 0, 1)
     # v1 test donors and tumours stay in test, so v2 models can still be scored on the v1 benchmark.
     v1 = store / "refined" / "v1" / "processed"
     v1_test = set("GSE40279:" + pd.read_parquet(v1 / "blood_test.parquet").columns)
@@ -163,16 +183,28 @@ def assemble(store=STORE, seed: int = SEED) -> Reference:
         lo.loc[lo["uid"].isin(te), "split"] = "test"
     bmeta = pd.DataFrame({"sample_id": lo["uid"], "component": lo["component"], "split": lo["split"]})
 
+    if panel_filter:
+        comp_mean = pd.DataFrame({c: cells[list(r["sample_id"])].mean(axis=1) for c, r in bmeta.groupby("component")})
+        raw = _load(src, lo).reindex(panel)  # before imputation: NaN = not measured in the atlas
+        measured = raw.notna().mean(axis=1) > 0.5
+        noisy = measured & (comp_mean.max(axis=1) > COMPONENT_MAX_BETA)
+        panel = [c for c in panel if not noisy.get(c, False)]
+    if not components:
+        bmeta = bmeta.iloc[:0]
     settings = {
         "version": VERSION,
-        "calibration_donors": 300,
+        "calibration_donors": 300 if len(b_tr) > 1000 else 35,
         "plasma_components": {k: v[1] for k, v in PLASMA_COMPONENTS.items()},
         "plasma_components_prob": 0.8,
         "classes": sorted(meta["cancer_class"].unique()),
         "blood_sets": BLOOD_SETS,
         "min_coverage": MIN_COVERAGE,
         "max_per_class": MAX_PER_CLASS,
+        "harmonized_to": HARMONIZE_TO if harmonize else None,
+        "panel_filter_component_max_beta": COMPONENT_MAX_BETA if panel_filter else None,
     }
+    if not components:
+        settings.pop("plasma_components")
     sel = lambda df, ids: df.loc[panel, ids].astype(np.float32)  # noqa: E731
     return Reference(
         panel=panel,
@@ -189,8 +221,12 @@ def assemble(store=STORE, seed: int = SEED) -> Reference:
 
 
 def main(argv: list[str] | None = None) -> None:
-    ref = assemble()
-    out = STORE / "refined" / VERSION / "processed"
+    import os
+
+    defaults = {"harmonize": "1", "components": "0", "panel_filter": "0"}
+    flags = {k: os.environ.get(f"BUROTU_ASSEMBLE_{k.upper()}", v) == "1" for k, v in defaults.items()}
+    ref = assemble(**flags)
+    out = STORE / "refined" / os.environ.get("BUROTU_ASSEMBLE_OUT", VERSION) / "processed"
     ref.save(out)
     v1 = STORE / "refined" / "v1"
     # Real plasma used as checks only: same files as v1.
@@ -202,12 +238,14 @@ def main(argv: list[str] | None = None) -> None:
         "blood_donors": {"train": ref.blood_train.shape[1], "test": ref.blood_test.shape[1]},
         "tumours": ref.tumor_meta.groupby(["cancer_class", "split"]).size().unstack().fillna(0).astype(int).to_dict(),
         "tumour_sources": ref.tumor_meta["project"].value_counts().to_dict(),
-        "plasma_components": ref.background_meta.groupby(["component", "split"]).size().unstack().to_dict(),
+        "plasma_components": {
+            f"{a}/{b}": int(n) for (a, b), n in ref.background_meta.groupby(["component", "split"]).size().items()
+        },
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=1))
     print(f"blood donors {ref.blood_train.shape[1]} train / {ref.blood_test.shape[1]} test")
     print(ref.tumor_meta.groupby(["cancer_class", "split"]).size().unstack())
-    print(ref.background_meta.groupby(["component", "split"]).size().unstack())
+    print(f"panel {len(ref.panel)} sites;", summary["plasma_components"])
 
 
 if __name__ == "__main__":
