@@ -80,7 +80,20 @@ def simulate_cohort(
 
     donors = getattr(ref, f"blood_{split}")
 
-    def background() -> tuple[np.ndarray, str]:
+    # Non-blood cell types in healthy plasma (refined v2+): component -> (cell profiles, max share).
+    cells = getattr(ref, f"background_{split}", None)
+    shares = ref.settings.get("plasma_components", {}) if cells is not None else {}
+    pools = {}
+    if shares:
+        bmeta = ref.background_meta.set_index("sample_id").loc[cells.columns]
+        for comp, max_share in shares.items():
+            cols = np.flatnonzero(bmeta["component"].to_numpy() == comp)
+            if len(cols):
+                pools[comp] = (cells.to_numpy(np.float32)[:, cols], float(max_share))
+    comp_prob = float(ref.settings.get("plasma_components_prob", 0.8))
+    comp_rng = np.random.default_rng(cfg.seed + 1000)  # separate stream: v1 cohorts stay identical
+
+    def blood_only() -> tuple[np.ndarray, str]:
         b = rng.integers(blood.shape[1])
         if cfg.mix_donors <= 1 or rng.random() >= cfg.mix_prob:
             return blood[:, b], ref_col(donors, b)
@@ -88,6 +101,16 @@ def simulate_cohort(
         idx = rng.choice(blood.shape[1], size=k, replace=False)
         w = rng.dirichlet(np.ones(k))
         return blood[:, idx] @ w.astype(np.float32), "mix:" + "+".join(ref_col(donors, int(i)) for i in idx)
+
+    def background() -> tuple[np.ndarray, str]:
+        bg, donor = blood_only()
+        if not pools or comp_rng.random() >= comp_prob:
+            return bg, donor
+        out = bg.copy()  # (1 - sum of shares) x blood + share x each cell type
+        for profiles, max_share in pools.values():
+            w = float(comp_rng.uniform(0, max_share))
+            out += w * (profiles[:, comp_rng.integers(profiles.shape[1])] - bg)
+        return np.clip(out, 0, 1).astype(np.float32), donor + "+cells"
 
     def add(tumor_idx: int | None, cls: str, tf: float) -> None:
         bg, donor = background()

@@ -59,8 +59,9 @@ class Cohort:
         return len(self.meta)
 
 
-def split_donors(ref: Reference, n_calib: int = CALIB_DONORS) -> tuple[Reference, Reference]:
+def split_donors(ref: Reference, n_calib: int | None = None) -> tuple[Reference, Reference]:
     """Split training donors into model-fitting donors and calibration-only donors."""
+    n_calib = n_calib or int(ref.settings.get("calibration_donors", CALIB_DONORS))
     donors = np.array(sorted(ref.blood_train.columns))
     np.random.default_rng(0).shuffle(donors)
     calib, fit = donors[:n_calib], donors[n_calib:]

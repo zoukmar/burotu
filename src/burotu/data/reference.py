@@ -8,8 +8,9 @@ information leaks into the test set.
 
 from __future__ import annotations
 
+import json
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
@@ -25,16 +26,31 @@ class Reference:
     tumor_train: pd.DataFrame  # panel × tumours
     tumor_test: pd.DataFrame
     tumor_meta: pd.DataFrame  # file_id, cancer_class, split
+    # Since refined v2: purified non-blood cell types that also shed DNA into healthy plasma
+    # (endothelium, erythroid progenitors, hepatocytes; Loyfer atlas), mixed into the healthy
+    # background by the simulator, and the settings of the simulation and benchmark.
+    background_train: pd.DataFrame | None = None  # panel × cell samples
+    background_test: pd.DataFrame | None = None
+    background_meta: pd.DataFrame | None = None  # sample_id, component, split
+    settings: dict = field(default_factory=dict)
 
     def save(self, out=PROCESSED_DIR) -> None:
         out.mkdir(parents=True, exist_ok=True)
         pd.Series(self.panel, name="cpg_id").to_csv(out / "panel.csv", index=False)
-        for name in ("blood_train", "blood_test", "tumor_train", "tumor_test"):
-            getattr(self, name).to_parquet(out / f"{name}.parquet")
+        for name in ("blood_train", "blood_test", "tumor_train", "tumor_test", "background_train", "background_test"):
+            if getattr(self, name) is not None:
+                getattr(self, name).to_parquet(out / f"{name}.parquet")
         self.tumor_meta.to_csv(out / "tumor_meta.csv", index=False)
+        if self.background_meta is not None:
+            self.background_meta.to_csv(out / "background_meta.csv", index=False)
+        if self.settings:
+            (out / "settings.json").write_text(json.dumps(self.settings, indent=1))
 
     @classmethod
     def load(cls, src=PROCESSED_DIR) -> Reference:
+        def opt(name: str) -> pd.DataFrame | None:
+            return pd.read_parquet(src / f"{name}.parquet") if (src / f"{name}.parquet").exists() else None
+
         return cls(
             panel=pd.read_csv(src / "panel.csv")["cpg_id"].tolist(),
             blood_train=pd.read_parquet(src / "blood_train.parquet"),
@@ -42,6 +58,12 @@ class Reference:
             tumor_train=pd.read_parquet(src / "tumor_train.parquet"),
             tumor_test=pd.read_parquet(src / "tumor_test.parquet"),
             tumor_meta=pd.read_csv(src / "tumor_meta.csv"),
+            background_train=opt("background_train"),
+            background_test=opt("background_test"),
+            background_meta=pd.read_csv(src / "background_meta.csv")
+            if (src / "background_meta.csv").exists()
+            else None,
+            settings=json.loads((src / "settings.json").read_text()) if (src / "settings.json").exists() else {},
         )
 
 
