@@ -8,25 +8,25 @@
           "whole blood": {
             "n_cancer": 185,
             "n_no_cancer": 0,
-            "detected": 185,
+            "detected": 184,
             "flagged_no_cancer": 0,
-            "tissue_right": 1,
+            "tissue_right": 19,
             "top_tissues": {
-              "Liver": 73,
-              "Adrenal": 45,
-              "Brain": 29
+              "Liver": 42,
+              "Soft tissue": 23,
+              "Lung": 19
             }
           },
           "plasma controls": {
             "n_cancer": 185,
             "n_no_cancer": 0,
-            "detected": 26,
+            "detected": 34,
             "flagged_no_cancer": 0,
-            "tissue_right": 26,
+            "tissue_right": 30,
             "top_tissues": {
-              "Thymus": 33,
-              "Lung": 26,
-              "Mesothelium": 22
+              "Thymus": 40,
+              "Lung": 30,
+              "Blood cancer": 25
             }
           }
         },
@@ -34,25 +34,25 @@
           "whole blood": {
             "n_cancer": 185,
             "n_no_cancer": 0,
-            "detected": 185,
+            "detected": 184,
             "flagged_no_cancer": 0,
-            "tissue_right": 12,
+            "tissue_right": 37,
             "top_tissues": {
-              "Testis": 88,
-              "Adrenal": 34,
-              "Liver": 26
+              "Testis": 39,
+              "Lung": 37,
+              "Soft tissue": 25
             }
           },
           "plasma controls": {
             "n_cancer": 185,
             "n_no_cancer": 0,
-            "detected": 61,
+            "detected": 60,
             "flagged_no_cancer": 0,
-            "tissue_right": 60,
+            "tissue_right": 30,
             "top_tissues": {
-              "Lung": 60,
-              "Liver": 20,
-              "Uterus": 17
+              "Lung": 30,
+              "Skin": 18,
+              "Mesothelium": 17
             }
           }
         }
@@ -65,23 +65,25 @@
           "whole blood": {
             "n_cancer": 181,
             "n_no_cancer": 0,
-            "detected": 163,
+            "detected": 150,
             "flagged_no_cancer": 0,
             "tissue_right": 0,
             "top_tissues": {
-              "Liver": 163,
-              "Pancreas": 18
+              "Brain": 169,
+              "Liver": 11,
+              "Thyroid": 1
             }
           },
           "plasma controls": {
             "n_cancer": 181,
             "n_no_cancer": 0,
-            "detected": 181,
+            "detected": 18,
             "flagged_no_cancer": 0,
             "tissue_right": 0,
             "top_tissues": {
-              "Liver": 163,
-              "Pancreas": 18
+              "Brain": 149,
+              "Oesophagus-Stomach": 18,
+              "Liver": 14
             }
           }
         },
@@ -91,22 +93,23 @@
             "n_no_cancer": 0,
             "detected": 163,
             "flagged_no_cancer": 0,
-            "tissue_right": 162,
+            "tissue_right": 0,
             "top_tissues": {
-              "Prostate": 162,
-              "Uterus": 18,
-              "Brain": 1
+              "Oesophagus-Stomach": 87,
+              "Liver": 40,
+              "Cervix": 18
             }
           },
           "plasma controls": {
             "n_cancer": 181,
             "n_no_cancer": 0,
-            "detected": 163,
+            "detected": 0,
             "flagged_no_cancer": 0,
-            "tissue_right": 163,
+            "tissue_right": 0,
             "top_tissues": {
-              "Prostate": 163,
-              "Uterus": 18
+              "Cervix": 135,
+              "Thymus": 18,
+              "Eye": 16
             }
           }
         }
@@ -119,53 +122,55 @@
           "whole blood": {
             "n_cancer": 31,
             "n_no_cancer": 214,
-            "detected": 24,
-            "flagged_no_cancer": 41,
-            "tissue_right": 31,
+            "detected": 31,
+            "flagged_no_cancer": 214,
+            "tissue_right": 29,
             "top_tissues": {
-              "Liver": 31
+              "Liver": 29,
+              "Bile duct": 2
             },
-            "auc": 0.89
+            "auc": 0.863
           },
           "plasma controls": {
             "n_cancer": 31,
             "n_no_cancer": 214,
-            "detected": 11,
-            "flagged_no_cancer": 0,
+            "detected": 23,
+            "flagged_no_cancer": 24,
             "tissue_right": 21,
             "top_tissues": {
               "Liver": 21,
-              "Bladder": 5,
-              "Colorectal": 3
+              "Bile duct": 5,
+              "Head and neck": 2
             },
-            "auc": 0.858
+            "auc": 0.887
           }
         },
         "logreg": {
           "whole blood": {
             "n_cancer": 31,
             "n_no_cancer": 214,
-            "detected": 30,
-            "flagged_no_cancer": 190,
-            "tissue_right": 30,
+            "detected": 31,
+            "flagged_no_cancer": 214,
+            "tissue_right": 24,
             "top_tissues": {
-              "Liver": 30,
-              "Soft tissue": 1
+              "Liver": 24,
+              "Soft tissue": 2,
+              "Bile duct": 2
             },
-            "auc": 0.853
+            "auc": 0.871
           },
           "plasma controls": {
             "n_cancer": 31,
             "n_no_cancer": 214,
-            "detected": 19,
-            "flagged_no_cancer": 4,
-            "tissue_right": 21,
+            "detected": 23,
+            "flagged_no_cancer": 34,
+            "tissue_right": 23,
             "top_tissues": {
-              "Liver": 21,
-              "Lung": 7,
-              "Colorectal": 1
+              "Liver": 23,
+              "Blood cancer": 3,
+              "Mesothelium": 2
             },
-            "auc": 0.84
+            "auc": 0.844
           }
         }
       }
@@ -178,54 +183,55 @@
             "n_cancer": 22,
             "n_no_cancer": 22,
             "detected": 22,
-            "flagged_no_cancer": 22,
-            "tissue_right": 21,
+            "flagged_no_cancer": 20,
+            "tissue_right": 2,
             "top_tissues": {
-              "Liver": 21,
-              "Brain": 1
+              "Thymus": 13,
+              "Soft tissue": 4,
+              "Cervix": 2
             },
-            "auc": 0.38
+            "auc": 0.554
           },
           "plasma controls": {
             "n_cancer": 22,
             "n_no_cancer": 22,
-            "detected": 15,
-            "flagged_no_cancer": 8,
+            "detected": 0,
+            "flagged_no_cancer": 0,
             "tissue_right": 3,
             "top_tissues": {
-              "Cervix": 9,
-              "Thymus": 4,
+              "Thymus": 9,
+              "Blood cancer": 6,
               "Liver": 3
             },
-            "auc": 0.657
+            "auc": 0.554
           }
         },
         "logreg": {
           "whole blood": {
             "n_cancer": 22,
             "n_no_cancer": 22,
-            "detected": 22,
-            "flagged_no_cancer": 22,
-            "tissue_right": 6,
+            "detected": 21,
+            "flagged_no_cancer": 20,
+            "tissue_right": 9,
             "top_tissues": {
-              "Testis": 8,
-              "Liver": 6,
-              "Brain": 5
+              "Liver": 9,
+              "Oesophagus-Stomach": 3,
+              "Soft tissue": 3
             },
-            "auc": 0.731
+            "auc": 0.446
           },
           "plasma controls": {
             "n_cancer": 22,
             "n_no_cancer": 22,
-            "detected": 21,
-            "flagged_no_cancer": 20,
-            "tissue_right": 5,
+            "detected": 1,
+            "flagged_no_cancer": 1,
+            "tissue_right": 7,
             "top_tissues": {
-              "Prostate": 9,
-              "Testis": 6,
-              "Liver": 5
+              "Thymus": 11,
+              "Liver": 7,
+              "Cervix": 2
             },
-            "auc": 0.723
+            "auc": 0.589
           }
         }
       }

@@ -1,0 +1,650 @@
+{
+  "classic": {
+    "v2_on_v1_test": {
+      "specificity": 0.9825,
+      "signal_at_1pct": 0.8595238095238096,
+      "tissue_at_1pct": 0.48928571428571427,
+      "signal_at_0.1pct": 0.04404761904761905,
+      "signal_at_10pct": 0.9988095238095238,
+      "tissue_at_10pct": 0.9178571428571428
+    },
+    "v2_on_v1_test_local": {
+      "specificity": 0.98175,
+      "signal_at_1pct": 0.8666666666666667,
+      "tissue_at_1pct": 0.48928571428571427,
+      "signal_at_0.1pct": 0.04404761904761905,
+      "signal_at_10pct": 0.9988095238095238,
+      "tissue_at_10pct": 0.9178571428571428
+    },
+    "full": {
+      "threshold": 0.9502917638978788,
+      "specificity_observed": 0.9825,
+      "n_healthy": 4000,
+      "by_tumor_fraction": [
+        {
+          "tumor_fraction": 0.0003,
+          "n": 840,
+          "sensitivity": 0.02976190476190476,
+          "auc": 0.5459815476190476,
+          "origin_top1": 0.0380952380952381,
+          "origin_top2": 0.10357142857142858
+        },
+        {
+          "tumor_fraction": 0.001,
+          "n": 840,
+          "sensitivity": 0.04404761904761905,
+          "auc": 0.6214294642857143,
+          "origin_top1": 0.04642857142857143,
+          "origin_top2": 0.10952380952380952
+        },
+        {
+          "tumor_fraction": 0.003,
+          "n": 840,
+          "sensitivity": 0.2119047619047619,
+          "auc": 0.8093095238095238,
+          "origin_top1": 0.11428571428571428,
+          "origin_top2": 0.21428571428571427
+        },
+        {
+          "tumor_fraction": 0.01,
+          "n": 840,
+          "sensitivity": 0.8595238095238096,
+          "auc": 0.9821139880952381,
+          "origin_top1": 0.48928571428571427,
+          "origin_top2": 0.6619047619047619
+        },
+        {
+          "tumor_fraction": 0.03,
+          "n": 840,
+          "sensitivity": 0.9726190476190476,
+          "auc": 0.9949348214285714,
+          "origin_top1": 0.8321428571428572,
+          "origin_top2": 0.905952380952381
+        },
+        {
+          "tumor_fraction": 0.1,
+          "n": 840,
+          "sensitivity": 0.9988095238095238,
+          "auc": 0.9999595238095238,
+          "origin_top1": 0.9178571428571428,
+          "origin_top2": 0.9523809523809523
+        }
+      ],
+      "by_class_at_1pct": {
+        "Adrenal": {
+          "sensitivity": 0.9047619047619048,
+          "origin_top1": 0.5476190476190477
+        },
+        "Bile duct": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Bladder": {
+          "sensitivity": 0.8333333333333334,
+          "origin_top1": 0.5238095238095238
+        },
+        "Blood cancer": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Brain": {
+          "sensitivity": 0.9523809523809523,
+          "origin_top1": 0.7380952380952381
+        },
+        "Breast": {
+          "sensitivity": 0.9523809523809523,
+          "origin_top1": 0.5714285714285714
+        },
+        "Cervix": {
+          "sensitivity": 0.9523809523809523,
+          "origin_top1": 0.35714285714285715
+        },
+        "Colorectal": {
+          "sensitivity": 0.9047619047619048,
+          "origin_top1": 0.5952380952380952
+        },
+        "Eye": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Head and neck": {
+          "sensitivity": 0.8095238095238095,
+          "origin_top1": 0.23809523809523808
+        },
+        "Kidney": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.23809523809523808
+        },
+        "Liver": {
+          "sensitivity": 0.9047619047619048,
+          "origin_top1": 0.7619047619047619
+        },
+        "Lung": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.42857142857142855
+        },
+        "Mesothelium": {
+          "sensitivity": 0.7857142857142857,
+          "origin_top1": 0.47619047619047616
+        },
+        "Oesophagus-Stomach": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.35714285714285715
+        },
+        "Pancreas": {
+          "sensitivity": 0.8095238095238095,
+          "origin_top1": 0.2619047619047619
+        },
+        "Prostate": {
+          "sensitivity": 1.0,
+          "origin_top1": 0.7619047619047619
+        },
+        "Skin": {
+          "sensitivity": 0.8571428571428571,
+          "origin_top1": 0.7857142857142857
+        },
+        "Soft tissue": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.30952380952380953
+        },
+        "Testis": {
+          "sensitivity": 0.3333333333333333,
+          "origin_top1": 0.2857142857142857
+        },
+        "Thymus": {
+          "sensitivity": 0.47619047619047616,
+          "origin_top1": 0.21428571428571427
+        },
+        "Thyroid": {
+          "sensitivity": 1.0,
+          "origin_top1": 0.7619047619047619
+        },
+        "Uterus": {
+          "sensitivity": 1.0,
+          "origin_top1": 0.5714285714285714
+        }
+      }
+    },
+    "full_local": {
+      "threshold": 0.9496080167003562,
+      "specificity_observed": 0.98175,
+      "n_healthy": 4000,
+      "by_tumor_fraction": [
+        {
+          "tumor_fraction": 0.0003,
+          "n": 840,
+          "sensitivity": 0.030952380952380953,
+          "auc": 0.5459815476190476,
+          "origin_top1": 0.0380952380952381,
+          "origin_top2": 0.10357142857142858
+        },
+        {
+          "tumor_fraction": 0.001,
+          "n": 840,
+          "sensitivity": 0.04404761904761905,
+          "auc": 0.6214294642857143,
+          "origin_top1": 0.04642857142857143,
+          "origin_top2": 0.10952380952380952
+        },
+        {
+          "tumor_fraction": 0.003,
+          "n": 840,
+          "sensitivity": 0.2154761904761905,
+          "auc": 0.8093095238095238,
+          "origin_top1": 0.11428571428571428,
+          "origin_top2": 0.21428571428571427
+        },
+        {
+          "tumor_fraction": 0.01,
+          "n": 840,
+          "sensitivity": 0.8666666666666667,
+          "auc": 0.9821139880952381,
+          "origin_top1": 0.48928571428571427,
+          "origin_top2": 0.6619047619047619
+        },
+        {
+          "tumor_fraction": 0.03,
+          "n": 840,
+          "sensitivity": 0.9726190476190476,
+          "auc": 0.9949348214285714,
+          "origin_top1": 0.8321428571428572,
+          "origin_top2": 0.905952380952381
+        },
+        {
+          "tumor_fraction": 0.1,
+          "n": 840,
+          "sensitivity": 0.9988095238095238,
+          "auc": 0.9999595238095238,
+          "origin_top1": 0.9178571428571428,
+          "origin_top2": 0.9523809523809523
+        }
+      ],
+      "by_class_at_1pct": {
+        "Adrenal": {
+          "sensitivity": 0.9047619047619048,
+          "origin_top1": 0.5476190476190477
+        },
+        "Bile duct": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Bladder": {
+          "sensitivity": 0.8333333333333334,
+          "origin_top1": 0.5238095238095238
+        },
+        "Blood cancer": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Brain": {
+          "sensitivity": 0.9523809523809523,
+          "origin_top1": 0.7380952380952381
+        },
+        "Breast": {
+          "sensitivity": 0.9523809523809523,
+          "origin_top1": 0.5714285714285714
+        },
+        "Cervix": {
+          "sensitivity": 0.9761904761904762,
+          "origin_top1": 0.35714285714285715
+        },
+        "Colorectal": {
+          "sensitivity": 0.9047619047619048,
+          "origin_top1": 0.5952380952380952
+        },
+        "Eye": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Head and neck": {
+          "sensitivity": 0.8095238095238095,
+          "origin_top1": 0.23809523809523808
+        },
+        "Kidney": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.23809523809523808
+        },
+        "Liver": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.7619047619047619
+        },
+        "Lung": {
+          "sensitivity": 0.9523809523809523,
+          "origin_top1": 0.42857142857142855
+        },
+        "Mesothelium": {
+          "sensitivity": 0.8095238095238095,
+          "origin_top1": 0.47619047619047616
+        },
+        "Oesophagus-Stomach": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.35714285714285715
+        },
+        "Pancreas": {
+          "sensitivity": 0.8095238095238095,
+          "origin_top1": 0.2619047619047619
+        },
+        "Prostate": {
+          "sensitivity": 1.0,
+          "origin_top1": 0.7619047619047619
+        },
+        "Skin": {
+          "sensitivity": 0.8809523809523809,
+          "origin_top1": 0.7857142857142857
+        },
+        "Soft tissue": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.30952380952380953
+        },
+        "Testis": {
+          "sensitivity": 0.35714285714285715,
+          "origin_top1": 0.2857142857142857
+        },
+        "Thymus": {
+          "sensitivity": 0.47619047619047616,
+          "origin_top1": 0.21428571428571427
+        },
+        "Thyroid": {
+          "sensitivity": 1.0,
+          "origin_top1": 0.7619047619047619
+        },
+        "Uterus": {
+          "sensitivity": 1.0,
+          "origin_top1": 0.5714285714285714
+        }
+      }
+    },
+    "v1_on_v1_test": {
+      "specificity": 0.99875,
+      "signal_at_1pct": 0.7130952380952381,
+      "tissue_at_1pct": 0.5452380952380952,
+      "signal_at_0.1pct": 0.010714285714285714,
+      "signal_at_10pct": 0.9964285714285714,
+      "tissue_at_10pct": 0.9297619047619048
+    }
+  },
+  "logreg": {
+    "v2_on_v1_test": {
+      "specificity": 1.0,
+      "signal_at_1pct": 0.3142857142857143,
+      "tissue_at_1pct": 0.4666666666666667,
+      "signal_at_0.1pct": 0.0,
+      "signal_at_10pct": 0.9916666666666667,
+      "tissue_at_10pct": 0.9166666666666666
+    },
+    "v2_on_v1_test_local": {
+      "specificity": 0.998,
+      "signal_at_1pct": 0.7035714285714286,
+      "tissue_at_1pct": 0.4666666666666667,
+      "signal_at_0.1pct": 0.004761904761904762,
+      "signal_at_10pct": 0.9976190476190476,
+      "tissue_at_10pct": 0.9166666666666666
+    },
+    "full": {
+      "threshold": 13.691167831420898,
+      "specificity_observed": 1.0,
+      "n_healthy": 4000,
+      "by_tumor_fraction": [
+        {
+          "tumor_fraction": 0.0003,
+          "n": 840,
+          "sensitivity": 0.0,
+          "auc": 0.5373330357142857,
+          "origin_top1": 0.04880952380952381,
+          "origin_top2": 0.09642857142857143
+        },
+        {
+          "tumor_fraction": 0.001,
+          "n": 840,
+          "sensitivity": 0.0,
+          "auc": 0.5967708333333334,
+          "origin_top1": 0.04523809523809524,
+          "origin_top2": 0.11071428571428571
+        },
+        {
+          "tumor_fraction": 0.003,
+          "n": 840,
+          "sensitivity": 0.0,
+          "auc": 0.7486047619047619,
+          "origin_top1": 0.09761904761904762,
+          "origin_top2": 0.18571428571428572
+        },
+        {
+          "tumor_fraction": 0.01,
+          "n": 840,
+          "sensitivity": 0.3142857142857143,
+          "auc": 0.9631416666666667,
+          "origin_top1": 0.4666666666666667,
+          "origin_top2": 0.6166666666666667
+        },
+        {
+          "tumor_fraction": 0.03,
+          "n": 840,
+          "sensitivity": 0.9547619047619048,
+          "auc": 0.9941794642857142,
+          "origin_top1": 0.8547619047619047,
+          "origin_top2": 0.9071428571428571
+        },
+        {
+          "tumor_fraction": 0.1,
+          "n": 840,
+          "sensitivity": 0.9916666666666667,
+          "auc": 0.9996961309523809,
+          "origin_top1": 0.9166666666666666,
+          "origin_top2": 0.9607142857142857
+        }
+      ],
+      "by_class_at_1pct": {
+        "Adrenal": {
+          "sensitivity": 0.4523809523809524,
+          "origin_top1": 0.47619047619047616
+        },
+        "Bile duct": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Bladder": {
+          "sensitivity": 0.3333333333333333,
+          "origin_top1": 0.5238095238095238
+        },
+        "Blood cancer": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Brain": {
+          "sensitivity": 0.16666666666666666,
+          "origin_top1": 0.6428571428571429
+        },
+        "Breast": {
+          "sensitivity": 0.42857142857142855,
+          "origin_top1": 0.38095238095238093
+        },
+        "Cervix": {
+          "sensitivity": 0.38095238095238093,
+          "origin_top1": 0.3333333333333333
+        },
+        "Colorectal": {
+          "sensitivity": 0.2857142857142857,
+          "origin_top1": 0.6428571428571429
+        },
+        "Eye": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Head and neck": {
+          "sensitivity": 0.23809523809523808,
+          "origin_top1": 0.19047619047619047
+        },
+        "Kidney": {
+          "sensitivity": 0.4523809523809524,
+          "origin_top1": 0.3333333333333333
+        },
+        "Liver": {
+          "sensitivity": 0.09523809523809523,
+          "origin_top1": 0.6428571428571429
+        },
+        "Lung": {
+          "sensitivity": 0.40476190476190477,
+          "origin_top1": 0.2619047619047619
+        },
+        "Mesothelium": {
+          "sensitivity": 0.16666666666666666,
+          "origin_top1": 0.4523809523809524
+        },
+        "Oesophagus-Stomach": {
+          "sensitivity": 0.19047619047619047,
+          "origin_top1": 0.2619047619047619
+        },
+        "Pancreas": {
+          "sensitivity": 0.3333333333333333,
+          "origin_top1": 0.3333333333333333
+        },
+        "Prostate": {
+          "sensitivity": 0.47619047619047616,
+          "origin_top1": 0.7142857142857143
+        },
+        "Skin": {
+          "sensitivity": 0.3333333333333333,
+          "origin_top1": 0.7857142857142857
+        },
+        "Soft tissue": {
+          "sensitivity": 0.40476190476190477,
+          "origin_top1": 0.30952380952380953
+        },
+        "Testis": {
+          "sensitivity": 0.023809523809523808,
+          "origin_top1": 0.2857142857142857
+        },
+        "Thymus": {
+          "sensitivity": 0.047619047619047616,
+          "origin_top1": 0.35714285714285715
+        },
+        "Thyroid": {
+          "sensitivity": 0.5476190476190477,
+          "origin_top1": 0.7857142857142857
+        },
+        "Uterus": {
+          "sensitivity": 0.5238095238095238,
+          "origin_top1": 0.6190476190476191
+        }
+      }
+    },
+    "full_local": {
+      "threshold": 9.094603538513184,
+      "specificity_observed": 0.998,
+      "n_healthy": 4000,
+      "by_tumor_fraction": [
+        {
+          "tumor_fraction": 0.0003,
+          "n": 840,
+          "sensitivity": 0.002380952380952381,
+          "auc": 0.5373330357142857,
+          "origin_top1": 0.04880952380952381,
+          "origin_top2": 0.09642857142857143
+        },
+        {
+          "tumor_fraction": 0.001,
+          "n": 840,
+          "sensitivity": 0.004761904761904762,
+          "auc": 0.5967708333333334,
+          "origin_top1": 0.04523809523809524,
+          "origin_top2": 0.11071428571428571
+        },
+        {
+          "tumor_fraction": 0.003,
+          "n": 840,
+          "sensitivity": 0.047619047619047616,
+          "auc": 0.7486047619047619,
+          "origin_top1": 0.09761904761904762,
+          "origin_top2": 0.18571428571428572
+        },
+        {
+          "tumor_fraction": 0.01,
+          "n": 840,
+          "sensitivity": 0.7035714285714286,
+          "auc": 0.9631416666666667,
+          "origin_top1": 0.4666666666666667,
+          "origin_top2": 0.6166666666666667
+        },
+        {
+          "tumor_fraction": 0.03,
+          "n": 840,
+          "sensitivity": 0.969047619047619,
+          "auc": 0.9941794642857142,
+          "origin_top1": 0.8547619047619047,
+          "origin_top2": 0.9071428571428571
+        },
+        {
+          "tumor_fraction": 0.1,
+          "n": 840,
+          "sensitivity": 0.9976190476190476,
+          "auc": 0.9996961309523809,
+          "origin_top1": 0.9166666666666666,
+          "origin_top2": 0.9607142857142857
+        }
+      ],
+      "by_class_at_1pct": {
+        "Adrenal": {
+          "sensitivity": 0.8333333333333334,
+          "origin_top1": 0.47619047619047616
+        },
+        "Bile duct": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Bladder": {
+          "sensitivity": 0.8571428571428571,
+          "origin_top1": 0.5238095238095238
+        },
+        "Blood cancer": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Brain": {
+          "sensitivity": 0.7380952380952381,
+          "origin_top1": 0.6428571428571429
+        },
+        "Breast": {
+          "sensitivity": 0.8571428571428571,
+          "origin_top1": 0.38095238095238093
+        },
+        "Cervix": {
+          "sensitivity": 0.7619047619047619,
+          "origin_top1": 0.3333333333333333
+        },
+        "Colorectal": {
+          "sensitivity": 0.8333333333333334,
+          "origin_top1": 0.6428571428571429
+        },
+        "Eye": {
+          "sensitivity": NaN,
+          "origin_top1": NaN
+        },
+        "Head and neck": {
+          "sensitivity": 0.5238095238095238,
+          "origin_top1": 0.19047619047619047
+        },
+        "Kidney": {
+          "sensitivity": 0.8095238095238095,
+          "origin_top1": 0.3333333333333333
+        },
+        "Liver": {
+          "sensitivity": 0.5476190476190477,
+          "origin_top1": 0.6428571428571429
+        },
+        "Lung": {
+          "sensitivity": 0.7857142857142857,
+          "origin_top1": 0.2619047619047619
+        },
+        "Mesothelium": {
+          "sensitivity": 0.5714285714285714,
+          "origin_top1": 0.4523809523809524
+        },
+        "Oesophagus-Stomach": {
+          "sensitivity": 0.6904761904761905,
+          "origin_top1": 0.2619047619047619
+        },
+        "Pancreas": {
+          "sensitivity": 0.6428571428571429,
+          "origin_top1": 0.3333333333333333
+        },
+        "Prostate": {
+          "sensitivity": 0.8333333333333334,
+          "origin_top1": 0.7142857142857143
+        },
+        "Skin": {
+          "sensitivity": 0.7380952380952381,
+          "origin_top1": 0.7857142857142857
+        },
+        "Soft tissue": {
+          "sensitivity": 0.7380952380952381,
+          "origin_top1": 0.30952380952380953
+        },
+        "Testis": {
+          "sensitivity": 0.14285714285714285,
+          "origin_top1": 0.2857142857142857
+        },
+        "Thymus": {
+          "sensitivity": 0.3333333333333333,
+          "origin_top1": 0.35714285714285715
+        },
+        "Thyroid": {
+          "sensitivity": 0.9047619047619048,
+          "origin_top1": 0.7857142857142857
+        },
+        "Uterus": {
+          "sensitivity": 0.9285714285714286,
+          "origin_top1": 0.6190476190476191
+        }
+      }
+    },
+    "v1_on_v1_test": {
+      "specificity": 0.98325,
+      "signal_at_1pct": 0.5654761904761905,
+      "tissue_at_1pct": 0.5357142857142857,
+      "signal_at_0.1pct": 0.04047619047619048,
+      "signal_at_10pct": 0.9952380952380953,
+      "tissue_at_10pct": 0.9297619047619048
+    }
+  }
+}

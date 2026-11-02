@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]  # repository root (src/burotu/config
 # See burotu.store for moving it between the workstation, the servers and Modal.
 STORE = Path(os.environ.get("BUROTU_STORE", ROOT / "store"))
 RAW_DIR = Path(os.environ.get("BUROTU_RAW_DIR", STORE / "raw"))
-REFINED_VERSION = os.environ.get("BUROTU_REFINED", "v1")
+REFINED_VERSION = os.environ.get("BUROTU_REFINED", "v2")  # v2 since November 2: 23 tissues, 6,000 donors
 DATA_DIR = Path(os.environ.get("BUROTU_DATA_DIR", STORE / "refined" / REFINED_VERSION))  # the refined data in use
 PROCESSED_DIR = DATA_DIR / "processed"
 MODELS_STORE = Path(os.environ.get("BUROTU_MODELS_DIR", STORE / "models"))

@@ -1,7 +1,7 @@
 """The model registry: one TOML file listing every model, read the same way everywhere.
 
     from burotu.models.registry import models, get
-    get("glimmer").weights   # ["hf:zoukmar75/burotu-glimmer", "modal:burotu-runs/glimmer-v5"]
+    get("glimmer").weights   # ["hf:zoukmar75/burotu-glimmer", "modal:burotu-runs/glimmer-v6"]
 
 Adding a model = a package in burotu/models/<id>/ (engine.py, README.md model card) and an
 entry in registry.toml. Weights are referenced as `store:<path in the store>`,

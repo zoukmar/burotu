@@ -4,8 +4,11 @@
 
 The v1 test cohort (4,000 healthy samples + 42 TCGA tumours x 6 tumour fractions x 20 tissues)
 was frozen on October 28. v2 keeps every v1 test donor and tumour out of training, so a v2 model
-scored on it is directly comparable with the v1 models' published numbers. The threshold is
-the one each v2 model calibrated on its own calibration cohort (no tuning on this test).
+scored on it is directly comparable with the v1 models' published numbers. Two thresholds:
+
+  * own:   the one each v2 model calibrated on its own (multi-cohort) calibration donors;
+  * local: set on the v1 calibration cohort (Hannum donors never used for v1 testing), as a lab
+           calibrates on healthy controls of its own batch; this is how the v1 models were set.
 """
 
 from __future__ import annotations
@@ -40,17 +43,30 @@ def main() -> None:
         "classic": BaselineModel.load(ROOT / "models" / "baseline.pkl"),
         "logreg": LogRegEnsemble.load(asset_dir("logreg")),
     }
+    calib = np.load(V1 / "calibration.npz")
+    c_meth, c_total = calib["meth"].astype(np.int64), calib["total"].astype(np.int64)
     out = {}
     for name, m in models.items():
-        r = benchmark.evaluate(m.cancer_score(meth, total), m.origin_proba(meth, total), m.classes, m.threshold, meta)
-        out[name] = {"v2_on_v1_test": _summary(r), "full": r}
+        score, proba = m.cancer_score(meth, total), m.origin_proba(meth, total)
+        r = benchmark.evaluate(score, proba, m.classes, m.threshold, meta)
+        local = benchmark.threshold_at_specificity(m.cancer_score(c_meth, c_total))
+        rl = benchmark.evaluate(score, proba, m.classes, local, meta)
+        out[name] = {"v2_on_v1_test": _summary(r), "v2_on_v1_test_local": _summary(rl), "full": r, "full_local": rl}
     for name, old in (("classic", "baseline-20t.json"), ("logreg", "logreg-20t.json")):
         p = ROOT / "reports" / old
         if p.exists():
             out[name]["v1_on_v1_test"] = _summary(json.loads(p.read_text())["test"])
     (ROOT / "reports" / "cross_v1_benchmark.json").write_text(json.dumps(out, indent=2))
     for name, r in out.items():
-        print(name, "v1:", r.get("v1_on_v1_test"), "\n      v2:", r["v2_on_v1_test"])
+        print(
+            name,
+            "v1:",
+            r.get("v1_on_v1_test"),
+            "\n  v2 own:",
+            r["v2_on_v1_test"],
+            "\n  v2 local:",
+            r["v2_on_v1_test_local"],
+        )
 
 
 if __name__ == "__main__":

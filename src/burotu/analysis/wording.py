@@ -35,6 +35,9 @@ TISSUES = {
         "Adrenal": "adrenal gland",
         "Testis": "testis",
         "Thymus": "thymus",
+        "Bile duct": "bile ducts",
+        "Eye": "eye",
+        "Blood cancer": "blood-forming cells (bone marrow, lymph nodes)",
     },
     "fr": {
         "Breast": "sein",
@@ -57,6 +60,9 @@ TISSUES = {
         "Adrenal": "glande surrénale",
         "Testis": "testicule",
         "Thymus": "thymus",
+        "Bile duct": "voies biliaires",
+        "Eye": "œil",
+        "Blood cancer": "cellules du sang (moelle osseuse, ganglions)",
     },
     "es": {
         "Breast": "mama",
@@ -79,6 +85,9 @@ TISSUES = {
         "Adrenal": "glándula suprarrenal",
         "Testis": "testículo",
         "Thymus": "timo",
+        "Bile duct": "vías biliares",
+        "Eye": "ojo",
+        "Blood cancer": "células de la sangre (médula ósea, ganglios)",
     },
 }
 

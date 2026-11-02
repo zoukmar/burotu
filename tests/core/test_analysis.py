@@ -20,7 +20,7 @@ def engine():
 
 def test_exported_baseline_matches_the_panel(engine):
     assert len(engine.panel) == len(engine.featurizer.mu) == 3148
-    assert len(engine.classes) == 20 and 0 < engine.threshold < 1
+    assert len(engine.classes) == 23 and 0 < engine.threshold < 1
 
 
 @pytest.mark.parametrize("sid", ["BRT-DEMO-01", "BRT-DEMO-05", "BRT-DEMO-07", "BRT-DEMO-09"])

@@ -43,9 +43,9 @@ REFINED_PINS = {
 }
 PINS = {
     "models": (
-        "store-models-2026-10-30-r2",
+        "store-models-2026-11-02",
         "burotu-models.tar.gz",
-        "5e4319ec97f73faba10bc8e653d3859643bba736fa081d90ec53ac4fb8537220",
+        "082d24f1162751383fa4b8a2e25ae55ef32467962476cf8ddacd65a5b07cf3e5",
     ),
     "refined": REFINED_PINS[REFINED_VERSION],
 }

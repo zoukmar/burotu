@@ -14,7 +14,7 @@ from pathlib import Path
 REPORTS = Path(__file__).resolve().parent / "model_reports"
 TFS = (0.003, 0.01, 0.03, 0.1)  # tumour DNA fractions shown
 # The classic and Meta runs compared head to head (same tissue types, same test set).
-COMPARE = ("baseline", "glimmer-v5")
+COMPARE = ("baseline", "glimmer-v6")
 
 # Every run, in the order it happened. `role` is what Burotu uses it for today.
 RUNS = (
@@ -23,8 +23,10 @@ RUNS = (
     {"id": "glimmer-v2", "file": "muse_glimmer-v2.json", "kind": "meta", "role": "history"},
     {"id": "glimmer-v3", "file": "muse_glimmer-v3.json", "kind": "meta", "role": "experiment"},
     {"id": "glimmer-v4", "file": "muse_glimmer-v4.json", "kind": "meta", "role": "experiment"},
+    {"id": "baseline-20", "file": "baseline-20t.json", "kind": "classic", "role": "history"},
+    {"id": "glimmer-v5", "file": "muse_glimmer-v5.json", "kind": "meta", "role": "history"},
     {"id": "baseline", "file": "baseline.json", "kind": "classic", "role": "signal"},
-    {"id": "glimmer-v5", "file": "muse_glimmer-v5.json", "kind": "meta", "role": "tissue"},
+    {"id": "glimmer-v6", "file": "muse_glimmer-v6.json", "kind": "meta", "role": "tissue"},
 )
 
 
@@ -92,7 +94,7 @@ def origin_chart(width: int = 640, height: int = 240) -> dict:
     return {"width": width, "height": height, "left": left, "base": top + plot_h, "groups": groups, "ticks": ticks}
 
 
-# Our 20 tissues, and the AJCC 8th edition cancer categories (the way "50+ types" are counted
+# Our 23 tissues, and the AJCC 8th edition cancer categories (the way "50+ types" are counted
 # by multi-cancer tests) that the TCGA projects behind each tissue cover. Conservative mapping.
 COVERAGE = [
     ("Lung", ["Lung"]),
@@ -122,10 +124,12 @@ COVERAGE = [
     ("Adrenal", ["Adrenal cortical carcinoma", "Adrenal neuroendocrine tumours"]),
     ("Testis", ["Testis"]),
     ("Thymus", ["Thymus"]),
+    ("Bile duct", ["Intrahepatic bile ducts", "Perihilar bile ducts", "Distal bile duct"]),
+    ("Eye", ["Uveal melanoma"]),
+    ("Blood cancer", ["Leukaemia", "Hodgkin and non-Hodgkin lymphomas"]),
 ]
 NOT_YET = [
     "Ovary, fallopian tube and peritoneum",
-    "Bile ducts (3 categories)",
     "Gallbladder",
     "Ampulla of Vater",
     "Small intestine",
@@ -140,7 +144,7 @@ NOT_YET = [
     "Vagina",
     "Vulva",
     "Gestational trophoblastic neoplasms",
-    "Blood cancers (leukaemia, lymphoma, myeloma)",
+    "Myeloma",
 ]
 
 
@@ -150,10 +154,10 @@ def coverage_count() -> int:
 
 TEXT = {
     "en": {
-        "coverage": "20 tissues, about {n} cancer categories",
+        "coverage": "23 tissues, about {n} cancer categories",
         "coverage_lead": 'Multi-cancer tests count "types" with the AJCC staging manual, where one organ can count '
         "several times (five soft tissue sarcoma sites, three bile duct categories). Burotu names tissues instead. "
-        "Counted the AJCC way, the public tumours behind our 20 tissues cover about {n} categories. The others are "
+        "Counted the AJCC way, the public tumours behind our 23 tissues cover about {n} categories. The others are "
         "missing from public methylation data, which is why going to 50 needs a partner lab's sequenced samples.",
         "col_tissue": "Burotu tissue",
         "col_ajcc": "AJCC categories covered",
@@ -197,10 +201,16 @@ TEXT = {
         ],
         "data": "Where the data comes from",
         "data_rows": [
-            ("Tumour profiles", "TCGA (GDC portal), 20 tissue types, 48 tumours each"),
-            ("Healthy background", "Whole blood of 164 adults (Hannum et al. 2013)"),
+            (
+                "Tumour profiles",
+                "3,832 tumours from 22 public series (TCGA, CPTAC, TARGET, CCDI, HCMI, CGCI on GDC; brain, sarcoma and blood cancer series on GEO), 23 tissue types, up to 300 each",
+            ),
+            (
+                "Healthy background",
+                "Whole blood of 5,728 adults from 8 cohorts (Hannum et al. 2013 and 7 others), each cohort aligned on the same lab batch",
+            ),
             ("Real plasma", "27 cell-free DNA samples, 12 healthy and 15 with a tumour (Moss et al. 2018)"),
-            ("Split", "People are split before anything else: 80 to train, 35 to set the threshold, 49 to test"),
+            ("Split", "People are split before anything else: 3,683 to train, 300 to set the threshold, 1,745 to test"),
         ],
         "compare": "Classic model vs Meta model",
         "compare_lead": "Right first time on the tissue, on people and tumours neither model ever saw, by share of "
@@ -209,11 +219,12 @@ TEXT = {
         "meta": "Muse Glimmer (Meta)",
         "tf_axis": "Tumour DNA in the blood",
         "signal_title": "Raising the alarm",
-        "signal_text": "Both models rank samples well (AUC 0.97 to 1.00 from 1% tumour DNA). But only the classic "
-        "model keeps 99.5% specificity on new people: trained on 80 blood donors, Muse Glimmer also learned each "
-        "donor's background. So the classic model raises the alarm and Muse Glimmer names the tissue.",
+        "signal_text": "Both models rank samples well (AUC 0.97 to 1.00 from 1% tumour DNA). Trained on 80 blood "
+        "donors, Muse Glimmer v5 learned each donor's background and lost its specificity on new people; trained on "
+        "3,683 donors from 8 cohorts, v6 keeps 99.5% specificity on 1,745 new people. The classic model, which "
+        "finds a few more signals at 1%, still raises the alarm, and Muse Glimmer names the tissue.",
         "col_tf": "Tumour DNA",
-        "col_sens": "Signal found (classic, 99.8% specificity)",
+        "col_sens": "Signal found (classic, 99.0% specificity)",
         "col_auc_c": "AUC classic",
         "col_auc_m": "AUC Muse Glimmer",
         "runs": "Every training run",
@@ -226,7 +237,9 @@ TEXT = {
             "glimmer-v3": "Muse Glimmer v3: smaller, regularised adapter",
             "glimmer-v4": "Muse Glimmer v4: pseudo-donors (mixes of real donors)",
             "glimmer-v5": "Muse Glimmer v5: 20 tissue types, pseudo-donors",
-            "baseline": "Classic model, 20 tissue types",
+            "baseline-20": "Classic model, 20 tissue types (refined v1)",
+            "baseline": "Classic model, 23 tissue types (refined v2)",
+            "glimmer-v6": "Muse Glimmer v6: 23 tissue types, refined v2",
         },
         "run_notes": {
             "baseline-8": "Where Burotu started: the benchmark Glimmer v1 to v4 were measured against.",
@@ -234,8 +247,10 @@ TEXT = {
             "glimmer-v2": "Named the tissue on the 8-type prototype: right first time 70% at 1% tumour DNA, against 57%.",
             "glimmer-v3": "Fewer healthy people flagged, but too few signals found.",
             "glimmer-v4": "Best Glimmer alarm so far (42% of signals found at 1%), still below the classic model.",
-            "glimmer-v5": "Names the tissue in Burotu: right first time 60% of the time at 1% tumour DNA, against 55% for the classic model; 7 of 11 on real plasma.",
-            "baseline": "Raises the alarm in Burotu: same performance with 20 types as with 8; tissue right 55% at 1%, against 5% by chance.",
+            "glimmer-v5": "Named the tissue on 20 types: right first time 60% at 1% tumour DNA, against 55% for the classic model.",
+            "baseline-20": "Trained on 164 blood donors: 71% of signals found at 1% tumour DNA on its own benchmark.",
+            "baseline": "Raises the alarm in Burotu, trained on 5,728 donors and 3,832 tumours: on the same v1 benchmark, 87% of signals found at 1% (was 71%).",
+            "glimmer-v6": "Names the tissue in Burotu: right first time 58% of the time at 1% tumour DNA among 23 tissues, against 46% for the classic model; it now also finds 75% of signals at 99.5% specificity.",
         },
         "plasma": "Real patient plasma",
         "plasma_text": "On 27 real samples measured on arrays, against the whole-blood background every sample "
@@ -253,16 +268,16 @@ TEXT = {
         "limits": "Limits",
         "limit_items": [
             "Plasma is simulated site by site; real tests also use patterns within each DNA fragment.",
-            "20 tissue types today; the product targets 50.",
+            "23 tissue types today; the product targets 50.",
             "Real plasma check on 27 samples only. Burotu is not a validated test and not a medical device.",
         ],
         "repo": "Code, data pipeline and every report",
     },
     "fr": {
-        "coverage": "20 tissus, environ {n} catégories de cancer",
+        "coverage": "23 tissus, environ {n} catégories de cancer",
         "coverage_lead": "Les tests multi-cancers comptent les « types » avec le manuel de classification AJCC, où un "
         "même organe peut compter plusieurs fois (cinq localisations de sarcomes, trois catégories de voies biliaires). "
-        "Burotu désigne des tissus. Comptées à la manière AJCC, les tumeurs publiques derrière nos 20 tissus couvrent "
+        "Burotu désigne des tissus. Comptées à la manière AJCC, les tumeurs publiques derrière nos 23 tissus couvrent "
         "environ {n} catégories. Les autres manquent dans les données publiques de méthylation : pour aller à 50, il faut "
         "les échantillons séquencés d'un laboratoire partenaire.",
         "col_tissue": "Tissu Burotu",
@@ -309,12 +324,18 @@ TEXT = {
         ],
         "data": "D'où viennent les données",
         "data_rows": [
-            ("Profils tumoraux", "TCGA (portail GDC), 20 types de tissus, 48 tumeurs chacun"),
-            ("Bruit de fond sain", "Sang total de 164 adultes (Hannum et al. 2013)"),
+            (
+                "Profils tumoraux",
+                "3 832 tumeurs de 22 séries publiques (TCGA, CPTAC, TARGET, CCDI, HCMI, CGCI sur GDC ; séries cerveau, sarcomes et hémopathies sur GEO), 23 types de tissus, jusqu'à 300 chacun",
+            ),
+            (
+                "Bruit de fond sain",
+                "Sang total de 5 728 adultes de 8 cohortes (Hannum et al. 2013 et 7 autres), chaque cohorte alignée sur le même lot de laboratoire",
+            ),
             ("Plasma réel", "27 échantillons d'ADN circulant, 12 sains et 15 avec une tumeur (Moss et al. 2018)"),
             (
                 "Répartition",
-                "Les personnes sont réparties avant tout : 80 pour entraîner, 35 pour régler le seuil, 49 pour tester",
+                "Les personnes sont réparties avant tout : 3 683 pour entraîner, 300 pour régler le seuil, 1 745 pour tester",
             ),
         ],
         "compare": "Modèle classique vs modèle Meta",
@@ -325,11 +346,12 @@ TEXT = {
         "tf_axis": "ADN tumoral dans le sang",
         "signal_title": "Donner l'alarme",
         "signal_text": "Les deux modèles classent bien les échantillons (AUC de 0,97 à 1,00 dès 1 % d'ADN "
-        "tumoral). Mais seul le modèle classique garde 99,5 % de spécificité sur de nouvelles personnes : "
-        "entraîné sur 80 donneurs, Muse Glimmer a aussi appris le fond sanguin de chacun. Le modèle classique "
-        "donne donc l'alarme et Muse Glimmer désigne le tissu.",
+        "tumoral). Entraîné sur 80 donneurs, Muse Glimmer v5 avait appris le fond sanguin de chacun et perdait sa "
+        "spécificité sur de nouvelles personnes ; entraîné sur 3 683 donneurs de 8 cohortes, la v6 garde 99,5 % "
+        "de spécificité sur 1 745 nouvelles personnes. Le modèle classique, qui trouve un peu plus de signaux à "
+        "1 %, donne toujours l'alarme, et Muse Glimmer désigne le tissu.",
         "col_tf": "ADN tumoral",
-        "col_sens": "Signal trouvé (classique, spécificité 99,8 %)",
+        "col_sens": "Signal trouvé (classique, spécificité 99,0 %)",
         "col_auc_c": "AUC classique",
         "col_auc_m": "AUC Muse Glimmer",
         "runs": "Tous les entraînements",
@@ -342,7 +364,9 @@ TEXT = {
             "glimmer-v3": "Muse Glimmer v3 : adaptateur réduit et régularisé",
             "glimmer-v4": "Muse Glimmer v4 : pseudo-donneurs (mélanges de vrais donneurs)",
             "glimmer-v5": "Muse Glimmer v5 : 20 types de tissus, pseudo-donneurs",
-            "baseline": "Modèle classique, 20 types de tissus",
+            "baseline-20": "Modèle classique, 20 types de tissus (données v1)",
+            "baseline": "Modèle classique, 23 types de tissus (données v2)",
+            "glimmer-v6": "Muse Glimmer v6 : 23 types de tissus, données v2",
         },
         "run_notes": {
             "baseline-8": "Le point de départ : la référence de Glimmer v1 à v4.",
@@ -350,8 +374,10 @@ TEXT = {
             "glimmer-v2": "Désignait le tissu sur le prototype à 8 types : juste du premier coup 70 % à 1 % d'ADN tumoral, contre 57 %.",
             "glimmer-v3": "Moins de personnes saines signalées, mais trop peu de signaux trouvés.",
             "glimmer-v4": "Meilleure alarme Glimmer à ce jour (42 % des signaux trouvés à 1 %), encore sous le modèle classique.",
-            "glimmer-v5": "Désigne le tissu dans Burotu : juste du premier coup 60 % du temps à 1 % d'ADN tumoral, contre 55 % pour le modèle classique ; 7 sur 11 sur vrai plasma.",
-            "baseline": "Donne l'alarme dans Burotu : mêmes performances avec 20 types qu'avec 8 ; tissu trouvé 55 % à 1 %, contre 5 % au hasard.",
+            "glimmer-v5": "Désignait le tissu sur 20 types : juste du premier coup 60 % à 1 % d'ADN tumoral, contre 55 % pour le modèle classique.",
+            "baseline-20": "Entraîné sur 164 donneurs : 71 % des signaux trouvés à 1 % d'ADN tumoral sur son banc.",
+            "baseline": "Donne l'alarme dans Burotu, entraîné sur 5 728 donneurs et 3 832 tumeurs : sur le même banc v1, 87 % des signaux trouvés à 1 % (contre 71 %).",
+            "glimmer-v6": "Désigne le tissu dans Burotu : juste du premier coup 58 % du temps à 1 % d'ADN tumoral parmi 23 tissus, contre 46 % pour le modèle classique ; il trouve aussi 75 % des signaux à 99,5 % de spécificité.",
         },
         "plasma": "Plasma de vrais patients",
         "plasma_text": "Sur 27 vrais échantillons mesurés sur puces, face au bruit de fond du sang total, tous "
@@ -372,17 +398,17 @@ TEXT = {
         "limit_items": [
             "Le plasma est simulé site par site ; les vrais tests exploitent aussi les motifs au sein de chaque "
             "fragment d'ADN.",
-            "20 types de tissus aujourd'hui ; le produit en vise 50.",
+            "23 types de tissus aujourd'hui ; le produit en vise 50.",
             "Vérification sur plasma réel avec 27 échantillons seulement. Burotu n'est pas un test validé ni un "
             "dispositif médical.",
         ],
         "repo": "Code, chaîne de données et tous les rapports",
     },
     "es": {
-        "coverage": "20 tejidos, unas {n} categorías de cáncer",
+        "coverage": "23 tejidos, unas {n} categorías de cáncer",
         "coverage_lead": "Las pruebas multicáncer cuentan los «tipos» con el manual de clasificación AJCC, donde un "
         "mismo órgano puede contar varias veces (cinco localizaciones de sarcomas, tres categorías de vías biliares). "
-        "Burotu indica tejidos. Contadas al modo AJCC, las muestras tumorales públicas detrás de nuestros 20 tejidos "
+        "Burotu indica tejidos. Contadas al modo AJCC, las muestras tumorales públicas detrás de nuestros 23 tejidos "
         "cubren unas {n} categorías. Las demás faltan en los datos públicos de metilación: para llegar a 50 hacen falta "
         "las muestras secuenciadas de un laboratorio colaborador.",
         "col_tissue": "Tejido Burotu",
@@ -429,12 +455,18 @@ TEXT = {
         ],
         "data": "De dónde vienen los datos",
         "data_rows": [
-            ("Perfiles tumorales", "TCGA (portal GDC), 20 tipos de tejido, 48 tumores cada uno"),
-            ("Fondo sano", "Sangre total de 164 adultos (Hannum et al. 2013)"),
+            (
+                "Perfiles tumorales",
+                "3.832 tumores de 22 series públicas (TCGA, CPTAC, TARGET, CCDI, HCMI, CGCI en GDC; series de cerebro, sarcomas y cánceres de la sangre en GEO), 23 tipos de tejido, hasta 300 cada uno",
+            ),
+            (
+                "Fondo sano",
+                "Sangre total de 5.728 adultos de 8 cohortes (Hannum et al. 2013 y otras 7), cada cohorte alineada con el mismo lote de laboratorio",
+            ),
             ("Plasma real", "27 muestras de ADN circulante, 12 sanas y 15 con un tumor (Moss et al. 2018)"),
             (
                 "Reparto",
-                "Las personas se reparten antes de nada: 80 para entrenar, 35 para fijar el umbral, 49 para evaluar",
+                "Las personas se reparten antes de nada: 3.683 para entrenar, 300 para fijar el umbral, 1.745 para evaluar",
             ),
         ],
         "compare": "Modelo clásico vs modelo Meta",
@@ -445,11 +477,12 @@ TEXT = {
         "tf_axis": "ADN tumoral en la sangre",
         "signal_title": "Dar la alarma",
         "signal_text": "Los dos modelos ordenan bien las muestras (AUC de 0,97 a 1,00 desde un 1 % de ADN "
-        "tumoral). Pero solo el modelo clásico mantiene un 99,5 % de especificidad en personas nuevas: entrenado "
-        "con 80 donantes, Muse Glimmer también aprendió el fondo sanguíneo de cada uno. Por eso el modelo clásico "
-        "da la alarma y Muse Glimmer indica el tejido.",
+        "tumoral). Entrenado con 80 donantes, Muse Glimmer v5 aprendió el fondo de cada uno y perdía especificidad "
+        "en personas nuevas; entrenado con 3.683 donantes de 8 cohortes, la v6 mantiene un 99,5 % de "
+        "especificidad en 1.745 personas nuevas. El modelo clásico, que halla algunas señales más al 1 %, sigue "
+        "dando la alarma, y Muse Glimmer indica el tejido.",
         "col_tf": "ADN tumoral",
-        "col_sens": "Señal encontrada (clásico, especificidad 99,8 %)",
+        "col_sens": "Señal encontrada (clásico, especificidad 99,0 %)",
         "col_auc_c": "AUC clásico",
         "col_auc_m": "AUC Muse Glimmer",
         "runs": "Todos los entrenamientos",
@@ -462,7 +495,9 @@ TEXT = {
             "glimmer-v3": "Muse Glimmer v3: adaptador reducido y regularizado",
             "glimmer-v4": "Muse Glimmer v4: pseudodonantes (mezclas de donantes reales)",
             "glimmer-v5": "Muse Glimmer v5: 20 tipos de tejido, pseudodonantes",
-            "baseline": "Modelo clásico, 20 tipos de tejido",
+            "baseline-20": "Modelo clásico, 20 tipos de tejido (datos v1)",
+            "baseline": "Modelo clásico, 23 tipos de tejido (datos v2)",
+            "glimmer-v6": "Muse Glimmer v6: 23 tipos de tejido, datos v2",
         },
         "run_notes": {
             "baseline-8": "El punto de partida: la referencia de Glimmer v1 a v4.",
@@ -470,8 +505,10 @@ TEXT = {
             "glimmer-v2": "Indicaba el tejido en el prototipo de 8 tipos: acertaba a la primera el 70 % con un 1 % de ADN tumoral, frente al 57 %.",
             "glimmer-v3": "Menos personas sanas señaladas, pero demasiado pocas señales encontradas.",
             "glimmer-v4": "La mejor alarma de Glimmer hasta ahora (42 % de señales encontradas al 1 %), aún por debajo del modelo clásico.",
-            "glimmer-v5": "Indica el tejido en Burotu: acierta a la primera el 60 % de las veces con un 1 % de ADN tumoral, frente al 55 % del modelo clásico; 7 de 11 en plasma real.",
-            "baseline": "Da la alarma en Burotu: el mismo rendimiento con 20 tipos que con 8; tejido acertado el 55 % al 1 %, frente al 5 % por azar.",
+            "glimmer-v5": "Indicaba el tejido entre 20 tipos: acierta a la primera el 60 % con un 1 % de ADN tumoral, frente al 55 % del modelo clásico.",
+            "baseline-20": "Entrenado con 164 donantes: 71 % de señales halladas al 1 % de ADN tumoral en su banco.",
+            "baseline": "Da la alarma en Burotu, entrenado con 5.728 donantes y 3.832 tumores: en el mismo banco v1, 87 % de señales halladas al 1 % (antes 71 %).",
+            "glimmer-v6": "Indica el tejido en Burotu: acierta a la primera el 58 % de las veces con un 1 % de ADN tumoral entre 23 tejidos, frente al 46 % del modelo clásico; además halla el 75 % de las señales con un 99,5 % de especificidad.",
         },
         "plasma": "Plasma de pacientes reales",
         "plasma_text": "En 27 muestras reales medidas con chips, frente al fondo de la sangre total todas parecían "
@@ -491,7 +528,7 @@ TEXT = {
         "limit_items": [
             "El plasma se simula sitio a sitio; las pruebas reales también usan patrones dentro de cada fragmento "
             "de ADN.",
-            "20 tipos de tejido hoy; el producto apunta a 50.",
+            "23 tipos de tejido hoy; el producto apunta a 50.",
             "Comprobación en plasma real con solo 27 muestras. Burotu no es una prueba validada ni un dispositivo "
             "médico.",
         ],

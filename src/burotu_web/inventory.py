@@ -43,9 +43,9 @@ MODELS = [
             "es": "Árboles de decisión potenciados (LightGBM): uno para la señal, otro para el tejido",
         },
         "data": {
-            "en": "14,000 simulated plasma samples: 680 TCGA tumours (20 tissues) mixed into the blood of 80 people",
-            "fr": "14 000 plasmas simulés : 680 tumeurs TCGA (20 tissus) mélangées au sang de 80 personnes",
-            "es": "14.000 plasmas simulados: 680 tumores TCGA (20 tejidos) mezclados con la sangre de 80 personas",
+            "en": "Refined v2: 15,500 simulated plasma samples, 2,700 tumours from 22 public series (23 tissues) mixed into the blood of 3,683 people from 8 cohorts",
+            "fr": "Données v2 : 15 500 plasmas simulés, 2 700 tumeurs de 22 séries publiques (23 tissus) mélangées au sang de 3 683 personnes de 8 cohortes",
+            "es": "Datos v2: 15.500 plasmas simulados, 2.700 tumores de 22 series públicas (23 tejidos) mezclados con la sangre de 3.683 personas de 8 cohortes",
         },
         "where": {
             "en": "Weights in GitHub · runs on the tracking server (CPU)",
@@ -53,9 +53,9 @@ MODELS = [
             "es": "Pesos en GitHub · se ejecuta en el servidor (CPU)",
         },
         "result": {
-            "en": "71% of signals at 1% tumour DNA · tissue 55% · 99.9% of healthy people not flagged",
-            "fr": "71 % des signaux à 1 % d'ADN tumoral · tissu 55 % · 99,9 % des sains non signalés",
-            "es": "71 % de señales al 1 % de ADN tumoral · tejido 55 % · 99,9 % de sanos no señalados",
+            "en": "Same v1 benchmark: 87% of signals at 1% tumour DNA (v1: 71%) · on the larger v2 benchmark: 80%, tissue 46% of 23, 99.0% of 1,745 healthy people not flagged · real plasma: 12/15 found, 0/12 healthy flagged",
+            "fr": "Même banc v1 : 87 % des signaux à 1 % d'ADN tumoral (v1 : 71 %) · sur le banc v2, plus large : 80 %, tissu 46 % sur 23, 99,0 % de 1 745 sains non signalés · vrai plasma : 12/15 trouvés, 0/12 sain signalé",
+            "es": "Mismo banco v1: 87 % de señales al 1 % de ADN tumoral (v1: 71 %) · en el banco v2, más amplio: 80 %, tejido 46 % de 23, 99,0 % de 1.745 sanos no señalados · plasma real: 12/15 hallados, 0/12 sanos señalados",
         },
         "link": "https://github.com/zoukmar/burotu/tree/main/src/burotu/analysis/assets/baseline",
     },
@@ -70,9 +70,9 @@ MODELS = [
             "es": "8 + 8 regresiones logísticas promediadas, el método que GRAIL publicó para Galleri (2020)",
         },
         "data": {
-            "en": "Same 14,000 simulated samples as the classic model",
-            "fr": "Les mêmes 14 000 plasmas simulés que le modèle classique",
-            "es": "Las mismas 14.000 muestras simuladas que el modelo clásico",
+            "en": "Same 15,500 simulated samples as the classic model (refined v2)",
+            "fr": "Les mêmes 15 500 plasmas simulés que le modèle classique (données v2)",
+            "es": "Las mismas 15.500 muestras simuladas que el modelo clásico (datos v2)",
         },
         "where": {
             "en": "Weights in GitHub · runs on the tracking server (CPU)",
@@ -80,15 +80,15 @@ MODELS = [
             "es": "Pesos en GitHub · se ejecuta en el servidor (CPU)",
         },
         "result": {
-            "en": "57% of signals at 1%, 97% at 3% · on real plasma: prostate recognised 163 times of 181",
-            "fr": "57 % des signaux à 1 %, 97 % à 3 % · sur vrai plasma : prostate reconnue 163 fois sur 181",
-            "es": "57 % de señales al 1 %, 97 % al 3 % · en plasma real: próstata reconocida 163 de 181",
+            "en": "Same v1 benchmark, calibrated like v1: 70% of signals at 1% (v1: 57%) with 99.8% specificity (v1: 98.3%) · real plasma: 12/15 found, tissue 8 of 11",
+            "fr": "Même banc v1, calibré comme en v1 : 70 % des signaux à 1 % (v1 : 57 %) avec 99,8 % de spécificité (v1 : 98,3 %) · vrai plasma : 12/15 trouvés, tissu 8 sur 11",
+            "es": "Mismo banco v1, calibrado como en v1: 70 % de señales al 1 % (v1: 57 %) con 99,8 % de especificidad (v1: 98,3 %) · plasma real: 12/15 hallados, tejido 8 de 11",
         },
         "link": "https://github.com/zoukmar/burotu/blob/main/src/burotu/model/logreg.py",
     },
     {
         "key": "meta",
-        "name": "Muse Glimmer v5 (Meta)",
+        "name": "Muse Glimmer v6 (Meta)",
         "status": LIVE,
         "role": {"en": "Names the tissue", "fr": "Nomme le tissu", "es": "Indica el tejido"},
         "type": {
@@ -97,9 +97,9 @@ MODELS = [
             "es": "El modelo de lenguaje de 30B con pesos abiertos de Meta, en 4 bits, + nuestro adaptador de metilación (3.148 sitios → 16 tokens) + QLoRA (217 M de parámetros entrenados)",
         },
         "data": {
-            "en": "32,000 simulated samples, half the healthy backgrounds mixed from 2-3 people (pseudo-donors); 65 min on one L40S GPU",
-            "fr": "32 000 plasmas simulés, la moitié des fonds sains mélangés à partir de 2 ou 3 personnes (pseudo-donneurs) ; 65 min sur une carte L40S",
-            "es": "32.000 muestras simuladas, la mitad de los fondos sanos mezclados de 2 o 3 personas (pseudodonantes); 65 min en una GPU L40S",
+            "en": "Refined v2: 35,000 simulated samples, 23 tissues, blood of 3,683 people from 8 cohorts, half the backgrounds mixed from 2-3 people; 66 min on one L40S GPU",
+            "fr": "Données v2 : 35 000 plasmas simulés, 23 tissus, sang de 3 683 personnes de 8 cohortes, la moitié des fonds mélangés à partir de 2 ou 3 personnes ; 66 min sur une carte L40S",
+            "es": "Datos v2: 35.000 muestras simuladas, 23 tejidos, sangre de 3.683 personas de 8 cohortes, la mitad de los fondos mezclados de 2 o 3 personas; 66 min en una GPU L40S",
         },
         "where": {
             "en": "Base model on Hugging Face (Meta) · our weights on Hugging Face (zoukmar75/burotu-glimmer) and Modal · runs on a Modal GPU",
@@ -107,9 +107,9 @@ MODELS = [
             "es": "Modelo base en Hugging Face (Meta) · nuestros pesos en Hugging Face (zoukmar75/burotu-glimmer) y Modal · se ejecuta en una GPU de Modal",
         },
         "result": {
-            "en": "Tissue right first time 60% at 1% (classic: 55%) · 7 of 11 on real plasma",
-            "fr": "Tissu juste du premier coup 60 % à 1 % (classique : 55 %) · 7 sur 11 sur vrai plasma",
-            "es": "Tejido acertado a la primera 60 % al 1 % (clásico: 55 %) · 7 de 11 en plasma real",
+            "en": "v2 benchmark, 23 tissues: tissue right first time 58% at 1% (classic: 46%) · signal 75% at 1% with 99.5% specificity (v5: 38%) · 7 of 11 on real plasma",
+            "fr": "Banc v2, 23 tissus : tissu juste du premier coup 58 % à 1 % (classique : 46 %) · signal 75 % à 1 % avec 99,5 % de spécificité (v5 : 38 %) · 7 sur 11 sur vrai plasma",
+            "es": "Banco v2, 23 tejidos: tejido acertado a la primera 58 % al 1 % (clásico: 46 %) · señal 75 % al 1 % con 99,5 % de especificidad (v5: 38 %) · 7 de 11 en plasma real",
         },
         "link": "https://huggingface.co/zoukmar75/burotu-glimmer",
     },
@@ -190,23 +190,23 @@ MODELS = [
 
 DATASETS = [
     {
-        "name": "TCGA tumours (450K arrays)",
-        "n": "960 tumours · 28 projects · 20 tissues",
+        "name": "Tumours: TCGA, CPTAC, TARGET, CCDI, HCMI, CGCI (GDC) + brain, sarcoma, blood cancer series (GEO)",
+        "n": "3,832 tumours kept of 15,200 refined · 22 series · 23 tissues",
         "use": {
             "en": "Tumour DNA in the simulation",
             "fr": "ADN tumoral de la simulation",
             "es": "ADN tumoral de la simulación",
         },
         "where": {
-            "en": "GDC (open) → panel cut in GitHub",
-            "fr": "GDC (ouvert) → extrait du panel sur GitHub",
-            "es": "GDC (abierto) → extracto del panel en GitHub",
+            "en": "GDC + GEO (open) → workstation → refined v2 (GitHub Release)",
+            "fr": "GDC + GEO (ouverts) → poste de travail → données v2 (Release GitHub)",
+            "es": "GDC + GEO (abiertos) → estación de trabajo → datos v2 (Release de GitHub)",
         },
         "status": LIVE,
     },
     {
-        "name": "Healthy blood, Hannum (GSE40279)",
-        "n": "164 people: 80 training, 35 calibration, 49 test",
+        "name": "Healthy blood: 8 cohorts (Hannum, GSE55763, GSE87571, GSE56105, GSE72680, GSE72775, GSE42861, GSE234190)",
+        "n": "5,728 people: 3,683 training, 300 calibration, 1,745 test · each cohort aligned on the Hannum batch",
         "use": {
             "en": "Healthy background of the simulation",
             "fr": "Fond sain de la simulation",
@@ -217,7 +217,7 @@ DATASETS = [
     },
     {
         "name": "Simulated plasma (benchmark)",
-        "n": "14,000 / 32,000 training · 3,000 calibration · 9,040 test",
+        "n": "v2: 15,500 / 35,000 training · 3,000 calibration · 9,796 test (v1 benchmark kept for comparison)",
         "use": {
             "en": "Training and scoring every model on the same samples",
             "fr": "Entraîner et noter tous les modèles sur les mêmes échantillons",
@@ -257,12 +257,12 @@ DATASETS = [
         "status": LIVE,
     },
     {
-        "name": "Healthy blood: GSE55763, GSE87571",
-        "n": "3,443 people",
+        "name": "Normal tissues, sorted cells, organoids (GEO, GDC)",
+        "n": "2,100 normal tissues · 279 sorted cells · 584 organoids",
         "use": {
-            "en": "More healthy donors for training (tested, not kept yet)",
-            "fr": "Plus de donneurs sains pour l'entraînement (testé, pas encore retenu)",
-            "es": "Más donantes sanos para entrenar (probado, aún no adoptado)",
+            "en": "Refined, not used for training yet",
+            "fr": "Raffinés, pas encore utilisés pour l'entraînement",
+            "es": "Refinados, aún no usados para entrenar",
         },
         "where": {
             "en": "GEO → GitHub (data/public)",
@@ -275,16 +275,16 @@ DATASETS = [
         "name": "Cell-type atlas, Loyfer 2023 (GSE186458)",
         "n": "253 samples · 39 cell types",
         "use": {
-            "en": "Non-blood cells in the simulation",
-            "fr": "Cellules non sanguines dans la simulation",
-            "es": "Células no sanguíneas en la simulación",
+            "en": "Non-blood cells in healthy plasma (tested: kept as an option, off)",
+            "fr": "Cellules non sanguines du plasma sain (testé : option, désactivée)",
+            "es": "Células no sanguíneas del plasma sano (probado: opción, desactivada)",
         },
         "where": {
-            "en": "GEO (14 GB, to convert)",
-            "fr": "GEO (14 Go, à convertir)",
-            "es": "GEO (14 GB, por convertir)",
+            "en": "GEO (352 GB) → refined v2 (253 samples)",
+            "fr": "GEO (352 Go) → données v2 (253 échantillons)",
+            "es": "GEO (352 GB) → datos v2 (253 muestras)",
         },
-        "status": LATER,
+        "status": EXPERIMENT,
     },
 ]
 
@@ -292,17 +292,17 @@ PROGRESS = [
     (
         LIVE,
         {
-            "en": "20 tissues on the site, admin and technology page",
-            "fr": "20 tissus sur le site, l'admin et la page Technologie",
-            "es": "20 tejidos en el sitio, la administración y la página de tecnología",
+            "en": "23 tissues on the site, admin and technology page (refined data v2)",
+            "fr": "23 tissus sur le site, l'admin et la page Technologie (données v2)",
+            "es": "23 tejidos en el sitio, la administración y la página de tecnología (datos v2)",
         },
     ),
     (
         LIVE,
         {
-            "en": "Muse Glimmer v5 served on Modal and published on Hugging Face",
-            "fr": "Muse Glimmer v5 servi sur Modal et publié sur Hugging Face",
-            "es": "Muse Glimmer v5 servido en Modal y publicado en Hugging Face",
+            "en": "Muse Glimmer v6 (refined v2, 23 tissues) served on Modal and published on Hugging Face",
+            "fr": "Muse Glimmer v6 (données v2, 23 tissus) servi sur Modal et publié sur Hugging Face",
+            "es": "Muse Glimmer v6 (datos v2, 23 tejidos) servido en Modal y publicado en Hugging Face",
         },
     ),
     (
@@ -340,9 +340,9 @@ PROGRESS = [
     (
         LATER,
         {
-            "en": "Loyfer cell-type atlas, then the other open datasets",
-            "fr": "Atlas Loyfer, puis les autres données ouvertes",
-            "es": "Atlas Loyfer y luego los demás datos abiertos",
+            "en": "Sequenced plasma sets (SPOT-MAS, Nassiri) converted to the panel",
+            "fr": "Plasmas séquencés (SPOT-MAS, Nassiri) convertis vers le panel",
+            "es": "Plasmas secuenciados (SPOT-MAS, Nassiri) convertidos al panel",
         },
     ),
     (

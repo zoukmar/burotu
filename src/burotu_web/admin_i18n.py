@@ -529,6 +529,7 @@ TR["fr"].update(
         "Where the work stands": "Où en est le travail",
         "Classic model": "Modèle classique",
         "Muse Glimmer v5 (Meta)": "Muse Glimmer v5 (Meta)",
+        "Muse Glimmer v6 (Meta)": "Muse Glimmer v6 (Meta)",
     }
 )
 TR["es"].update(
