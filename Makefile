@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 PY ?= python3
 
-.PHONY: help install fetch data public-data reference baseline logreg models evaluate demo-samples dev lint format test check docker
+.PHONY: help install fetch data public-data reference refine pipeline baseline logreg models evaluate demo-samples dev lint format test check docker
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1m%-14s\033[0m %s\n", $$1, $$2}'
@@ -24,6 +24,12 @@ reference: ## Build the targeted panel and train/test split
 
 public-data: ## Download the open real-plasma and healthy-blood sets from GEO, cut to the panel
 	$(PY) -m burotu.data.public
+
+refine: ## Refine every raw dataset of the store into refined/v2 (resumable; BUROTU_STORE=D:/Burotu/Data)
+	$(PY) -m burotu.pipeline refine
+
+pipeline: ## Show where each pipeline stage stands (ingest, refine, train, evaluate, publish)
+	$(PY) -m burotu.pipeline status
 
 baseline: ## Train, evaluate and export the classic model (reports/baseline.json, site assets)
 	$(PY) -m burotu.models.classic.train
