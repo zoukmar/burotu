@@ -77,16 +77,22 @@
     out.scrollIntoView({ behavior: "smooth", block: "start" });
 
     let data;
+    const t0 = Date.now();
+    const tick = setInterval(() => {
+      status.textContent = `${T.running} ${T.wait.replace("{s}", Math.round((Date.now() - t0) / 1000))}`;
+    }, 1000);
     try {
       const r = await fetch(`/api/demo/${encodeURIComponent(sample)}?lang=${lang}`, { method: "POST" });
       if (r.status === 429) throw new Error("limit");
       if (!r.ok) throw new Error("error");
       data = await r.json();
     } catch (e) {
+      clearInterval(tick);
       status.textContent = e.message === "limit" ? T.limit : T.error;
       picker.querySelectorAll("button").forEach((b) => { b.disabled = false; });
       return;
     }
+    clearInterval(tick);
     const q = data.quality;
     status.textContent = data.cached_min !== undefined
       ? `${T.time.replace("{s}", data.elapsed.toLocaleString(lang))} · ${T.cached.replace("{m}", data.cached_min)}`

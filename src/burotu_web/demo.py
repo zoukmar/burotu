@@ -23,7 +23,7 @@ router = APIRouter()
 DEMO_DIR = Path(__file__).resolve().parent / "demo_samples"
 # Shown in this order. 02 and 06 are left out: the models misname their tissue.
 SHOWN = ["BRT-DEMO-05", "BRT-DEMO-03", "BRT-DEMO-07", "BRT-DEMO-09", "BRT-DEMO-10", "BRT-DEMO-01", "BRT-DEMO-08"]
-CACHE_SECONDS = 600
+CACHE_SECONDS = 3 * 3600  # the demo files never change: only the first visitor waits for the GPU
 RUNS_PER_HOUR = 30
 _cache: dict[str, tuple[float, dict]] = {}  # (sample:lang) -> (time, payload)
 _hits: dict[str, list[float]] = {}
@@ -40,6 +40,7 @@ TEXT = {
         "hidden": "true answer hidden",
         "run": "Read it",
         "running": "Reading…",
+        "wait": "{s} s · Glimmer usually answers in about 20 s. If its GPU was asleep, waking it takes a few minutes.",
         "qc": "Quality control",
         "qc_pass": "Passed",
         "qc_warn": "Passed with warnings",
@@ -93,6 +94,8 @@ TEXT = {
         "hidden": "vraie réponse cachée",
         "run": "Le lire",
         "running": "Lecture…",
+        "wait": "{s} s · Glimmer répond en général en 20 s environ. "
+        "Si son GPU était en veille, le réveil prend quelques minutes.",
         "qc": "Contrôle qualité",
         "qc_pass": "Réussi",
         "qc_warn": "Réussi avec réserves",
@@ -147,6 +150,8 @@ TEXT = {
         "hidden": "respuesta real oculta",
         "run": "Leerlo",
         "running": "Leyendo…",
+        "wait": "{s} s · Glimmer suele responder en unos 20 s. "
+        "Si su GPU estaba en reposo, despertarla tarda unos minutos.",
         "qc": "Control de calidad",
         "qc_pass": "Superado",
         "qc_warn": "Superado con avisos",
