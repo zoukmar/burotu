@@ -194,28 +194,61 @@ def cpgpt_benchmark() -> None:
 MODEL_CARD = """---
 license: apache-2.0
 base_model: meta-models/Muse-Glimmer-30B
-tags: [dna-methylation, cfdna, liquid-biopsy, qlora, peft, burotu]
+tags: [dna-methylation, cfdna, liquid-biopsy, genomics, qlora, peft, multimodal, burotu]
 ---
 
-# Burotu methylation reader for Muse Glimmer 30B ({run})
+# Burotu: Muse Glimmer 30B that reads DNA ({run})
 
-Trainable weights that teach Meta's open-weight **Muse Glimmer 30B** to read a cell-free DNA
-methylation profile: a methylation adapter (3,148 CpG sites -> 16 soft tokens) and QLoRA weights
-(rank 16), trained in two stages on simulated plasma (TCGA tumours mixed into healthy blood).
-The base model is not included: load it from `meta-models/Muse-Glimmer-30B` (revision
-`a4e59da52a7bc87ae7251dd5545c0dd437c44b68`, 4-bit nf4) and apply these weights with the code in
-[github.com/zoukmar/burotu](https://github.com/zoukmar/burotu) (`burotu.models.glimmer`).
+**We taught a language model to read DNA, in one week.** Meta's open-weight Muse Glimmer 30B
+learned from text and images; it had never seen DNA. These weights give it a new sense: a
+methylation adapter turns 3,148 CpG sites measured on cell-free DNA into 16 soft tokens in
+Glimmer's embedding space (the way a vision projector turns pixels into tokens), and QLoRA
+(rank 16, 4-bit) teaches its language layers to answer: is there a tumour signal, and which of
+23 tissues does it come from.
 
-**Research prototype, not a medical device.** Trained and tested on simulated data; the tests on
-real plasma are small sanity checks.
+- **Live demo**: [burotu.com](https://burotu.com/en/#demo): pick a lab file, watch this model read it on a GPU
+- **Video (3 min)**: [youtu.be/LQVoz8USAHo](https://youtu.be/LQVoz8USAHo)
+- **Code, training and the report of every run**: [github.com/zoukmar/burotu](https://github.com/zoukmar/burotu)
 
-| Tumour DNA in plasma (20 tissue types, held-out people and tumours) | 0.3% | 1% | 3% | 10% |
+## Six runs, one week
+
+Built during the Meta Global AI Developer Hackathon 2026: first commit on Oct 26, v6 on Nov 2.
+
+| Run | Day | What changed | Result (people never seen in training, 1% tumour DNA) |
+| --- | --- | --- | --- |
+| v1 | Oct 27 | adapter and LoRA together | collapse: same answer for everyone |
+| v2 | Oct 28 | two stages: adapter alone, then LoRA (8 tissues) | tissue right 70% (classic 57%), memorises donors |
+| v3 | Oct 28 | smaller, regularised adapter | 99.9% specificity, 26% of signals |
+| v4 | Oct 29 | pseudo-donors (healthy backgrounds mixed from 2-3 people) | 42% of signals at 99.7% specificity |
+| v5 | Oct 29 | 20 tissues | tissue right 60% (classic 55%); alarm fails on new people |
+| v6 | Nov 2 | 5,728 donors, 8 labs aligned, 23 tissues | **tissue 58% (classic 46%), 75% of signals at 99.5%** |
+
+## v6 on the frozen benchmark
+
+1,745 people and 1,132 tumours no model saw in training, simulated plasma (23 tissue types).
+
+| Tumour DNA in plasma | 0.3% | 1% | 3% | 10% |
 | --- | --- | --- | --- | --- |
-| Tissue of origin right first time | 15% | 60% | 88% | 92% |
+| Signal found (99.5% specificity) | 8% | 75% | 92% | 95% |
+| Tissue of origin, right first time (chance 4%) | 15% | 58% | 85% | 92% |
+| Tissue of origin, in the top 2 | 27% | 71% | 91% | 96% |
 
-Files: `trainable.pt` (adapter + LoRA), `serving.json` (panel, classes, threshold, adapter
-settings), `mu.npy` (healthy background per CpG), `report.json` (full benchmark).
-Built for the Meta Global AI Developer Hackathon (2026).
+217M trained parameters, 35,000 simulated training samples, 66 minutes on one L40S (Modal).
+
+## Use
+
+The base model is not included: load `meta-models/Muse-Glimmer-30B` (revision
+`a4e59da52a7bc87ae7251dd5545c0dd437c44b68`, 4-bit nf4) and apply these weights with
+`burotu.models.glimmer` from the GitHub repository. Files: `trainable.pt` (adapter + LoRA),
+`serving.json` (panel, classes, threshold, adapter settings), `mu.npy` (healthy background per
+CpG), `report.json` (full benchmark).
+
+The language model stays the same; the question lives in the adapter and its labels. Retrain the
+adapter (about an hour of GPU) to ask something else of the same engine: treatment follow-up,
+relapse, organ damage, biological age.
+
+**Research prototype, not a medical device.** Trained on simulated plasma (public TCGA and GEO
+tumours mixed into public healthy blood); checked on 27 real plasma samples only. Never a diagnosis.
 """
 
 
