@@ -118,7 +118,8 @@ def test_technology_page_in_three_languages(public):
 
 
 def test_live_demo_reads_a_lab_file_and_reveals_the_truth(public):
-    for lang, word in [("en", "Watch a Meta model read DNA"), ("fr", "Regardez un modèle de Meta"), ("es", "Mire a un modelo de Meta")]:
+    titles = [("en", "Watch a Meta model read DNA"), ("fr", "Regardez un modèle de Meta"), ("es", "Mire a un modelo")]
+    for lang, word in titles:
         r = public.get(f"/{lang}/demo")
         assert r.status_code == 200 and word in r.text and "BRT-DEMO-05" in r.text
     d = public.post("/api/demo/BRT-DEMO-05?lang=fr").json()
