@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Burotu web image (burotu.com + admin.burotu.com). Includes lab-file analysis (benchmark
+# Burotu web image (burotu.com). Includes lab-file analysis (benchmark
 # engine on CPU, Muse Glimmer through its Modal endpoint); the training pipeline is not included.
 
 FROM python:3.12-slim AS build

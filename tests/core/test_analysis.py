@@ -151,7 +151,7 @@ def test_explanation_counts_lit_marker_sites():
     from burotu.core.labformat import read_lab_file
     from burotu.models.classic.engine import BaselineEngine
     from burotu.models.classic.explain import rank_position
-    from burotu_web.admin import DEMO_DIR
+    from burotu_web.demo import DEMO_DIR
 
     engine = BaselineEngine()
     kidney = engine.explain(read_lab_file(DEMO_DIR / "BRT-DEMO-05.tsv"))  # kidney, 10% tumour DNA

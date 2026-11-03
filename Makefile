@@ -47,7 +47,7 @@ demo-samples: ## Generate simulated lab files for the demo
 	$(PY) scripts/make_demo_samples.py
 	$(PY) scripts/make_site_demo_samples.py
 
-dev: ## Run the site locally (http://localhost:8000 and http://admin.localhost:8000)
+dev: ## Run the site locally (http://localhost:8000)
 	BUROTU_ADMIN_PASSWORD=$${BUROTU_ADMIN_PASSWORD:-dev} $(PY) -m uvicorn burotu_web.main:app --reload --port 8000
 
 lint: ## Check code style

@@ -1,72 +1,76 @@
 <p align="center">
-  <img src="docs/assets/onepager.png" alt="burotu.com" width="760">
+  <a href="https://burotu.com"><img src="docs/assets/home.png" alt="burotu.com" width="760"></a>
 </p>
 
 <h1 align="center">Burotu</h1>
 
 <p align="center">
-  <strong>50 cancers. One blood draw.</strong><br>
-  Teaching Meta's Muse models to read the DNA that tumours leave in our blood.
+  <strong>We taught a language model to read DNA. In one week.</strong><br>
+  Meta's open-weight Muse Glimmer 30B, fine-tuned to read DNA methylation from a blood sample.
 </p>
 
 <p align="center">
-  <a href="https://burotu.com">Live demo</a> ·
-  <a href="#how-meta-models-power-burotu">Meta models</a> ·
-  <a href="#muse-glimmer-learns-to-read-methylation">Muse Glimmer adapter</a> ·
+  <a href="https://burotu.com/en/#demo"><b>Live demo</b></a> ·
+  <a href="https://youtu.be/LQVoz8USAHo"><b>3-min video</b></a> ·
+  <a href="https://huggingface.co/zoukmar75/burotu-glimmer">Weights</a> ·
+  <a href="#six-runs-one-week">Six runs</a> ·
   <a href="#benchmark">Benchmark</a> ·
   <a href="#quick-start">Quick start</a>
 </p>
 
 > [!IMPORTANT]
-> **Demonstration prototype** built for the Meta Global AI Developer Hackathon 2026 (indie track,
-> *Push the Frontier*). Burotu is not a medical device, is not clinically validated, has no CE
-> marking and must not be used to make any medical decision. Nothing is sold: payments run in test
-> mode only.
+> **R&D prototype** built during the Meta Global AI Developer Hackathon 2026 (indie track, *Push the
+> Frontier*): first commit on October 26, Muse Glimmer v6 on November 2. Trained on simulated plasma
+> and checked on 27 real samples. Burotu is not a medical device, is not clinically validated and
+> must not be used to make any medical decision. No test is sold or performed.
+
+## Try it
+
+**[burotu.com](https://burotu.com/en/#demo)**: pick one of seven lab files (simulated plasma, the
+true answer hidden) and watch it being read live:
+
+1. quality control of the lab file;
+2. two classic models (gradient boosting, GRAIL-style logistic regressions);
+3. **Muse Glimmer 30B**, fine-tuned by us, on a GPU on Modal (the first run after a pause wakes
+   the GPU, about a minute);
+4. the consensus, and *why this result*: which methylation sites lit up, and for which tissue;
+5. a research report for the requesting doctor, written by **Muse Spark**;
+6. the truth: which tumour, at which fraction of the cell-free DNA.
+
+<p align="center">
+  <a href="https://youtu.be/LQVoz8USAHo"><img src="docs/assets/video.jpg" alt="Video: We taught Meta's LLM to read DNA in one week" width="640"></a><br>
+  <em>3 minutes: the idea, the six runs, the live demo and the engine.</em>
+</p>
 
 ## The idea
 
-Most cancers are found late, once symptoms appear. Screening exists for only a handful of them,
-and each one needs its own exam. Yet tumours shed fragments of their DNA into the bloodstream from
-early on, and that DNA carries a chemical signature, **methylation**, that reveals both *that* it
-is cancerous and *which tissue* it comes from.
+Language models read text, code and images. Burotu asks: **can a Meta model learn to read DNA?**
 
-Language models already read text, code and images. Burotu asks a simple question: **can a Meta
-model learn to read methylation too?** We give Meta's open-weight **Muse Glimmer** a new input, a
-blood sample, and teach it to answer two questions: is there a cancer signal, and where does it
-most likely come from? **Muse Spark** then turns that answer into something a patient can
-understand.
+Tumours shed fragments of their DNA into the blood, and that DNA carries a chemical signature,
+**methylation**, that says both *that* it is unusual and *which tissue* it comes from. We gave Meta's
+open-weight **Muse Glimmer** a new input, the methylation of 3,148 sites measured on a blood
+sample, and taught it to answer two questions: is there a signal, and where does it come from?
+**Muse Spark** then turns the answer into a research report a doctor can read.
 
-## How Meta models power Burotu
+## Six runs, one week
 
-```
-Blood draw ─► Partner lab ─► burotu-bmc file (read counts on 3,148 CpG sites)
-                                   │
-                                   ▼
-                   ┌───────────────────────────────────────┐
-                   │ Muse Spark · quality control          │  Is this lab file trustworthy?
-                   └───────────────────┬───────────────────┘
-                                       ▼
-                   ┌───────────────────────────────────────┐
-                   │ Benchmark classifier · cancer signal  │  Alarm at 99.8% specificity
-                   │ Muse Glimmer + methylation adapter    │  Which tissue does it come from?
-                   │ (open weights, fine-tuned, QLoRA)     │
-                   └───────────────────┬───────────────────┘
-                                       ▼
-                   ┌───────────────────────────────────────┐
-                   │ Muse Spark · report and Q&A           │  Plain language, EN / FR / ES
-                   └───────────────────────────────────────┘
-```
+It did not work the first time. Every run has its report in [`reports/`](reports/), failures
+included. Scores: people never seen in training, simulated plasma at 1% tumour DNA.
 
-| Step | Meta model | What it does | Status |
+| Run | Day | What changed | Result |
 | --- | --- | --- | --- |
-| Name the tissue of origin | **Muse Glimmer** (open weights, 30B) + methylation adapter + QLoRA | Ranks the likely tissues of origin once a cancer signal is found | Trained on Modal, beats the benchmark at low tumour DNA |
-| Check lab data | **Muse Spark** (Meta Model API) | Reads coverage and lab metadata, flags files that cannot be trusted and says what to rerun | Client ready |
-| Explain the result | **Muse Spark** | Writes a careful report and answers follow-up questions, grounded in the model's output | Client ready |
+| v1 | Oct 27 (day 2) | Adapter and LoRA trained together | Collapse: LoRA learned the answer format faster than the adapter learned the sample, same answer for everyone |
+| v2 | Oct 28 (day 3) | Two stages: adapter alone, then LoRA · 8 tissues | Reads: tissue right 70% (classic ML 57%), but memorises blood donors |
+| v3 | Oct 28 (day 3) | Smaller, regularised adapter | 99.9% specificity, but only 26% of signals |
+| v4 | Oct 29 (day 4) | Pseudo-donors: healthy backgrounds mixed from 2-3 people | 42% of signals at 99.7% specificity |
+| v5 | Oct 29 (day 4) | 20 tissues | Tissue right 60% (classic 55%); the alarm still fails on new people (38%) |
+| v6 | Nov 2 (day 8) | Refined data v2: 5,728 people from 8 labs, each batch aligned on one reference · 23 tissues · 35,000 samples | **Tissue right 58% of 23 (classic 46%), 75% of signals at 99.5% specificity** |
 
-A gradient-boosted classifier raises the alarm and serves as the **benchmark**: every claim about
-Muse is measured against it on the same held-out data.
+v6 is the model served on Modal and published on
+[Hugging Face](https://huggingface.co/zoukmar75/burotu-glimmer)
+([report](reports/muse_glimmer-v6.json)).
 
-## Muse Glimmer learns to read methylation
+## How it works: a new sense for a language model
 
 Feeding 3,148 numbers to a language model as text does not work well: the model reads digits, not
 biology. Burotu follows the recipe that taught language models to see images instead.
@@ -83,7 +87,8 @@ read counts ─► binomial z-scores ─► methylation adapter (MLP) ─► 16 
 - **Adapter**: a small network projects the sample into a handful of embeddings that live in
   Glimmer's token space, the same idea as vision projectors in multimodal models.
 - **Fine-tuning**: QLoRA on Glimmer in 4-bit on one 48 GB L40S, following Meta's recipe. Two
-  stages: the adapter alone first (500 steps), then adapter and LoRA together (1,000 steps).
+  stages: the adapter alone first, then adapter and LoRA together. v6: 217M trained parameters,
+  66 minutes.
   Training both from the start failed: LoRA learned the answer format faster than the adapter
   learned to carry the sample, and the model answered the same for everyone.
 - **Training data**: tens of thousands of plasma samples simulated from the training split only.
@@ -93,6 +98,35 @@ read counts ─► binomial z-scores ─► methylation adapter (MLP) ─► 16 
 
 The recipe is reusable: any open-weight Meta model could learn to read other omics data the
 same way.
+
+## Now a DNA-reading engine
+
+The language model stays the same; the question is in the adapter and its labels. Muse Glimmer v6
+is online behind one authenticated API on a Modal GPU ([serve.py](src/burotu/models/glimmer/serve.py)),
+and its weights are open. Retrain the adapter on new labels, about an hour of GPU with
+[train.py](src/burotu/models/glimmer/train.py), and the same engine answers a new question:
+
+| Question | Labels needed | Status |
+| --- | --- | --- |
+| Cancer signal and tissue of origin | tumours from 23 tissues, healthy blood | **trained (v6)** |
+| Treatment follow-up | serial draws of the same patients | research direction |
+| Relapse watch | draws after treatment, with outcomes | research direction |
+| Organ damage | cell-free DNA from tissue injury (normal tissue atlases) | research direction |
+| Biological age | age of each donor (epigenetic clocks) | research direction |
+
+The recipe is not specific to Glimmer: any open-weight Meta model could learn to read other omics
+data the same way.
+
+## How Meta models power Burotu
+
+| Step | Meta model | What it does |
+| --- | --- | --- |
+| Read the sample | **Muse Glimmer 30B** (open weights) + methylation adapter + QLoRA | Says whether there is a signal and ranks the 23 tissues; the answer is read from Glimmer's logits |
+| Report | **Muse Spark** (Meta Model API) | Writes the research report for the requesting doctor (EN/FR/ES, never a diagnosis, fixed research-use disclaimer) |
+| Lab notes and Q&A | **Muse Spark** | Notes for the lab when quality control fails; answers questions about one result ([qa.py](src/burotu/analysis/qa.py)) |
+
+Two classic models run alongside as the **benchmark**: every claim about Muse Glimmer is measured
+against them on the same held-out people.
 
 ## Benchmark
 
@@ -175,34 +209,20 @@ All public, no patient data collected.
 
 Plasma is simulated by mixing real tumour profiles into real healthy blood at tumour fractions
 from 0.01% to 10%, then sampling sequencing reads. People and tumours are split into training and
-test sets **before** simulation and panel selection. Details in [docs/data.md](docs/data.md).
+test sets **before** simulation and panel selection. Details in [docs/data.md](docs/data.md). Refined data v2 (below) widens this to 23 tissues, 3,832
+tumours from 22 series and 5,728 blood donors from 8 cohorts.
 
-**Coverage.** The product targets 50 cancer types. The prototype reads **20 tissues** (about 27
+**Coverage.** Refined data v1 (above) read **20 tissues** (about 27
 AJCC cancer categories): lung, colorectal, breast, pancreas, liver, oesophagus and stomach, head
 and neck, prostate, kidney, bladder, uterus, cervix, thyroid, skin (melanoma), brain, soft tissue,
 mesothelium, adrenal, testis, thymus. The first prototype had 8; `BUROTU_CLASSES=8` rebuilds it.
-
-## The product
-
-A model alone does not reach patients, so Burotu ships as a product from day one:
-
-- **[burotu.com](https://burotu.com)**: one-page site in English, French and Spanish (picked from
-  the browser language), with booking at partner collection sites.
-- **admin.burotu.com**: tracking for every sample, from request to blood draw, lab, analysis and
-  report, with a timestamped history. Drop the lab's read-count file on a sample and get, in
-  seconds: quality control, cancer signal, likely tissue of origin, and a plain-language report
-  for the patient written by Muse Spark in their language. The benchmark classifier gives the
-  cancer signal and the fine-tuned Muse Glimmer names the tissue when it is served; the page says
-  which model answered.
-
-<p align="center"><img src="docs/assets/tracking.png" alt="Sample tracking" width="640"></p>
 
 ## Quick start
 
 ```bash
 make install        # Python 3.11+, then fetches the refined data and weights in use
 make check          # lint + tests, same as CI
-make dev            # http://localhost:8000 (site) · http://admin.localhost:8000 (tracking, password "dev")
+make dev            # http://localhost:8000 (the site and its live demo)
 ```
 
 Data and benchmark (about 5 GB downloaded from GDC and GEO):
@@ -232,7 +252,7 @@ for how to load them on top of `meta-models/Muse-Glimmer-30B`. **Actions → Tra
 Once trained, **Actions → Deploy Muse** serves the run on a Modal GPU behind an authenticated API
 ([serve.py](src/burotu/models/glimmer/serve.py), scales to zero when idle; needs a `BUROTU_MUSE_TOKEN`
 secret). Setting `BUROTU_MUSE_URL`, `BUROTU_MUSE_TOKEN` and `BUROTU_MUSE_ROLE=origin` on the
-server makes the tracking site take the tissue of origin from Muse Glimmer (`full` would also
+server makes the site (and its live demo) take the tissue of origin from Muse Glimmer (`full` would also
 take the cancer signal from it). Run reports: [`reports/muse_glimmer-v6.json`](reports/muse_glimmer-v6.json)
 (served, 23 tissues), [`reports/muse_glimmer-v5.json`](reports/muse_glimmer-v5.json) (20 tissues) and [`reports/muse_glimmer-v2.json`](reports/muse_glimmer-v2.json) (8-type prototype).
 
@@ -281,9 +301,9 @@ src/burotu/
 │   ├── cpgpt/       CpGPT foundation model + Burotu heads · tested, not used (experiment)
 │   └── consensus/   vote over the models present
 ├── evaluation/      frozen benchmark, real-plasma checks (Moss 2018, open GEO sets)
-├── analysis/        the pipeline for one sample: QC → models → consensus → letters, Q&A, PDF
+├── analysis/        the pipeline for one sample: QC → models → consensus → report, Q&A
 └── llm/             Meta Model API client (Muse Spark)
-src/burotu_web/      burotu.com (site) and admin.burotu.com (tracking, map of models and data)
+src/burotu_web/      burotu.com: the R&D page, the live demo and the technology page
 scripts/             Modal app (train, serve, CpGPT, publish), demo lab files
 reports/             one JSON report per trained run
 tests/ deploy/ docs/ .github/workflows/
@@ -292,7 +312,7 @@ tests/ deploy/ docs/ .github/workflows/
 Each model package has the same shape: a model card (`README.md`), `model.py`, `train.py`,
 `engine.py` (`analyse(sample) -> Detection`, the only thing the pipeline calls) and `assets/`.
 [`models/registry.toml`](src/burotu/models/registry.toml) is the single list of models, their
-versions, roles, and where their weights live; the admin map page reads it. A new model is a
+versions, roles, and where their weights live. A new model is a
 new package plus a registry entry, scored by the same evaluation code on the same benchmark.
 
 Every push to `main` runs the tests, publishes `ghcr.io/zoukmar/burotu-web:<sha>` and deploys it,
@@ -300,22 +320,15 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 
 ## Roadmap
 
-- [x] Public data pipeline, targeted panel, cfDNA simulator
-- [x] burotu.com and sample tracking, continuous deployment
-- [x] Benchmark classifier on held-out simulated plasma
+- [x] Public data pipeline, targeted panel, cfDNA simulator, frozen benchmark
 - [x] Methylation adapter and QLoRA training code, tested end to end on a tiny Glimmer
-- [x] Lab-file analysis in the tracking site, with a GPU serving API for the fine-tuned model
-- [x] Full QLoRA fine-tuning of Muse Glimmer 30B on Modal (two stages)
-- [x] Muse Glimmer vs benchmark on the same held-out data: better tissue of origin at low tumour DNA
-- [x] Donor-robust training with pseudo-donors (Glimmer alarm from 1% to 42% of signals at 1%)
-- [x] Muse Spark: patient letters (EN/FR/ES, signal only), lab notes on failed quality control, Q&A on a result
-- [x] Background calibration on real patient plasma (healthy controls)
+- [x] Muse Glimmer 30B fine-tuned on Modal, six runs (v1 → v6), served behind an API
+- [x] Refined data v2: 26,000 public samples, 23 tissues, 5,728 blood donors aligned across 8 labs
+- [x] Muse Spark: research report for the doctor, lab notes, Q&A on a result
+- [x] Public live demo on burotu.com
 - [ ] Validation on a large real plasma cohort, sequenced
-- [x] From 8 to 20 tissues (about 27 AJCC cancer categories), same alarm performance
-- [x] Muse Glimmer on 20 tissues: 60% right first time at 1% tumour DNA (classic: 55%)
-- [x] Refined data v2: 26,000 public samples refined, 23 tissues, 5,728 blood donors; Muse Glimmer v6 holds 99.5% specificity
-- [x] Muse Glimmer for the alarm too: 75% of signals at 1% tumour DNA (v5: 38%)
-- [ ] Towards 50: sequenced samples from a partner lab
+- [ ] New adapters on the same engine: treatment follow-up, organ damage, biological age
+- [ ] Towards 50 cancer types: sequenced samples from a partner lab
 
 ## License
 

@@ -1,4 +1,4 @@
-"""Public live demo on burotu.com/{lang}/demo: anyone can watch the models read a lab file.
+"""Public live demo, the #demo section of burotu.com: anyone can watch the models read a lab file.
 
 Ten demo lab files ship with the site (simulated plasma built from held-out tumours and blood
 donors). Picking one runs the full analysis live: quality control, the classic models, Muse
@@ -15,14 +15,13 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 
-from burotu_web.i18n import LANGS, T
-from burotu_web.templating import templates
+from burotu_web.i18n import LANGS
 
 router = APIRouter()
 DEMO_DIR = Path(__file__).resolve().parent / "demo_samples"
-# Shown in this order. 02 and 06 are left out: the models misname their tissue (kept in the admin).
+# Shown in this order. 02 and 06 are left out: the models misname their tissue.
 SHOWN = ["BRT-DEMO-05", "BRT-DEMO-03", "BRT-DEMO-07", "BRT-DEMO-09", "BRT-DEMO-10", "BRT-DEMO-01", "BRT-DEMO-08"]
 CACHE_SECONDS = 600
 RUNS_PER_HOUR = 30
@@ -33,7 +32,7 @@ TEXT = {
     "en": {
         "nav": "Live demo",
         "title": "Watch a Meta model read DNA from a blood draw",
-        "lead": "A research tool for labs and doctors. Pick a lab file: five models read it live, including "
+        "lead": "A research tool for labs and doctors. Pick a lab file: three models read it live, including "
         "Muse Glimmer 30B, Meta's open-weight model we fine-tuned to read DNA methylation, running on a GPU "
         "right now. The true answer is revealed at the end.",
         "pick": "Pick a lab file",
@@ -86,7 +85,7 @@ TEXT = {
         "nav": "Démo en direct",
         "title": "Regardez un modèle de Meta lire l'ADN d'une prise de sang",
         "lead": "Un outil de recherche pour les labos et les médecins. Choisissez un fichier de labo : "
-        "cinq modèles le lisent en direct, dont Muse Glimmer 30B, le modèle "
+        "trois modèles le lisent en direct, dont Muse Glimmer 30B, le modèle "
         "à poids ouverts de Meta que nous avons entraîné à lire la méthylation de l'ADN, qui tourne en ce moment "
         "sur une carte graphique. La vraie réponse est révélée à la fin.",
         "pick": "Choisissez un fichier de labo",
@@ -139,7 +138,7 @@ TEXT = {
     "es": {
         "nav": "Demo en vivo",
         "title": "Mire a un modelo de Meta leer el ADN de una extracción de sangre",
-        "lead": "Una herramienta de investigación para laboratorios y médicos. Elija un archivo: cinco "
+        "lead": "Una herramienta de investigación para laboratorios y médicos. Elija un archivo: tres "
         "modelos lo leen en vivo, entre ellos Muse Glimmer 30B, el "
         "modelo de pesos abiertos de Meta que entrenamos para leer la metilación del ADN, funcionando ahora mismo "
         "en una GPU. La respuesta real se revela al final.",
@@ -203,26 +202,6 @@ def _tissue(cls: str, lang: str) -> str:
     from burotu.analysis.wording import tissue
 
     return tissue(cls, lang)
-
-
-@router.get("/{lang}/demo", response_class=HTMLResponse)
-def demo_page(request: Request, lang: str):
-    if lang not in LANGS:
-        raise HTTPException(404)
-    samples = [{"id": s, "n": s[-2:]} for s in SHOWN if s in manifest()]
-    return templates.TemplateResponse(
-        request,
-        "public/demo.html",
-        {
-            "lang": lang,
-            "t": T[lang],
-            "d": TEXT[lang],
-            "samples": samples,
-            "page": "demo",
-            "tech_nav": {"en": "Technology", "fr": "Technologie", "es": "Tecnología"}[lang],
-            "text_json": json.dumps(TEXT[lang], ensure_ascii=False),
-        },
-    )
 
 
 def _allowed(ip: str) -> bool:

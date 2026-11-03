@@ -1,7 +1,4 @@
 import pytest
-from fastapi.testclient import TestClient
-
-from tests.web.conftest import PUBLIC_HOST, book, csrf, next_weekday
 
 
 @pytest.mark.parametrize(
@@ -20,12 +17,43 @@ def test_root_follows_browser_language(public, header, expected):
     assert r.status_code == 302 and r.headers["location"] == expected
 
 
-def test_onepager_in_three_languages(public):
-    for lang, word in [("en", "Book a blood draw"), ("fr", "Prendre rendez-vous"), ("es", "Reservar extracción")]:
+def test_home_in_three_languages(public):
+    for lang, word in [
+        ("en", "We taught a language model to read DNA."),
+        ("fr", "Nous avons appris"),
+        ("es", "Enseñamos"),
+    ]:
         r = public.get(f"/{lang}/")
-        assert r.status_code == 200
-        assert word in r.text and 'id="book"' in r.text
+        assert r.status_code == 200 and word in r.text
+        for anchor in ('id="how"', 'id="runs"', 'id="demo"', 'id="results"', 'id="engine"'):
+            assert anchor in r.text
     assert public.get("/de/").status_code == 404
+
+
+def test_home_tells_the_six_runs_and_links_everything(public):
+    html = public.get("/en/").text
+    for n in range(1, 7):
+        assert f">v{n}<" in html
+    assert 'datetime="2026-10-27"' in html and 'datetime="2026-11-02"' in html
+    assert "youtu.be/LQVoz8USAHo" in html
+    assert "github.com/zoukmar/burotu" in html and "huggingface.co/zoukmar75/burotu-glimmer" in html
+    assert "Not a medical device" in html
+
+
+def test_no_booking_left(public):
+    html = public.get("/en/").text
+    assert "Book a blood draw" not in html and 'id="book"' not in html and "/static/book.js" not in html
+    r = public.get("/en/book", follow_redirects=False)
+    assert r.status_code == 301 and r.headers["location"] == "/en/"
+    assert public.post("/en/book").status_code == 405
+    assert public.get("/api/slots?site=1&day=2026-11-05").status_code == 404
+
+
+def test_demo_links_lead_to_the_demo_section(public):
+    r = public.get("/demo", headers={"accept-language": "fr"}, follow_redirects=False)
+    assert r.status_code == 302 and r.headers["location"] == "/fr/#demo"
+    r = public.get("/en/demo", follow_redirects=False)
+    assert r.status_code == 301 and r.headers["location"] == "/en/#demo"
 
 
 def test_security_headers(public):
@@ -34,80 +62,9 @@ def test_security_headers(public):
     assert h["x-frame-options"] == "DENY"
 
 
-def test_admin_routes_not_on_public_host(public):
-    assert public.get("/login").status_code == 404
-    assert public.get("/export.csv").status_code == 404
-
-
-def test_booking_flow_and_confirmation(public):
-    r = book(public)
-    assert r.status_code == 303
-    loc = r.headers["location"]
-    assert loc.startswith("/en/?booked=BRT-") and loc.endswith("#book")
-    page = public.get(loc)
-    assert "Booking confirmed" in page.text
-
-
-def test_confirmation_only_for_the_booking_session(app, public):
-    loc = book(public).headers["location"]
-    with TestClient(app, base_url=f"http://{PUBLIC_HOST}") as stranger:
-        assert "Booking confirmed" not in stranger.get(loc).text
-
-
-def test_slot_capacity_is_enforced(public):
-    assert book(public).status_code == 303
-    assert book(public).status_code == 303  # 2 people per slot by default
-    assert book(public).status_code == 422
-    slots = public.get(f"/api/slots?site=1&day={next_weekday()}").json()["slots"]
-    assert "08:00" not in slots and "08:15" in slots
-
-
-def test_validation_errors(public):
-    assert book(public, consent="").status_code == 422
-    assert book(public, email="nope").status_code == 422
-    assert book(public, birth_year="1800").status_code == 422
-    assert book(public, website="spam").status_code == 422  # honeypot
-    assert book(public, slot="03:00").status_code == 422  # outside opening hours
-
-
-def test_csrf_required(public):
-    csrf(public, "/en/")
-    assert public.post("/en/book", data={"csrf": "forged"}).status_code == 400
-
-
-def test_marketing_headline_and_honest_disclaimer(public):
-    page = public.get("/en/").text
-    assert ">50 cancers.</span>" in page and ">One blood draw.</span>" in page
-    assert "Not a clinically validated test" in page
-    assert "€2,690" in page
-
-
-def test_doctor_is_optional(public):
-    assert book(public, doctor="").status_code == 303
-
-
-def test_meta_models_section(public):
-    for lang, title in [("en", "Built on Meta&#39;s Muse models"), ("fr", "Construit sur les modèles Muse de Meta")]:
-        page = public.get(f"/{lang}/").text
-        assert 'id="meta"' in page and title in page and "Muse Glimmer" in page
-
-
-def test_a_full_day_points_to_the_next_free_day(public):
-    from datetime import date, timedelta
-
-    past = (date.today() - timedelta(days=3)).isoformat()  # no times in the past
-    data = public.get(f"/api/slots?site=1&day={past}").json()
-    assert data["slots"] == [] and data["next_day"] is not None
-    assert date.fromisoformat(data["next_day"]) >= date.today()
-    nxt = public.get(f"/api/slots?site=1&day={data['next_day']}").json()
-    assert nxt["slots"] and nxt["next_day"] is None
-
-
-def test_a_missing_time_gets_its_own_message(public):
-    r = book(public, slot="")
-    assert r.status_code == 422
-    assert "Choose a time for your appointment." in r.text
-    assert "Fill in every field" not in r.text
+def test_retired_tracking_host_redirects_to_the_site(retired):
+    r = retired.get("/login", follow_redirects=False)
+    assert r.status_code == 301 and r.headers["location"] == "https://burotu.com/"
 
 
 def test_technology_page_in_three_languages(public):
@@ -120,8 +77,8 @@ def test_technology_page_in_three_languages(public):
 def test_live_demo_reads_a_lab_file_and_reveals_the_truth(public):
     titles = [("en", "Watch a Meta model read DNA"), ("fr", "Regardez un modèle de Meta"), ("es", "Mire a un modelo")]
     for lang, word in titles:
-        r = public.get(f"/{lang}/demo")
-        assert r.status_code == 200 and word in r.text and "BRT-DEMO-05" in r.text
+        r = public.get(f"/{lang}/")  # the demo is a section of the home page
+        assert r.status_code == 200 and word in r.text and "BRT-DEMO-05" in r.text and 'id="demo"' in r.text
     d = public.post("/api/demo/BRT-DEMO-05?lang=fr").json()
     assert d["quality"]["status"] == "pass" and d["models"]["classic"]["signal"]
     assert d["truth"]["label"] == "Kidney" and "Usage recherche" in d["report"]["text"]

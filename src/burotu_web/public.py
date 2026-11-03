@@ -1,22 +1,19 @@
-"""Public site burotu.com: one-pager in en/fr/es with built-in booking."""
+"""Public site burotu.com: the R&D story of a language model that reads DNA, with the live demo."""
 
 from __future__ import annotations
 
+import json
 import random
-import re
-from datetime import date, timedelta
 
-from fastapi import APIRouter, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
 
-from burotu_web.i18n import CANCERS, DEFAULT_LANG, LANGS, TARGET_CANCER_TYPES, T
-from burotu_web.security import check_csrf, csrf_token
+from burotu_web import home as H
+from burotu_web.i18n import DEFAULT_LANG, LANGS, T
 from burotu_web.templating import templates
 
 router = APIRouter()
-EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 TECH_NAV = {"en": "Technology", "fr": "Technologie", "es": "Tecnología"}
-OPTIONAL_FIELDS = {"doctor"}  # no prescription needed: the doctor is optional
 
 
 def sequencing_reads(seed: int = 11) -> list[dict]:
@@ -82,29 +79,6 @@ def need_lang(lang: str) -> str:
     return lang
 
 
-def render_page(request: Request, lang: str, *, form=None, errors=None, booking=None, status_code=200):
-    db = request.app.state.db
-    return templates.TemplateResponse(
-        request,
-        "public/onepager.html",
-        {
-            "lang": lang,
-            "t": T[lang],
-            "csrf": csrf_token(request),
-            "cancers": CANCERS[lang],
-            "target_cancers": TARGET_CANCER_TYPES,
-            "reads": READS,
-            "sites": db.list_sites(),
-            "today": date.today(),
-            "form": form or {},
-            "errors": errors or [],
-            "booking": booking,
-            "tech_nav": TECH_NAV[lang],
-        },
-        status_code=status_code,
-    )
-
-
 @router.get("/")
 def root(request: Request):
     return RedirectResponse(f"/{pick_lang(request)}/", status_code=302)
@@ -120,28 +94,48 @@ def robots():
     return "User-agent: *\nAllow: /\nDisallow: /api/\n"
 
 
-@router.get("/api/slots")
-def api_slots(request: Request, site: int, day: str):
-    try:
-        d = date.fromisoformat(day)
-    except ValueError as e:
-        raise HTTPException(400, "invalid date") from e
-    db = request.app.state.db
-    slots = db.available_slots(site, d)
-    nxt = None
-    if not slots:  # point to the first day after this one that still has a free time
-        nxt = db.next_available_day(site, max(d + timedelta(days=1), date.today()))
-    return JSONResponse({"slots": slots, "next_day": nxt.isoformat() if nxt else None})
+@router.get("/demo")
+def demo_short(request: Request):
+    """burotu.com/demo (shown in the video): the demo lives on the home page."""
+    return RedirectResponse(f"/{pick_lang(request)}/#demo", status_code=302)
+
+
+@router.get("/{lang}/demo")
+def demo_old(lang: str):
+    return RedirectResponse(f"/{need_lang(lang)}/#demo", status_code=301)
+
+
+@router.get("/{lang}/book")
+def book_gone(lang: str):
+    return RedirectResponse(f"/{need_lang(lang)}/", status_code=301)
 
 
 @router.get("/{lang}/", response_class=HTMLResponse)
-def home(request: Request, lang: str, booked: str | None = None):
+def home(request: Request, lang: str):
+    from burotu_web import demo
+
     lang = need_lang(lang)
-    booking = None
-    # The confirmation is only shown to the session that just booked.
-    if booked and request.session.get("last_booking") == booked:
-        booking = request.app.state.db.get_booking(booked)
-    return render_page(request, lang, booking=booking)
+    h = H.HOME[lang]
+    samples = [{"id": s, "n": s[-2:]} for s in demo.SHOWN if s in demo.manifest()]
+    return templates.TemplateResponse(
+        request,
+        "public/home.html",
+        {
+            "lang": lang,
+            "t": T[lang],
+            "h": h,
+            "d": demo.TEXT[lang],
+            "text_json": json.dumps(demo.TEXT[lang], ensure_ascii=False),
+            "samples": samples,
+            "runs": H.runs(lang),
+            "reads": READS,
+            "tech_nav": TECH_NAV[lang],
+            "video_url": H.VIDEO_URL,
+            "github_url": H.GITHUB_URL,
+            "hf_url": H.HF_URL,
+            "open_items": [(*o, u) for o, u in zip(h["open"], (H.VIDEO_URL, H.GITHUB_URL, H.HF_URL), strict=True)],
+        },
+    )
 
 
 def _tissue(cls: str, lang: str) -> str:
@@ -163,6 +157,7 @@ def technology(request: Request, lang: str):
         {
             "lang": lang,
             "t": T[lang],
+            "h": H.HOME[lang],
             "s": science.TEXT[lang],
             "tech_nav": science.TEXT[lang]["nav"],
             "page": "technology",
@@ -180,72 +175,7 @@ def technology(request: Request, lang: str):
     )
 
 
-@router.get("/{lang}/book")
-def book_anchor(lang: str):
-    return RedirectResponse(f"/{need_lang(lang)}/#book", status_code=301)
-
-
-@router.post("/{lang}/book", response_class=HTMLResponse)
-def book_submit(
-    request: Request,
-    lang: str,
-    csrf: str = Form(""),
-    site_id: int = Form(0),
-    day: str = Form(""),
-    slot: str = Form(""),
-    first_name: str = Form(""),
-    last_name: str = Form(""),
-    email: str = Form(""),
-    phone: str = Form(""),
-    birth_year: str = Form(""),
-    doctor: str = Form(""),
-    consent: str = Form(""),
-    website: str = Form(""),  # honeypot for bots, invisible to humans
-):
-    lang = need_lang(lang)
-    check_csrf(request, csrf)
-    t = T[lang]
-    form = {
-        "site_id": str(site_id) if site_id else "",
-        "day": day.strip(),
-        "slot": slot.strip(),
-        "first_name": first_name.strip()[:120],
-        "last_name": last_name.strip()[:120],
-        "email": email.strip()[:120],
-        "phone": phone.strip()[:40],
-        "birth_year": birth_year.strip(),
-        "doctor": doctor.strip()[:120],
-    }
-    errors = []
-    if website or not all(v for k, v in form.items() if k not in OPTIONAL_FIELDS | {"slot"}):
-        errors.append(t["err_required"])
-    if not form["slot"]:
-        errors.append(t["err_slot_missing"])
-    if form["email"] and not EMAIL_RE.match(form["email"]):
-        errors.append(t["err_email"])
-    if form["birth_year"] and not (form["birth_year"].isdigit() and 1920 <= int(form["birth_year"]) <= 2008):
-        errors.append(t["err_birth"])
-    if not consent:
-        errors.append(t["err_consent"])
-    try:
-        if form["day"]:
-            date.fromisoformat(form["day"])
-    except ValueError:
-        errors.append(t["err_slot"])
-
-    if not errors:
-        ref = request.app.state.db.create_booking(
-            {**form, "site_id": site_id, "birth_year": int(form["birth_year"]), "lang": lang}
-        )
-        if ref:
-            request.session["last_booking"] = ref
-            return RedirectResponse(f"/{lang}/?booked={ref}#book", status_code=303)
-        errors.append(t["err_slot"])
-
-    return render_page(request, lang, form=form, errors=list(dict.fromkeys(errors)), status_code=422)
-
-
-# Public live demo (burotu.com/{lang}/demo and /api/demo/...).
+# Live demo API (/api/demo/...). Its page is now the #demo section of the home page.
 from burotu_web.demo import router as _demo_router  # noqa: E402
 
 router.include_router(_demo_router)

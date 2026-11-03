@@ -1,0 +1,153 @@
+{% extends "public/base.html" %}
+{% block title %}Burotu · {{ h.title }}{% endblock %}
+{% block description %}{{ h.description }}{% endblock %}
+{% block main %}
+<section class="hero" aria-labelledby="title">
+  <div class="wrap">
+    <p class="kicker">{{ h.kicker }}</p>
+    <h1 class="hero-title" id="title">{{ h.title }}</h1>
+    <div class="hero-row">
+      <p class="lead">{{ h.lead }}</p>
+      <div class="hero-actions">
+        <a class="btn" href="#demo">{{ h.btn_demo }}</a>
+        <a class="btn btn-ghost" href="{{ video_url }}" rel="noopener">{{ h.btn_video }}</a>
+      </div>
+    </div>
+    <p class="hero-links small"><span class="muted">{{ h.links }} ·</span>
+      <a class="link" href="{{ github_url }}" rel="noopener">GitHub</a>
+      <a class="link" href="{{ hf_url }}" rel="noopener">Hugging Face</a>
+    </p>
+  </div>
+  <figure class="reads">
+    <svg viewBox="-12 -14 1184 346" preserveAspectRatio="xMidYMid slice" role="img" aria-label="{{ t.strip_caption }}">
+      {% for r in reads %}
+      <g class="read{% if r.tumour %} read-tumour{% endif %}">
+        <line x1="{{ r.x1 }}" y1="{{ r.y }}" x2="{{ r.x2 }}" y2="{{ r.y }}"/>
+        {% for s in r.sites %}
+        <circle cx="{{ s.cx }}" cy="{{ r.y }}" r="7"
+          class="{% if s.tumour %}cpg cpg-tumour d{{ s.delay }}{% elif s.filled %}cpg cpg-on{% else %}cpg{% endif %}"/>
+        {% endfor %}
+      </g>
+      {% endfor %}
+    </svg>
+    <figcaption class="wrap">{{ t.strip_caption }}</figcaption>
+  </figure>
+</section>
+
+<section class="section video-sec" aria-label="{{ h.video_alt }}">
+  <div class="wrap">
+    <a class="video-card" href="{{ video_url }}" rel="noopener">
+      <img src="/static/video.jpg" alt="{{ h.video_alt }}" width="1280" height="720" loading="lazy">
+      <span class="video-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+    </a>
+    <p class="small muted video-caption">{{ h.video_caption }}</p>
+  </div>
+</section>
+
+<section class="section section-plasma" id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <h2 id="how-title">{{ h.how_title }}</h2>
+    <p class="section-lead">{{ h.how_lead }}</p>
+    <ol class="meta-flow">
+      {% for title, text in h.how %}
+      <li class="{% if loop.index == 2 %}is-core{% endif %}">
+        <svg class="meta-mark" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" class="{% if loop.index == 2 %}f{% else %}o{% endif %}"/></svg>
+        <h3>{{ title }}</h3>
+        <p>{{ text }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+    <dl class="facts">
+      {% for big, label in h.facts %}<div><dt>{{ big }}</dt><dd>{{ label }}</dd></div>{% endfor %}
+    </dl>
+  </div>
+</section>
+
+<section class="section" id="runs" aria-labelledby="runs-title">
+  <div class="wrap">
+    <h2 id="runs-title">{{ h.runs_title }}</h2>
+    <p class="section-lead">{{ h.runs_lead }}</p>
+    <ol class="runs">
+      {% for r in runs %}
+      <li class="run{% if r.failed %} is-failed{% endif %}{% if r.best %} is-best{% endif %}">
+        <p class="run-day"><time datetime="{{ r.iso }}">{{ h.day }} {{ r.day }} · {{ r.date }}</time></p>
+        <p class="run-n">v{{ r.n }}</p>
+        <h3>{{ r.title }}</h3>
+        <p class="run-text">{{ r.text }}</p>
+        <p class="run-metric">{{ r.metric }}</p>
+        <p class="run-verdict">{{ r.verdict }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="section section-demo demo" id="demo" aria-labelledby="demo-title">
+  <div class="wrap">
+    <p class="kicker">Muse Glimmer 30B · Muse Spark · Modal</p>
+    <h2 class="demo-title" id="demo-title">{{ d.title }}</h2>
+    <p class="section-lead">{{ d.lead }}</p>
+    <h3 class="demo-h">{{ d.pick }}</h3>
+    <div class="demo-picker" id="demo-picker" data-lang="{{ lang }}">
+      {% for s in samples %}
+      <button type="button" class="demo-tube" data-sample="{{ s.id }}">
+        <svg viewBox="0 0 24 60" aria-hidden="true"><rect x="4" y="2" width="16" height="6" rx="2" class="cap"/><path d="M6 8h12v40a6 6 0 0 1-12 0z" class="glass"/><path d="M6 30h12v18a6 6 0 0 1-12 0z" class="blood"/><path d="M6 22h12v8H6z" class="plasma"/></svg>
+        <span class="demo-tube-label">{{ d.sample }} {{ s.n }}</span>
+        <span class="small muted">{{ d.hidden }}</span>
+      </button>
+      {% endfor %}
+    </div>
+    <div class="demo-out" id="demo-out" aria-live="polite"></div>
+    <script type="application/json" id="demo-text">{{ text_json|safe }}</script>
+    <p class="small muted demo-foot">{{ d.footnote }} <a class="link" href="/{{ lang }}/technology">{{ tech_nav }}</a></p>
+  </div>
+</section>
+
+<section class="section" id="results" aria-labelledby="results-title">
+  <div class="wrap">
+    <h2 id="results-title">{{ h.results_title }}</h2>
+    <p class="section-lead">{{ h.results_lead }}</p>
+    <ul class="results">
+      {% for big, label, note in h.results %}
+      <li><p class="result-big">{{ big }}</p><p class="result-label">{{ label }}</p><p class="small muted">{{ note }}</p></li>
+      {% endfor %}
+    </ul>
+    <p><a class="link" href="/{{ lang }}/technology">{{ h.results_more }} →</a></p>
+  </div>
+</section>
+
+<section class="section section-ink" id="engine" aria-labelledby="engine-title">
+  <div class="wrap">
+    <h2 id="engine-title">{{ h.engine_title }}</h2>
+    <p class="section-lead">{{ h.engine_lead }}</p>
+    <ul class="uses">
+      {% for title, text in h.uses %}
+      <li class="{% if loop.first %}is-now{% endif %}"><h3>{{ title }}</h3><p>{{ text }}</p></li>
+      {% endfor %}
+    </ul>
+    <p class="small muted uses-note">{{ h.uses_note }}</p>
+  </div>
+</section>
+
+<section class="section" id="open" aria-labelledby="open-title">
+  <div class="wrap">
+    <h2 id="open-title">{{ h.open_title }}</h2>
+    <ul class="open">
+      {% for label, text, shown, url in open_items %}
+      <li><a href="{{ url }}" rel="noopener"><span class="open-label">{{ label }}</span><span class="open-text">{{ text }}</span><span class="open-url">{{ shown }}</span></a></li>
+      {% endfor %}
+    </ul>
+    <p class="muted">{{ h.built_with }}</p>
+  </div>
+</section>
+
+<section class="section section-plasma">
+  <div class="wrap limits">
+    <h2>{{ h.limits_title }}</h2>
+    <ul>
+      {% for l in h.limits %}<li>{{ l }}</li>{% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="/static/demo.js" defer></script>{% endblock %}
