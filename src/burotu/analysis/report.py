@@ -129,3 +129,126 @@ def write_reports(qc: dict, detection: dict | None, client: MetaClient | None = 
     with ThreadPoolExecutor(max_workers=len(LANGS)) as pool:
         futures = {lang: pool.submit(write_report, qc, detection, lang, client) for lang in LANGS}
         return {lang: f.result() for lang, f in futures.items()}
+
+
+DOCTOR_SYSTEM = """You write the research report Burotu sends to the doctor or lab who requested the \
+analysis of one blood sample. Burotu is a research prototype that looks for an unusual DNA methylation \
+signal in cell-free DNA. You receive the quality checks and every model's answer as JSON.
+
+Rules:
+- Write for a physician, in {language}, in a precise, factual tone. 90 to 140 words. No headings, no lists.
+- Report the quality control, whether the models found an unusual methylation signal (with the score and \
+threshold of the model that decides the signal), and the tissues the signal most resembles with their \
+probabilities, saying which models agree.
+- Talk only about a "signal". Never write the words cancer, tumour, malignant, carcinoma, oncology or \
+metastasis, in any language, and never name a disease or give a diagnosis or a treatment advice.
+- Say that the result is a research signal to interpret in its clinical context, and that further \
+examinations are the physician's decision.
+- End with exactly this sentence, translated: "Research use only: Burotu is not a medical device."
+- Do not invent numbers that are not in the JSON."""
+
+DOCTOR_TEMPLATES = {
+    "en": (
+        "Quality control: {qc}. {signal} Research use only: Burotu is not a medical device.",
+        "Unusual methylation signal (score {score} above threshold {threshold}). Closest tissues: {tissues}. "
+        "Models agreeing on the first tissue: {agree}. A research signal to interpret in its clinical "
+        "context; further examinations are the physician's decision.",
+        "No unusual methylation signal (score {score}, threshold {threshold}).",
+        "Sample not analysable: a new blood draw is needed.",
+    ),
+    "fr": (
+        "Contrôle qualité : {qc}. {signal} Usage recherche uniquement : Burotu n'est pas un dispositif médical.",
+        "Signal de méthylation inhabituel (score {score} au-dessus du seuil {threshold}). Tissus les plus "
+        "proches : {tissues}. Modèles d'accord sur le premier tissu : {agree}. Signal de recherche à "
+        "interpréter dans son contexte clinique ; les examens complémentaires relèvent du médecin.",
+        "Pas de signal de méthylation inhabituel (score {score}, seuil {threshold}).",
+        "Échantillon non analysable : une nouvelle prise de sang est nécessaire.",
+    ),
+    "es": (
+        "Control de calidad: {qc}. {signal} Solo para investigación: Burotu no es un producto sanitario.",
+        "Señal de metilación inusual (puntuación {score} por encima del umbral {threshold}). Tejidos más "
+        "parecidos: {tissues}. Modelos de acuerdo en el primer tejido: {agree}. Señal de investigación que "
+        "debe interpretarse en su contexto clínico; las pruebas adicionales las decide el médico.",
+        "Sin señal de metilación inusual (puntuación {score}, umbral {threshold}).",
+        "Muestra no analizable: hace falta una nueva extracción.",
+    ),
+}
+QC_WORD = {
+    "en": {"pass": "passed", "warn": "passed with warnings", "fail": "failed"},
+    "fr": {"pass": "réussi", "warn": "réussi avec réserves", "fail": "échoué"},
+    "es": {"pass": "superado", "warn": "superado con avisos", "fail": "no superado"},
+}
+
+
+def _doctor_facts(qc: dict, detection: dict | None, models: dict, lang: str) -> dict:
+    facts = {
+        "quality_control": {
+            "status": qc["status"],
+            "panel_coverage": round(qc.get("panel_coverage", 0), 3),
+            "median_depth": qc.get("median_depth"),
+            "findings": qc_findings(qc, lang),
+        }
+    }
+    if detection is not None and qc["status"] != "fail":
+        facts["deciding_model"] = {
+            "unusual_signal_found": bool(detection["cancer_signal"]),
+            "score": round(detection["score"], 4),
+            "threshold": round(detection["threshold"], 4),
+        }
+        facts["models"] = {
+            k: {
+                "unusual_signal_found": bool(m["cancer_signal"]),
+                "tissues": [
+                    {"tissue": tissue(o["class"], lang), "probability": round(o["probability"], 3)}
+                    for o in m["origin"][:3]
+                ],
+            }
+            for k, m in models.items()
+        }
+    return facts
+
+
+def doctor_template(qc: dict, detection: dict | None, models: dict, lang: str) -> str:
+    head, sig, none, fail = DOCTOR_TEMPLATES.get(lang, DOCTOR_TEMPLATES["en"])
+    q = QC_WORD.get(lang, QC_WORD["en"])[qc["status"]]
+    if qc["status"] == "fail" or detection is None:
+        return head.format(qc=q, signal=fail)
+    if not detection["cancer_signal"]:
+        return head.format(
+            qc=q, signal=none.format(score=f"{detection['score']:.3g}", threshold=f"{detection['threshold']:.3g}")
+        )
+    first = detection["origin"][0]["class"]
+    agree = [k for k, m in models.items() if m["origin"] and m["origin"][0]["class"] == first]
+    tissues = ", ".join(f"{tissue(o['class'], lang)} {o['probability']:.0%}" for o in detection["origin"][:3])
+    return head.format(
+        qc=q,
+        signal=sig.format(
+            score=f"{detection['score']:.3g}",
+            threshold=f"{detection['threshold']:.3g}",
+            tissues=tissues,
+            agree=f"{len(agree)}/{len(models)}",
+        ),
+    )
+
+
+def write_doctor_report(
+    qc: dict, detection: dict | None, models: dict, lang: str, client: MetaClient | None = None
+) -> dict:
+    """Research report for the requesting physician: {"text", "author"} (Muse Spark, template fallback)."""
+    client = client or MetaClient()
+    if client.mock:
+        return {"text": doctor_template(qc, detection, models, lang), "author": "template"}
+    messages = [
+        {"role": "system", "content": DOCTOR_SYSTEM.format(language=LANG_NAMES.get(lang, "English"))},
+        {"role": "user", "content": json.dumps(_doctor_facts(qc, detection, models, lang), ensure_ascii=False)},
+    ]
+    try:
+        for _ in range(2):
+            text = client.chat(messages, temperature=0.2, max_tokens=6000).text.strip()
+            if is_clean(text):
+                return {"text": text, "author": client.model}
+            messages += [{"role": "assistant", "content": text}, {"role": "user", "content": RETRY}]
+        reason = "answer named a disease"
+    except Exception as e:
+        reason = f"Muse Spark unavailable: {type(e).__name__}"
+    return {"text": doctor_template(qc, detection, models, lang), "author": f"template ({reason})"}

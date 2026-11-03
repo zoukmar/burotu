@@ -26,16 +26,16 @@ DEMO_DIR = Path(__file__).resolve().parent / "demo_samples"
 SHOWN = ["BRT-DEMO-05", "BRT-DEMO-03", "BRT-DEMO-07", "BRT-DEMO-09", "BRT-DEMO-10", "BRT-DEMO-01", "BRT-DEMO-08"]
 CACHE_SECONDS = 600
 RUNS_PER_HOUR = 30
-_cache: dict[str, tuple[float, dict]] = {}
+_cache: dict[str, tuple[float, dict]] = {}  # (sample:lang) -> (time, payload)
 _hits: dict[str, list[float]] = {}
 
 TEXT = {
     "en": {
         "nav": "Live demo",
-        "title": "Watch Burotu read a blood test",
-        "lead": "Pick a lab file. Five models read it live, including Muse Glimmer 30B, Meta's open-weight "
-        "model we fine-tuned to read DNA methylation, running on a GPU right now. The true answer is revealed "
-        "at the end.",
+        "title": "Watch a Meta model read DNA from a blood draw",
+        "lead": "A research tool for labs and doctors. Pick a lab file: five models read it live, including "
+        "Muse Glimmer 30B, Meta's open-weight model we fine-tuned to read DNA methylation, running on a GPU "
+        "right now. The true answer is revealed at the end.",
         "pick": "Pick a lab file",
         "sample": "Sample",
         "hidden": "true answer hidden",
@@ -66,8 +66,9 @@ TEXT = {
         "rank_d": "of simulated healthy samples score lower. A signal is raised above 99.5%.",
         "lit": "Lit sites",
         "lit_d": "sites carry more methylated DNA than 99.5% of healthy samples. A healthy sample shows up to",
-        "letter": "Letter for the patient",
-        "by_spark": "Written by Muse Spark (Meta Model API). Never a diagnosis: it goes through the doctor.",
+        "letter": "Research report for the requesting doctor",
+        "by_spark": "Written by Muse Spark (Meta Model API) from the models' answers. A research signal, never "
+        "a diagnosis.",
         "by_template": "Written from a fixed template (Muse Spark not reachable).",
         "truth": "The true answer",
         "truth_healthy": "Healthy donor: no tumour DNA in this sample.",
@@ -83,8 +84,9 @@ TEXT = {
     },
     "fr": {
         "nav": "Démo en direct",
-        "title": "Regardez Burotu lire une prise de sang",
-        "lead": "Choisissez un fichier de labo. Cinq modèles le lisent en direct, dont Muse Glimmer 30B, le modèle "
+        "title": "Regardez un modèle de Meta lire l'ADN d'une prise de sang",
+        "lead": "Un outil de recherche pour les labos et les médecins. Choisissez un fichier de labo : "
+        "cinq modèles le lisent en direct, dont Muse Glimmer 30B, le modèle "
         "à poids ouverts de Meta que nous avons entraîné à lire la méthylation de l'ADN, qui tourne en ce moment "
         "sur une carte graphique. La vraie réponse est révélée à la fin.",
         "pick": "Choisissez un fichier de labo",
@@ -118,9 +120,10 @@ TEXT = {
         "lit": "Sites allumés",
         "lit_d": "sites portent plus d'ADN méthylé que 99,5 % des échantillons sains. Un échantillon sain en montre "
         "jusqu'à",
-        "letter": "Lettre pour le patient",
-        "by_spark": "Écrite par Muse Spark (Meta Model API). Jamais un diagnostic : elle passe par le médecin.",
-        "by_template": "Écrite à partir d'un modèle fixe (Muse Spark injoignable).",
+        "letter": "Compte rendu de recherche pour le médecin prescripteur",
+        "by_spark": "Écrit par Muse Spark (Meta Model API) à partir des réponses des modèles. Un signal de "
+        "recherche, jamais un diagnostic.",
+        "by_template": "Écrit à partir d'un modèle fixe (Muse Spark injoignable).",
         "truth": "La vraie réponse",
         "truth_healthy": "Donneur sain : aucun ADN tumoral dans cet échantillon.",
         "truth_tumour": "Construit à partir d'ADN tumoral de {tissue}, à {tf} de l'ADN circulant, mélangé au sang "
@@ -135,8 +138,9 @@ TEXT = {
     },
     "es": {
         "nav": "Demo en vivo",
-        "title": "Mire a Burotu leer un análisis de sangre",
-        "lead": "Elija un archivo de laboratorio. Cinco modelos lo leen en vivo, entre ellos Muse Glimmer 30B, el "
+        "title": "Mire a un modelo de Meta leer el ADN de una extracción de sangre",
+        "lead": "Una herramienta de investigación para laboratorios y médicos. Elija un archivo: cinco "
+        "modelos lo leen en vivo, entre ellos Muse Glimmer 30B, el "
         "modelo de pesos abiertos de Meta que entrenamos para leer la metilación del ADN, funcionando ahora mismo "
         "en una GPU. La respuesta real se revela al final.",
         "pick": "Elija un archivo de laboratorio",
@@ -169,9 +173,10 @@ TEXT = {
         "rank_d": "de las muestras sanas simuladas puntúan menos. Se da una señal por encima del 99,5 %.",
         "lit": "Sitios encendidos",
         "lit_d": "sitios llevan más ADN metilado que el 99,5 % de las muestras sanas. Una muestra sana muestra hasta",
-        "letter": "Carta para el paciente",
-        "by_spark": "Escrita por Muse Spark (Meta Model API). Nunca un diagnóstico: pasa por el médico.",
-        "by_template": "Escrita a partir de una plantilla fija (Muse Spark no disponible).",
+        "letter": "Informe de investigación para el médico solicitante",
+        "by_spark": "Escrito por Muse Spark (Meta Model API) a partir de las respuestas de los modelos. Una "
+        "señal de investigación, nunca un diagnóstico.",
+        "by_template": "Escrito a partir de una plantilla fija (Muse Spark no disponible).",
         "truth": "La respuesta real",
         "truth_healthy": "Donante sano: no hay ADN tumoral en esta muestra.",
         "truth_tumour": "Construida con ADN tumoral de {tissue}, al {tf} del ADN circulante, mezclado con la sangre "
@@ -230,7 +235,7 @@ def _allowed(ip: str) -> bool:
     return True
 
 
-def _payload(sample_id: str, result: dict, elapsed: float) -> dict:
+def _payload(sample_id: str, result: dict, report: dict, elapsed: float) -> dict:
     """What the page shows: only results, never anything about the server."""
     models = {
         k: {
@@ -259,10 +264,7 @@ def _payload(sample_id: str, result: dict, elapsed: float) -> dict:
         "models": models,
         "consensus": result.get("consensus"),
         "explain": explain,
-        "letters": {
-            lang: {"text": r["text"], "spark": r["author"].lower().startswith("muse")}
-            for lang, r in result["reports"].items()
-        },
+        "report": report,
         "elapsed": round(elapsed, 1),
         "at": time.time(),
     }
@@ -272,7 +274,8 @@ def _payload(sample_id: str, result: dict, elapsed: float) -> dict:
 async def demo_run(request: Request, sample_id: str, lang: str = "en"):
     if sample_id not in SHOWN or lang not in LANGS:
         raise HTTPException(404)
-    cached = _cache.get(sample_id)
+    key = f"{sample_id}:{lang}"
+    cached = _cache.get(key)
     if cached and time.time() - cached[0] < CACHE_SECONDS:
         data = {**cached[1], "cached_min": int((time.time() - cached[0]) // 60)}
     else:
@@ -284,9 +287,15 @@ async def demo_run(request: Request, sample_id: str, lang: str = "en"):
 
         sample = read_lab_file(DEMO_DIR / f"{sample_id}.tsv")
         t0 = time.time()
-        result = await run_in_threadpool(analyse, sample, lang)
-        data = _payload(sample_id, result, time.time() - t0)
-        _cache[sample_id] = (time.time(), data)
+        result = await run_in_threadpool(analyse, sample, lang, False)
+        from burotu.analysis.report import write_doctor_report
+
+        report = await run_in_threadpool(
+            write_doctor_report, result["quality"], result["detection"], result.get("models") or {}, lang
+        )
+        report = {"text": report["text"], "spark": report["author"].lower().startswith("muse")}
+        data = _payload(sample_id, result, report, time.time() - t0)
+        _cache[key] = (time.time(), data)
     truth = manifest()[sample_id]
     classes = {o["class"] for m in data["models"].values() for o in m["origin"]}
     if data.get("consensus") and data["consensus"].get("tissue"):

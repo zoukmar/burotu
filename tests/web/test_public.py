@@ -118,12 +118,12 @@ def test_technology_page_in_three_languages(public):
 
 
 def test_live_demo_reads_a_lab_file_and_reveals_the_truth(public):
-    for lang, word in [("en", "Watch Burotu read"), ("fr", "Regardez Burotu"), ("es", "Mire a Burotu")]:
+    for lang, word in [("en", "Watch a Meta model read DNA"), ("fr", "Regardez un modèle de Meta"), ("es", "Mire a un modelo de Meta")]:
         r = public.get(f"/{lang}/demo")
         assert r.status_code == 200 and word in r.text and "BRT-DEMO-05" in r.text
     d = public.post("/api/demo/BRT-DEMO-05?lang=fr").json()
     assert d["quality"]["status"] == "pass" and d["models"]["classic"]["signal"]
-    assert d["truth"]["label"] == "Kidney" and set(d["letters"]) == {"en", "fr", "es"}
+    assert d["truth"]["label"] == "Kidney" and "Usage recherche" in d["report"]["text"]
     assert "Kidney" in d["tissues"] and d["tissues"]["Kidney"] == "rein"
     assert public.post("/api/demo/BRT-DEMO-06").status_code == 404  # not offered on the public page
     shallow = public.post("/api/demo/BRT-DEMO-08").json()

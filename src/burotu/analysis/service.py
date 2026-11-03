@@ -33,7 +33,7 @@ def muse() -> MuseEngine | None:
     return MuseEngine(url, token, baseline().panel) if url and token else None
 
 
-def analyse(sample: LabSample, lang: str = "en") -> dict:
+def analyse(sample: LabSample, lang: str = "en", letters: bool = True) -> dict:
     """QC, then the signal and its likely tissue, then the letter in every language.
 
     `models` keeps both answers side by side: the classic classifier, and Muse Glimmer
@@ -65,7 +65,7 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
             detection = meta
         else:
             detection = models["classic"]
-    reports = write_reports(quality, detection)
+    reports = write_reports(quality, detection) if letters else {}
     from burotu.analysis.qa import qc_notes
 
     notes_for_lab = qc_notes(quality)
@@ -79,7 +79,7 @@ def analyse(sample: LabSample, lang: str = "en") -> dict:
         "explain": explain,
         "consensus": consensus(models),
         "reports": reports,
-        "report": reports.get(lang, reports["en"]),
+        "report": reports.get(lang, reports.get("en")),
         "notes": notes,
         "qc_notes": notes_for_lab,
     }

@@ -37,6 +37,8 @@
     box.append(head, body);
     return { box, body, done(ok) { box.classList.remove("is-wait"); box.classList.add(ok === false ? "is-ko" : "is-ok"); } };
   }
+  const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const follow = (node) => node.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" });
   const tissue = (data, c) => (data.tissues && data.tissues[c]) || c;
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -135,35 +137,20 @@
         g.append(a, b, c);
         why.append(g);
         out.append(why);
+        follow(why);
       }
     }
 
     await sleep(500);
-    const letters = data.letters || {};
-    const langs = Object.keys(letters);
-    if (langs.length) {
+    if (data.report) {
       const box = el("div", "demo-letter");
       const head = el("div", "demo-letter-head");
       head.append(el("h3", "", T.letter));
-      const tabs = el("div", "demo-tabs");
-      const quote = el("blockquote", "");
-      const who = el("p", "small muted");
-      function show(l) {
-        quote.textContent = letters[l].text;
-        quote.lang = l;
-        who.textContent = letters[l].spark ? T.by_spark : T.by_template;
-        tabs.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.l === l)));
-      }
-      langs.forEach((l) => {
-        const t = el("button", "btn btn-small btn-ghost", l.toUpperCase());
-        t.type = "button"; t.dataset.l = l;
-        t.addEventListener("click", () => show(l));
-        tabs.append(t);
-      });
-      head.append(tabs);
-      box.append(head, quote, who);
+      const quote = el("blockquote", "", data.report.text);
+      quote.lang = lang;
+      box.append(head, quote, el("p", "small muted", data.report.spark ? T.by_spark : T.by_template));
       out.append(box);
-      show(letters[lang] ? lang : langs[0]);
+      follow(box);
     }
 
     await sleep(600);
@@ -176,6 +163,7 @@
     card.append(el("p", "demo-big", text));
     if (truth.depth < 100) card.append(el("p", "", T.truth_shallow.replace("{depth}", truth.depth)));
     out.append(card);
+    follow(card);
     picker.querySelectorAll("button").forEach((b) => { b.disabled = false; });
   }
 
