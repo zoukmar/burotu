@@ -11,6 +11,7 @@ from __future__ import annotations
 VIDEO_URL = "https://youtu.be/LQVoz8USAHo"
 GITHUB_URL = "https://github.com/zoukmar/burotu"
 HF_URL = "https://huggingface.co/zoukmar75/burotu-glimmer"
+PAPER_URL = "/paper"
 
 # (day of the hackathon week, ISO date, run). Dates are the day each run was trained and reported.
 RUNS = [
@@ -37,6 +38,7 @@ HOME = {
         "btn_demo": "Try the live demo",
         "btn_video": "Watch the 3-min video",
         "links": "Open source",
+        "paper": "Paper (PDF)",
         "video_alt": "Video: We taught Meta's LLM to read DNA in one week",
         "video_caption": "3 minutes: the idea, the six runs, the live demo and the engine.",
         "how_title": "A new sense for a language model",
@@ -131,6 +133,7 @@ HOME = {
             ("Video", "3 minutes, the whole story", "youtu.be/LQVoz8USAHo"),
             ("Code", "Pipeline, training, serving, this site · AGPL-3.0", "github.com/zoukmar/burotu"),
             ("Weights", "Muse Glimmer + adapter, v1 to v6", "huggingface.co/zoukmar75/burotu-glimmer"),
+            ("Paper", "Preprint, 5 pages: method, six runs, limits", "burotu.com/paper"),
         ],
         "built_with": "Built with Meta Muse Glimmer 30B (open weights) and Muse Spark (Meta Model API), trained and served on Modal.",
         "limits_title": "What it is not",
@@ -154,6 +157,7 @@ HOME = {
         "btn_demo": "Essayer la démo en direct",
         "btn_video": "Voir la vidéo (3 min)",
         "links": "Open source",
+        "paper": "Article (PDF)",
         "video_alt": "Vidéo : nous avons appris à lire l'ADN au LLM de Meta en une semaine",
         "video_caption": "3 minutes : l'idée, les six versions, la démo en direct et le moteur.",
         "how_title": "Un nouveau sens pour un modèle de langage",
@@ -252,6 +256,7 @@ HOME = {
             ("Vidéo", "3 minutes, toute l'histoire", "youtu.be/LQVoz8USAHo"),
             ("Code", "Pipeline, entraînement, service, ce site · AGPL-3.0", "github.com/zoukmar/burotu"),
             ("Poids", "Muse Glimmer + adaptateur, v1 à v6", "huggingface.co/zoukmar75/burotu-glimmer"),
+            ("Article", "Prépublication, 5 pages : méthode, six versions, limites", "burotu.com/paper"),
         ],
         "built_with": "Construit avec Meta Muse Glimmer 30B (poids ouverts) et Muse Spark (Meta Model API), entraîné et servi sur Modal.",
         "limits_title": "Ce que ce n'est pas",
@@ -275,6 +280,7 @@ HOME = {
         "btn_demo": "Probar la demo en vivo",
         "btn_video": "Ver el vídeo (3 min)",
         "links": "Código abierto",
+        "paper": "Artículo (PDF)",
         "video_alt": "Vídeo: enseñamos al LLM de Meta a leer el ADN en una semana",
         "video_caption": "3 minutos: la idea, las seis versiones, la demo en vivo y el motor.",
         "how_title": "Un nuevo sentido para un modelo de lenguaje",
@@ -377,6 +383,7 @@ HOME = {
             ("Vídeo", "3 minutos, toda la historia", "youtu.be/LQVoz8USAHo"),
             ("Código", "Pipeline, entrenamiento, servicio, este sitio · AGPL-3.0", "github.com/zoukmar/burotu"),
             ("Pesos", "Muse Glimmer + adaptador, v1 a v6", "huggingface.co/zoukmar75/burotu-glimmer"),
+            ("Artículo", "Preprint, 5 páginas: método, seis versiones, límites", "burotu.com/paper"),
         ],
         "built_with": "Construido con Meta Muse Glimmer 30B (pesos abiertos) y Muse Spark (Meta Model API), entrenado y servido en Modal.",
         "limits_title": "Lo que no es",

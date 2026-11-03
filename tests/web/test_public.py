@@ -86,3 +86,11 @@ def test_live_demo_reads_a_lab_file_and_reveals_the_truth(public):
     assert public.post("/api/demo/BRT-DEMO-06").status_code == 404  # not offered on the public page
     shallow = public.post("/api/demo/BRT-DEMO-08").json()
     assert shallow["quality"]["status"] == "fail" and shallow["models"] == {}
+
+
+def test_paper_is_served(public):
+    r = public.get("/paper", follow_redirects=False)
+    assert r.status_code == 302 and r.headers["location"] == "/static/burotu-paper.pdf"
+    pdf = public.get("/static/burotu-paper.pdf")
+    assert pdf.status_code == 200 and pdf.content[:4] == b"%PDF"
+    assert 'href="/paper"' in public.get("/en/").text

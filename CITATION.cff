@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use Burotu, please cite the preprint below."
+title: "Burotu: teaching a language model to read DNA"
+authors:
+  - family-names: Marzouk
+    given-names: Michael
+repository-code: "https://github.com/zoukmar/burotu"
+url: "https://burotu.com"
+license: AGPL-3.0-only
+date-released: 2026-11-03
+keywords: [llm, fine-tuning, qlora, dna-methylation, cfdna, liquid-biopsy, genomics]
+preferred-citation:
+  type: article
+  title: "Teaching a language model to read DNA: fine-tuning Muse Glimmer 30B on cell-free DNA methylation with a vision-style adapter"
+  authors:
+    - family-names: Marzouk
+      given-names: Michael
+  year: 2026
+  month: 11
+  status: preprint
+  url: "https://github.com/zoukmar/burotu/blob/main/paper/burotu-paper.pdf"

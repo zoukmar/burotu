@@ -100,6 +100,12 @@ def demo_short(request: Request):
     return RedirectResponse(f"/{pick_lang(request)}/#demo", status_code=302)
 
 
+@router.get("/paper")
+def paper():
+    """The preprint, as a PDF."""
+    return RedirectResponse("/static/burotu-paper.pdf", status_code=302)
+
+
 @router.get("/{lang}/demo")
 def demo_old(lang: str):
     return RedirectResponse(f"/{need_lang(lang)}/#demo", status_code=301)
@@ -133,7 +139,9 @@ def home(request: Request, lang: str):
             "video_url": H.VIDEO_URL,
             "github_url": H.GITHUB_URL,
             "hf_url": H.HF_URL,
-            "open_items": [(*o, u) for o, u in zip(h["open"], (H.VIDEO_URL, H.GITHUB_URL, H.HF_URL), strict=True)],
+            "open_items": [
+                (*o, u) for o, u in zip(h["open"], (H.VIDEO_URL, H.GITHUB_URL, H.HF_URL, H.PAPER_URL), strict=True)
+            ],
         },
     )
 

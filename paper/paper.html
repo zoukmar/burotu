@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Teaching a language model to read DNA: fine-tuning Muse Glimmer 30B on cell-free DNA methylation</title>
+<style>
+@page { size: A4; margin: 18mm 17mm 18mm 17mm; }
+body { font-family: "DejaVu Serif", Georgia, serif; font-size: 10pt; line-height: 1.42; color: #111; margin: 0; }
+h1 { font-size: 17pt; line-height: 1.2; margin: 0 0 8pt; text-align: center; }
+.authors { text-align: center; margin: 0 0 2pt; font-size: 10.5pt; }
+.affil { text-align: center; font-size: 8.5pt; color: #444; margin: 0 0 12pt; }
+.abstract { margin: 0 18pt 14pt; font-size: 9.3pt; }
+.abstract b { display: block; text-align: center; margin-bottom: 3pt; }
+h2 { font-size: 11.5pt; margin: 14pt 0 5pt; }
+h2, h3 { break-after: avoid; page-break-after: avoid; }
+h3 { font-size: 10pt; margin: 9pt 0 3pt; font-style: italic; font-weight: normal; }
+p { margin: 0 0 6pt; text-align: justify; hyphens: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 8.4pt; margin: 6pt 0 4pt; font-family: "DejaVu Sans", Arial, sans-serif; }
+th, td { border-top: 0.6pt solid #999; padding: 3pt 4pt; text-align: left; vertical-align: top; }
+thead th { border-top: 1.2pt solid #000; border-bottom: 0.8pt solid #000; }
+tbody tr:last-child td { border-bottom: 1.2pt solid #000; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+.cap { font-size: 8.4pt; color: #222; margin: 3pt 0 10pt; text-align: justify; }
+figure { margin: 8pt 0; break-inside: avoid; }
+figure img, figure svg { width: 100%; display: block; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.4pt; }
+.refs { font-size: 8.4pt; padding-left: 16pt; }
+.refs li { margin-bottom: 2pt; }
+.note { font-size: 8.4pt; border: 0.6pt solid #999; padding: 5pt 7pt; margin: 8pt 0; }
+a { color: #1a3d8f; text-decoration: none; }
+.keep { break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>Teaching a language model to read DNA:<br>fine-tuning Muse Glimmer 30B on cell-free DNA methylation with a vision-style adapter</h1>
+<p class="authors">Michael Marzouk</p>
+<p class="affil">Burotu · <a href="https://burotu.com">burotu.com</a> · <a href="https://github.com/zoukmar/burotu">github.com/zoukmar/burotu</a> · preprint, November 2026</p>
+
+<div class="abstract">
+<b>Abstract</b>
+<p>Large language models read text, code and images, but not biological measurements. We ask whether an open-weight language model can learn to read DNA methylation measured on cell-free DNA (cfDNA) from a blood sample, and answer two questions in plain words: is there a tumour signal, and which tissue does it come from? We adapt Meta's open-weight Muse Glimmer 30B with the recipe that taught language models to see: a small adapter projects 3,148 per-CpG methylation features into 16 soft tokens in the model's embedding space, and the model is fine-tuned with QLoRA (217M trained parameters, 66 minutes on one L40S GPU). The answer is read from the model's own next-token logits. We document all six training runs carried out in one week, including failures (mode collapse, memorisation of blood donors) and the changes that fixed them (two-stage training, pseudo-donors, cross-cohort batch alignment). Trained on 35,000 plasma samples simulated from public data (3,832 tumours from 22 series, 5,728 blood donors from 8 cohorts, 23 tissue classes) and evaluated on people and tumours never seen in training, the final model finds 75% of signals at 1% tumour DNA with 99.5% specificity, and names the right tissue first 58% of the time among 23 classes, against 46% for a gradient-boosting baseline on the same data. These results are on simulated plasma, with a small sanity check on 27 real plasma samples where the language model's alarm does not yet transfer well; the work is a research prototype, not a diagnostic. Code, weights, run reports and a live demo are public.</p>
+</div>
+
+<h2>1&nbsp;&nbsp;Introduction</h2>
+<p>Tumours shed fragments of their DNA into the bloodstream. Part of that cfDNA carries methylation patterns that differ from those of the blood cells that make up most of healthy plasma, and these patterns are tissue-specific. Targeted methylation sequencing of cfDNA is the basis of multi-cancer early detection tests, which use dedicated classifiers to detect a signal and predict its tissue of origin [1, 2].</p>
+<p>Multimodal language models showed that a frozen or lightly tuned language model can learn a new input modality through a small projector that maps encoder outputs into its token embedding space [3]. We apply this idea to a modality with no encoder at all: a vector of methylation levels on a fixed panel of CpG sites. The question is not whether a 30-billion-parameter model is the most efficient classifier for this task (it is not, in compute), but whether a general-purpose open-weight language model can acquire this "sense" quickly, how it compares with a strong classical baseline on the same held-out data, and what goes wrong on the way. The open weights matter: clinical and research labs often cannot send data to a closed API, but can run, inspect and retrain an open model on their own hardware.</p>
+<p>This report was written alongside a one-week build (first commit on 26 October 2026, final model on 2 November 2026) for the Meta Global AI Developer Hackathon. We report every run, not only the last one.</p>
+
+<h2>2&nbsp;&nbsp;Data</h2>
+<h3>Public sources and refinement</h3>
+<p>All data are public; no patient data were collected. 26,155 methylation samples from 45 datasets (Illumina 450K/EPIC arrays and a whole-genome atlas) were refined into one format on a common panel. The training reference (refined data v2) contains 3,832 tumours from 22 public series (TCGA, TARGET, CGCI and GEO series) mapped to 23 tissue classes, and whole-blood profiles of 5,728 healthy people from 8 GEO cohorts (GSE40279 [4], GSE55763, GSE87571, GSE56105, GSE72680, GSE72775, GSE42861, GSE234190). Classes follow the tissue rather than the AJCC cancer type; counted the AJCC way, the 23 classes cover about 33 cancer categories.</p>
+<h3>Cross-cohort alignment</h3>
+<p>Each array cohort carries its own lab batch: the spread of a site's mean methylation between cohorts is about three times the spread between people of one cohort. Without correction, adding cohorts made every model worse (Section 4). Each blood cohort is therefore moved onto one reference batch (GSE40279) site by site, by shifting its per-site mean while keeping the differences between its people. Two cohorts whose values were off-scale were dropped.</p>
+<h3>Panel and simulated plasma</h3>
+<p>The panel has 3,148 CpG sites that are almost never methylated in blood (mean β below 0.10, 95th percentile below 0.20) and methylated in at least one tumour class, so that a few tumour fragments stand out against the blood background. A plasma sample is simulated by drawing a real healthy person as the background, mixing in a real tumour of the chosen class at a tumour fraction between 0.01% and 10%, and sampling methylated reads binomially at a read depth that varies per CpG (log-normal around 500). People and tumours are split into training, calibration and test sets <i>before</i> simulation and panel selection: 3,683 people for training, 300 for threshold calibration and 1,745 for testing. The simulation works CpG by CpG and ignores read-level patterns, which real assays exploit.</p>
+
+<h2>3&nbsp;&nbsp;Method</h2>
+<h3>Features</h3>
+<p>For each CpG, the read counts are turned into a binomial z-score against the healthy background, <code>z = (m − n·μ) / √(n·μ·(1 − μ))</code>, where <i>m</i> is the number of methylated reads, <i>n</i> the depth and μ the mean methylation of that site in the training blood donors only. Three global summaries are appended: the overall excess of methylated reads relative to depth, the share of sites with z above 3, and the mean of the 20 strongest z-scores.</p>
+<h3>Methylation adapter</h3>
+<p>The adapter is a two-layer MLP: layer normalisation of the input, a linear layer to 1,024 units, GELU, dropout 0.1, and a linear layer to 16 × <i>d</i> outputs reshaped into 16 soft tokens of the model's hidden size <i>d</i>, followed by layer normalisation. The soft tokens are inserted between a short text prefix (“Cell-free DNA methylation profile of a blood sample:”) and a question asking whether there is a cancer signal and which organ it most likely comes from. The sample never appears as text.</p>
+
+<figure class="keep">
+<svg viewBox="0 0 720 150" xmlns="http://www.w3.org/2000/svg" font-family="DejaVu Sans, Arial" font-size="11">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#333"/></marker></defs>
+  <rect x="5" y="45" width="120" height="58" rx="6" fill="#f6efd2" stroke="#999"/>
+  <text x="65" y="68" text-anchor="middle" font-weight="bold">Blood sample</text><text x="65" y="84" text-anchor="middle">cfDNA reads on</text><text x="65" y="97" text-anchor="middle">3,148 CpG sites</text>
+  <line x1="125" y1="74" x2="160" y2="74" stroke="#333" marker-end="url(#a)"/>
+  <rect x="162" y="45" width="115" height="58" rx="6" fill="#fff" stroke="#999"/>
+  <text x="219" y="68" text-anchor="middle" font-weight="bold">z-scores</text><text x="219" y="84" text-anchor="middle">vs healthy</text><text x="219" y="97" text-anchor="middle">blood background</text>
+  <line x1="277" y1="74" x2="312" y2="74" stroke="#333" marker-end="url(#a)"/>
+  <rect x="314" y="40" width="120" height="68" rx="6" fill="#7A1F33"/>
+  <text x="374" y="66" text-anchor="middle" font-weight="bold" fill="#fff">Methylation</text><text x="374" y="80" text-anchor="middle" font-weight="bold" fill="#fff">adapter (MLP)</text><text x="374" y="97" text-anchor="middle" fill="#f6efd2">→ 16 soft tokens</text>
+  <line x1="434" y1="74" x2="469" y2="74" stroke="#333" marker-end="url(#a)"/>
+  <rect x="471" y="30" width="135" height="88" rx="6" fill="#6B4FD8"/>
+  <text x="538" y="58" text-anchor="middle" font-weight="bold" fill="#fff">Muse Glimmer 30B</text><text x="538" y="74" text-anchor="middle" fill="#fff">4-bit, QLoRA r16</text><text x="538" y="90" text-anchor="middle" fill="#e3e1ff">prefix · tokens ·</text><text x="538" y="104" text-anchor="middle" fill="#e3e1ff">question</text>
+  <line x1="606" y1="74" x2="630" y2="74" stroke="#333" marker-end="url(#a)"/>
+  <text x="632" y="62" font-size="10">“Cancer signal:</text><text x="632" y="76" font-size="10"> yes. Most likely</text><text x="632" y="90" font-size="10"> origin: Kidney.”</text>
+  <text x="374" y="135" text-anchor="middle" font-size="9.5" fill="#444">trained: adapter (stage 1), then adapter + LoRA (stage 2) · 217M parameters</text>
+</svg>
+<p class="cap"><b>Figure 1.</b> The sample enters Muse Glimmer as 16 soft tokens produced by a methylation adapter, the way vision projectors feed images to a language model. Signal and tissue are read from the model's next-token logits.</p>
+</figure>
+
+<h3>Training</h3>
+<p>The base model, Muse Glimmer 30B (revision <code>a4e59da5</code>), is loaded in 4-bit NF4; LoRA adapters of rank 16 are added to its language layers following Meta's QLoRA recipe [5, 6]. The training target is the continuation “ no.” for healthy samples and “ yes. Most likely origin: &lt;tissue&gt;.” otherwise, with a cross-entropy loss on the answer tokens. Training has two stages: the adapter alone for 500 steps (learning rate 10<sup>−3</sup>), then adapter and LoRA together (LoRA learning rate 5·10<sup>−5</sup>), 1,500 steps in total, batch 16, weight decay 0.01. The training set has 35,000 simulated samples; half of the healthy backgrounds are pseudo-donors, mixtures of two or three real training donors. The final run trained 217,197,726 parameters in 66 minutes on one NVIDIA L40S (48 GB) on Modal.</p>
+<h3>Reading the answer</h3>
+<p>The model is not asked to generate free text at inference. The signal score is the margin between the logits of “ yes” and “ no” after the question (computed in float32, before the model's logit soft-cap); the detection threshold is set on the 300 calibration people to reach the target specificity. The tissue distribution is a softmax over the log-likelihood of each of the 23 class names as the continuation of “ yes. Most likely origin:”.</p>
+<h3>Baseline and benchmark</h3>
+<p>The baseline is a gradient-boosted tree classifier trained on the same features and data; its threshold is set on the same calibration people. Every model is scored on the same frozen test set: 4,000 simulated healthy samples from the 1,745 test people, and 966 simulated cancer samples per tumour fraction built from held-out tumours.</p>
+
+<h2>4&nbsp;&nbsp;Six runs in one week</h2>
+<p>Table 1 lists every run. Runs v1–v4 used an earlier 8-class prototype and runs v5 the 20-class v1 data, so their numbers are not directly comparable with v6; they are given to show what each change fixed.</p>
+<table class="keep">
+<thead><tr><th>Run</th><th>Date</th><th>Change</th><th>Outcome (held-out people, 1% tumour DNA)</th></tr></thead>
+<tbody>
+<tr><td>v1</td><td>27 Oct</td><td>Adapter and LoRA trained jointly from the start</td><td>Mode collapse: LoRA learned the answer format faster than the adapter learned to carry the sample; same answer for every input</td></tr>
+<tr><td>v2</td><td>28 Oct</td><td>Two stages: adapter alone, then adapter + LoRA; 8 classes</td><td>Tissue right first time 70% (baseline 57%), but healthy people never seen scored like cancers: the model had learned each training donor's background</td></tr>
+<tr><td>v3</td><td>28 Oct</td><td>Smaller, regularised adapter</td><td>99.9% specificity, but only 26% of signals found</td></tr>
+<tr><td>v4</td><td>29 Oct</td><td>Pseudo-donors: half the healthy backgrounds mixed from 2–3 real donors</td><td>42% of signals at 99.7% specificity</td></tr>
+<tr><td>v5</td><td>29 Oct</td><td>20 classes</td><td>Tissue 60% (baseline 55%); signals 38%: the alarm still failed on new people. Adding more blood cohorts without alignment made it worse</td></tr>
+<tr><td><b>v6</b></td><td><b>2 Nov</b></td><td>Refined data v2: 5,728 donors from 8 cohorts aligned on one batch; 23 classes; 35,000 samples</td><td><b>Tissue 58% among 23 (baseline 46%); 75% of signals at 99.5% specificity</b></td></tr>
+</tbody>
+</table>
+<p class="cap"><b>Table 1.</b> The six fine-tuning runs. Full reports: <code>reports/muse_glimmer-v1.json</code> to <code>-v6.json</code> in the repository.</p>
+<p>Two lessons stand out. First, the order of learning matters: when the language layers can adapt from step one, they find the shortcut of predicting the most frequent answer before the adapter carries any information (v1). Training the adapter alone first fixes this, as in multimodal projector pre-training [3]. Second, the hardest problem was not cancer but healthy people: a model trained on a few hundred donors learns each donor's background, and healthy people it never saw look unusual (v2–v5). Pseudo-donors helped, but the decisive change was data: many more donors, and the removal of between-lab batch effects that otherwise dominate the signal (v6).</p>
+
+<h2>5&nbsp;&nbsp;Results</h2>
+<figure class="keep">
+<img src="fig_benchmark.png" alt="Benchmark">
+<p class="cap"><b>Figure 2.</b> Frozen v2 benchmark: people and tumours never seen in training, simulated plasma, 23 tissue classes. Left: signals found at the calibrated threshold. Right: tissue of origin right first time among 23 classes (chance: 4%).</p>
+</figure>
+<table class="keep">
+<thead><tr><th>Tumour DNA in plasma</th><th class="n">0.3%</th><th class="n">1%</th><th class="n">3%</th><th class="n">10%</th></tr></thead>
+<tbody>
+<tr><td>Signal found, gradient boosting (99.0% specificity)</td><td class="n">12%</td><td class="n">80%</td><td class="n">95%</td><td class="n">97%</td></tr>
+<tr><td>Signal found, Muse Glimmer v6 (99.5% specificity)</td><td class="n">8%</td><td class="n">75%</td><td class="n">92%</td><td class="n">95%</td></tr>
+<tr><td>Tissue right first time, gradient boosting</td><td class="n">13%</td><td class="n">46%</td><td class="n">82%</td><td class="n">91%</td></tr>
+<tr><td>Tissue right first time, Muse Glimmer v6</td><td class="n">15%</td><td class="n"><b>58%</b></td><td class="n">85%</td><td class="n">92%</td></tr>
+<tr><td>Tissue in the top 2, Muse Glimmer v6</td><td class="n">27%</td><td class="n">71%</td><td class="n">91%</td><td class="n">96%</td></tr>
+<tr><td>AUC cancer vs healthy, Muse Glimmer v6</td><td class="n">0.79</td><td class="n">0.97</td><td class="n">0.99</td><td class="n">1.00</td></tr>
+</tbody>
+</table>
+<p class="cap"><b>Table 2.</b> Benchmark v2 (4,000 healthy and 966 cancer samples per tumour fraction). Observed specificity on held-out people: 99.0% (baseline) and 99.5% (Glimmer v6).</p>
+<p>At low tumour fractions the fine-tuned language model names the tissue of origin better than the classical baseline (58% vs 46% at 1%), while finding slightly fewer signals at a slightly stricter specificity. At 3% and above both converge. Weak classes are blood cancers (their DNA resembles the blood background), thymus and testis.</p>
+<h3>Real plasma sanity check</h3>
+<p>On 27 real cfDNA samples measured on methylation arrays (Moss et al. [7]: 12 healthy, 15 cancers), real healthy plasma is not pure blood, and against the whole-blood background every sample crosses the threshold. Re-estimating the background from healthy controls (leaving out the person being scored), as a lab would calibrate a new assay, the baseline finds 12 of 15 cancers and flags none of the 12 healthy people (AUC 0.82). Muse Glimmer v6 also finds 12 of 15 cancers but flags 5 of the 12 healthy people (AUC 0.60): its calibration does not transfer to real plasma as well as the baseline's. Both name the right tissue for 7 of the 11 cancers with a known origin. 27 samples is a sanity check, not a performance figure, but it shows that the language model's alarm needs recalibration on real plasma before it can be trusted.</p>
+
+<h2>6&nbsp;&nbsp;A DNA-reading engine</h2>
+<p>The language model, the prompt and the serving code are unchanged across questions; the question lives in the adapter and its labels. The trained model is served behind an authenticated API on a scale-to-zero GPU, and a public demo reads lab files live (quality control, classical models, Glimmer, a consensus, an explanation of which sites lit up, and a research report for the requesting doctor written by Muse Spark). With new labels and about an hour of GPU, the same engine could be retrained for other questions on the same measurements: treatment follow-up on serial draws, relapse, which organ releases DNA after injury, or biological age from epigenetic clocks. These are directions, not results.</p>
+
+<h2>7&nbsp;&nbsp;Limitations</h2>
+<p>All performance figures come from simulated plasma built from array profiles of tumours and whole blood, CpG by CpG, without read-level patterns, fragment lengths or the non-blood components of healthy plasma; real sequenced plasma will behave differently. The real-plasma check covers 27 samples. The cohorts are public array data with their own selection biases, and some classes rest on few tumours. Batch alignment was done on blood cohorts only. The model is large for the task: a classical model is far cheaper, and the value of the language model lies in reuse and in tissue naming at low tumour fractions, not in efficiency. Burotu is a research prototype; it is not a medical device and must not be used for any clinical decision.</p>
+
+<h2>8&nbsp;&nbsp;Availability</h2>
+<p>Code (pipeline, training, serving, benchmark, demo site), every run report and this paper: <a href="https://github.com/zoukmar/burotu">github.com/zoukmar/burotu</a> (AGPL-3.0). Weights (adapter and LoRA, v1–v6; the base model is loaded separately): <a href="https://huggingface.co/zoukmar75/burotu-glimmer">huggingface.co/zoukmar75/burotu-glimmer</a> (Apache-2.0). Live demo: <a href="https://burotu.com">burotu.com</a>. Video (3 min): <a href="https://youtu.be/LQVoz8USAHo">youtu.be/LQVoz8USAHo</a>.</p>
+
+<h2>References</h2>
+<ol class="refs">
+<li>Liu MC, Oxnard GR, Klein EA, Swanton C, Seiden MV, CCGA Consortium. Sensitive and specific multi-cancer detection and localization using methylation signatures in cell-free DNA. <i>Annals of Oncology</i> 31(6):745–759, 2020.</li>
+<li>Klein EA, Richards D, Cohn A, et al. Clinical validation of a targeted methylation-based multi-cancer early detection test using an independent validation set. <i>Annals of Oncology</i> 32(9):1167–1177, 2021.</li>
+<li>Liu H, Li C, Wu Q, Lee YJ. Visual instruction tuning. <i>Advances in Neural Information Processing Systems</i> 36, 2023.</li>
+<li>Hannum G, Guinney J, Zhao L, et al. Genome-wide methylation profiles reveal quantitative views of human aging rates. <i>Molecular Cell</i> 49(2):359–367, 2013.</li>
+<li>Hu EJ, Shen Y, Wallis P, et al. LoRA: Low-rank adaptation of large language models. <i>International Conference on Learning Representations</i>, 2022.</li>
+<li>Dettmers T, Pagnoni A, Holtzman A, Zettlemoyer L. QLoRA: Efficient finetuning of quantized LLMs. <i>Advances in Neural Information Processing Systems</i> 36, 2023.</li>
+<li>Moss J, Magenheim J, Neiman D, et al. Comprehensive human cell-type methylation atlas reveals origins of circulating cell-free DNA in health and disease. <i>Nature Communications</i> 9:5068, 2018.</li>
+<li>The Cancer Genome Atlas Research Network, Weinstein JN, et al. The Cancer Genome Atlas Pan-Cancer analysis project. <i>Nature Genetics</i> 45:1113–1120, 2013.</li>
+</ol>
+</body>
+</html>

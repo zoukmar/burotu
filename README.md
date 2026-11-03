@@ -12,6 +12,7 @@
 <p align="center">
   <a href="https://burotu.com/en/#demo"><b>Live demo</b></a> ·
   <a href="https://youtu.be/LQVoz8USAHo"><b>3-min video</b></a> ·
+  <a href="paper/burotu-paper.pdf"><b>Paper (PDF)</b></a> ·
   <a href="https://huggingface.co/zoukmar75/burotu-glimmer">Weights</a> ·
   <a href="#six-runs-one-week">Six runs</a> ·
   <a href="#benchmark">Benchmark</a> ·
@@ -41,6 +42,15 @@ true answer hidden) and watch it being read live:
   <a href="https://youtu.be/LQVoz8USAHo"><img src="docs/assets/video.jpg" alt="Video: We taught Meta's LLM to read DNA in one week" width="640"></a><br>
   <em>3 minutes: the idea, the six runs, the live demo and the engine.</em>
 </p>
+
+## Paper
+
+**[Teaching a language model to read DNA: fine-tuning Muse Glimmer 30B on cell-free DNA methylation
+with a vision-style adapter](paper/burotu-paper.pdf)** (preprint, November 2026, 5 pages): data and
+cross-cohort alignment, the adapter, two-stage QLoRA, the six runs, the benchmark, the real-plasma
+check and the limitations. Also at [burotu.com/paper](https://burotu.com/paper). Source:
+[`paper/paper.html`](paper/paper.html). To cite it, use GitHub's *Cite this repository* button
+([CITATION.cff](CITATION.cff)).
 
 ## The idea
 
