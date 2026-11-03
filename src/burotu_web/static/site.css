@@ -538,3 +538,59 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
 .dot.off { background: #B9C2C8; }
 .progress-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
 @media (max-width: 640px) { .flow-models { grid-column: auto; } }
+
+/* Live demo (burotu.com/{lang}/demo) */
+.demo-title { font-size: var(--step-3); line-height: 1.1; margin: .5rem 0 1rem; }
+.demo-h { font-size: var(--step-1); margin: 0 0 1rem; }
+.kicker { font-size: var(--step--1); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--venous); margin: 0; }
+.demo-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: .75rem; margin-bottom: 2rem; }
+.demo-tube { display: grid; justify-items: center; gap: .25rem; padding: 1rem .5rem; border: 1.5px solid var(--line); border-radius: var(--radius); background: var(--white); color: var(--ink); font: inherit; cursor: pointer; transition: transform .15s, border-color .15s; }
+.demo-tube:hover:not(:disabled), .demo-tube.is-picked { border-color: var(--venous); transform: translateY(-2px); }
+.demo-tube:disabled { cursor: wait; opacity: .6; }
+.demo-tube.is-picked { opacity: 1; }
+.demo-tube svg { width: 1.6rem; height: 4rem; }
+.demo-tube .cap { fill: var(--ink-soft); }
+.demo-tube .glass { fill: var(--glass); stroke: var(--line); }
+.demo-tube .blood { fill: var(--venous); }
+.demo-tube .plasma { fill: var(--plasma); }
+.demo-tube-label { font-weight: 700; }
+.demo-out { scroll-margin-top: 5rem; }
+.demo-status { margin: 0 0 .75rem; }
+.demo-stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .75rem; }
+.demo-stage { border: 1.5px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; background: var(--white); transition: border-color .3s, background .3s; }
+.demo-stage.is-meta { border-color: #C9B8FF; background: #F7F4FF; }
+.demo-stage-head { display: grid; grid-template-columns: auto 1fr; column-gap: .5rem; align-items: center; }
+.demo-stage-head .small { grid-column: 2; }
+.demo-dot { width: .7rem; height: .7rem; border-radius: 50%; background: var(--line); }
+.demo-stage.is-wait .demo-dot { background: var(--venous); animation: demo-pulse 1s ease-in-out infinite; }
+.demo-stage.is-ok .demo-dot { background: #1E8E5A; }
+.demo-stage.is-ko .demo-dot { background: #B23B3B; }
+.demo-stage.is-skip { opacity: .4; }
+.demo-stage.is-skip .demo-dot { animation: none; background: var(--line); }
+.demo-stage-body { margin-top: .6rem; }
+@keyframes demo-pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .demo-stage.is-wait .demo-dot { animation: none; } .demo-tube { transition: none; } }
+.demo-big { font-size: var(--step-1); font-weight: 700; margin: .1rem 0; }
+.demo-model { display: grid; gap: .5rem; }
+.demo-model .badge.is-signal { background: var(--venous); color: var(--white); border-color: var(--venous); }
+.demo-model .badge.is-clear { background: #E6F5EC; color: #1E6B45; border-color: #BFE3CD; }
+.demo-origins { list-style: none; padding: 0; margin: 0; display: grid; gap: .35rem; }
+.demo-origins li { display: grid; grid-template-columns: minmax(6rem, 1fr) 4rem 3.2rem; gap: .5rem; align-items: center; font-size: var(--step--1); }
+.demo-bar { width: 100%; height: .5rem; }
+.demo-bar .track { fill: var(--line); }
+.demo-bar .fill { fill: var(--venous); }
+.demo-stage.is-meta .demo-bar .fill { fill: #6B4FD8; }
+.demo-bar.is-lit .fill { fill: #B26A00; }
+.demo-why, .demo-letter, .demo-truth { margin-top: 1.5rem; }
+.demo-why h3, .demo-letter h3 { font-size: var(--step-1); margin: 0 0 .75rem; }
+.demo-why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .75rem; }
+.demo-card { border: 1.5px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; background: var(--white); }
+.demo-card p { margin: .2rem 0; }
+.demo-letter { border: 1.5px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem; background: var(--plasma-soft); }
+.demo-letter-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.demo-tabs { display: flex; gap: .4rem; }
+.demo-tabs button[aria-pressed="true"] { background: var(--ink); color: var(--glass); }
+.demo-letter blockquote { margin: .75rem 0; white-space: pre-line; line-height: 1.55; }
+.demo-truth { border-radius: var(--radius); padding: 1.1rem 1.2rem; background: var(--ink); color: var(--glass); }
+.demo-truth .kicker { color: var(--plasma); }
+.demo-foot { margin-top: 2rem; }

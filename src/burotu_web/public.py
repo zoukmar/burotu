@@ -243,3 +243,9 @@ def book_submit(
         errors.append(t["err_slot"])
 
     return render_page(request, lang, form=form, errors=list(dict.fromkeys(errors)), status_code=422)
+
+
+# Public live demo (burotu.com/{lang}/demo and /api/demo/...).
+from burotu_web.demo import router as _demo_router  # noqa: E402
+
+router.include_router(_demo_router)

@@ -316,3 +316,11 @@ with automatic rollback if the site does not answer. See [docs/deployment.md](do
 - [x] Refined data v2: 26,000 public samples refined, 23 tissues, 5,728 blood donors; Muse Glimmer v6 holds 99.5% specificity
 - [x] Muse Glimmer for the alarm too: 75% of signals at 1% tumour DNA (v5: 38%)
 - [ ] Towards 50: sequenced samples from a partner lab
+
+## License
+
+Burotu's code is open source under the **GNU Affero General Public License v3.0** ([LICENSE](LICENSE)):
+you may use, study and modify it, but any modified version, including one offered as an online
+service, must publish its complete source code under the same license. Copyright (C) 2026 Michael
+Marzouk. The fine-tuned Muse Glimmer weights on Hugging Face keep the base model's Apache 2.0 license.
+For another license (for example to build a closed product), contact the author.
