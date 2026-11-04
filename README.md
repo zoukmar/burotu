@@ -16,6 +16,7 @@
   <a href="https://youtu.be/LQVoz8USAHo"><b>3-min video</b></a> ·
   <a href="paper/burotu-paper.pdf"><b>Paper (PDF)</b></a> ·
   <a href="https://huggingface.co/zoukmar75/burotu-glimmer">Weights</a> ·
+  <a href="https://huggingface.co/spaces/zoukmar75/burotu">HF Space</a> ·
   <a href="#six-runs-one-week">Six runs</a> ·
   <a href="#benchmark">Benchmark</a> ·
   <a href="#quick-start">Quick start</a>

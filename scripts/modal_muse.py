@@ -208,6 +208,8 @@ Glimmer's embedding space (the way a vision projector turns pixels into tokens),
 
 - **Live demo**: [burotu.com](https://burotu.com/en/#demo): pick a lab file, watch this model read it on a GPU
 - **Video (3 min)**: [youtu.be/LQVoz8USAHo](https://youtu.be/LQVoz8USAHo)
+- **Space**: [zoukmar75/burotu](https://huggingface.co/spaces/zoukmar75/burotu)
+- **Collection**: [huggingface.co/collections/zoukmar75](https://huggingface.co/collections/zoukmar75)
 - **Code, training and the report of every run**: [github.com/zoukmar/burotu](https://github.com/zoukmar/burotu)
 - **Paper (preprint)**: [doi:10.5281/zenodo.23941918](https://doi.org/10.5281/zenodo.23941918) · [PDF](https://burotu.com/paper)
 
