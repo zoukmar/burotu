@@ -4,6 +4,7 @@ title: "Burotu: teaching a language model to read DNA"
 authors:
   - family-names: Marzouk
     given-names: Michael
+    orcid: "https://orcid.org/0009-0007-9372-484X"
 repository-code: "https://github.com/zoukmar/burotu"
 url: "https://burotu.com"
 license: AGPL-3.0-only

@@ -50,11 +50,11 @@ true answer hidden) and watch it being read live:
 **[Teaching a language model to read DNA: fine-tuning Muse Glimmer 30B on cell-free DNA methylation
 with a vision-style adapter](paper/burotu-paper.pdf)** (preprint, November 2026, 5 pages): data and
 cross-cohort alignment, the adapter, two-stage QLoRA, the six runs, the benchmark, the real-plasma
-check and the limitations. Archived on Zenodo with a DOI: **[10.5281/zenodo.23941918](https://doi.org/10.5281/zenodo.23941918)**. Also at
+check and the limitations. Archived on Zenodo with a DOI, and submitted to HAL (moderation, then transfer to arXiv): **[10.5281/zenodo.23941918](https://doi.org/10.5281/zenodo.23941918)**. Also at
 [burotu.com/paper](https://burotu.com/paper). Source:
 [`paper/paper.html`](paper/paper.html). To cite it:
 
-> Marzouk M. *Teaching a language model to read DNA: fine-tuning Muse Glimmer 30B on cell-free DNA
+> Marzouk M. ([ORCID 0009-0007-9372-484X](https://orcid.org/0009-0007-9372-484X)). *Teaching a language model to read DNA: fine-tuning Muse Glimmer 30B on cell-free DNA
 > methylation with a vision-style adapter.* Preprint, Zenodo, 2026. doi:10.5281/zenodo.23941918
 
 or use GitHub's *Cite this repository* button ([CITATION.cff](CITATION.cff)).
