@@ -11,7 +11,7 @@ from __future__ import annotations
 VIDEO_URL = "https://youtu.be/LQVoz8USAHo"
 GITHUB_URL = "https://github.com/zoukmar/burotu"
 HF_URL = "https://huggingface.co/zoukmar75/burotu-glimmer"
-PAPER_URL = "/paper"
+PAPER_URL = "https://doi.org/10.5281/zenodo.23941918"
 
 # (day of the hackathon week, ISO date, run). Dates are the day each run was trained and reported.
 RUNS = [
@@ -133,7 +133,7 @@ HOME = {
             ("Video", "3 minutes, the whole story", "youtu.be/LQVoz8USAHo"),
             ("Code", "Pipeline, training, serving, this site · AGPL-3.0", "github.com/zoukmar/burotu"),
             ("Weights", "Muse Glimmer + adapter, v1 to v6", "huggingface.co/zoukmar75/burotu-glimmer"),
-            ("Paper", "Preprint, 5 pages: method, six runs, limits", "burotu.com/paper"),
+            ("Paper", "Preprint on Zenodo, 5 pages: method, six runs, limits", "doi:10.5281/zenodo.23941918"),
         ],
         "built_with": "Built with Meta Muse Glimmer 30B (open weights) and Muse Spark (Meta Model API), trained and served on Modal.",
         "limits_title": "What it is not",
@@ -256,7 +256,11 @@ HOME = {
             ("Vidéo", "3 minutes, toute l'histoire", "youtu.be/LQVoz8USAHo"),
             ("Code", "Pipeline, entraînement, service, ce site · AGPL-3.0", "github.com/zoukmar/burotu"),
             ("Poids", "Muse Glimmer + adaptateur, v1 à v6", "huggingface.co/zoukmar75/burotu-glimmer"),
-            ("Article", "Prépublication, 5 pages : méthode, six versions, limites", "burotu.com/paper"),
+            (
+                "Article",
+                "Prépublication sur Zenodo, 5 pages : méthode, six versions, limites",
+                "doi:10.5281/zenodo.23941918",
+            ),
         ],
         "built_with": "Construit avec Meta Muse Glimmer 30B (poids ouverts) et Muse Spark (Meta Model API), entraîné et servi sur Modal.",
         "limits_title": "Ce que ce n'est pas",
@@ -383,7 +387,11 @@ HOME = {
             ("Vídeo", "3 minutos, toda la historia", "youtu.be/LQVoz8USAHo"),
             ("Código", "Pipeline, entrenamiento, servicio, este sitio · AGPL-3.0", "github.com/zoukmar/burotu"),
             ("Pesos", "Muse Glimmer + adaptador, v1 a v6", "huggingface.co/zoukmar75/burotu-glimmer"),
-            ("Artículo", "Preprint, 5 páginas: método, seis versiones, límites", "burotu.com/paper"),
+            (
+                "Artículo",
+                "Preprint en Zenodo, 5 páginas: método, seis versiones, límites",
+                "doi:10.5281/zenodo.23941918",
+            ),
         ],
         "built_with": "Construido con Meta Muse Glimmer 30B (pesos abiertos) y Muse Spark (Meta Model API), entrenado y servido en Modal.",
         "limits_title": "Lo que no es",

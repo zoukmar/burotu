@@ -4,6 +4,8 @@
 
 <h1 align="center">Burotu</h1>
 
+<p align="center"><a href="https://doi.org/10.5281/zenodo.23941918"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.23941918.svg" alt="DOI"></a></p>
+
 <p align="center">
   <strong>We taught a language model to read DNA. In one week.</strong><br>
   Meta's open-weight Muse Glimmer 30B, fine-tuned to read DNA methylation from a blood sample.
@@ -48,9 +50,14 @@ true answer hidden) and watch it being read live:
 **[Teaching a language model to read DNA: fine-tuning Muse Glimmer 30B on cell-free DNA methylation
 with a vision-style adapter](paper/burotu-paper.pdf)** (preprint, November 2026, 5 pages): data and
 cross-cohort alignment, the adapter, two-stage QLoRA, the six runs, the benchmark, the real-plasma
-check and the limitations. Also at [burotu.com/paper](https://burotu.com/paper). Source:
-[`paper/paper.html`](paper/paper.html). To cite it, use GitHub's *Cite this repository* button
-([CITATION.cff](CITATION.cff)).
+check and the limitations. Archived on Zenodo with a DOI: **[10.5281/zenodo.23941918](https://doi.org/10.5281/zenodo.23941918)**. Also at
+[burotu.com/paper](https://burotu.com/paper). Source:
+[`paper/paper.html`](paper/paper.html). To cite it:
+
+> Marzouk M. *Teaching a language model to read DNA: fine-tuning Muse Glimmer 30B on cell-free DNA
+> methylation with a vision-style adapter.* Preprint, Zenodo, 2026. doi:10.5281/zenodo.23941918
+
+or use GitHub's *Cite this repository* button ([CITATION.cff](CITATION.cff)).
 
 ## The idea
 
