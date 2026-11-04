@@ -94,3 +94,21 @@ def test_paper_is_served(public):
     pdf = public.get("/static/burotu-paper.pdf")
     assert pdf.status_code == 200 and pdf.content[:4] == b"%PDF"
     assert 'href="/paper"' in public.get("/en/").text
+
+
+def test_opening_the_page_wakes_the_gpu_at_most_every_two_minutes(public, monkeypatch):
+    from burotu_web import demo
+
+    calls = []
+    monkeypatch.setenv("BUROTU_MUSE_URL", "https://gpu.example/predict")
+    monkeypatch.setattr(demo, "_ping", lambda url: calls.append(url))
+    monkeypatch.setattr(demo, "_last_warm", 0.0)
+    assert public.post("/api/demo/warm").json() == {"started": True}
+    assert public.post("/api/demo/warm").json() == {"started": False}  # throttled
+    demo._last_warm = 0.0
+    public.post("/api/demo/warm")
+    import time
+
+    time.sleep(0.2)
+    assert calls == ["https://gpu.example/health", "https://gpu.example/health"]
+    assert "/api/demo/warm" in public.get("/static/demo.js").text

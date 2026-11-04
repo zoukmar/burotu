@@ -4,6 +4,8 @@
   const out = document.getElementById("demo-out");
   if (!picker || !out) return;
   const lang = picker.dataset.lang;
+  // Wake Muse Glimmer's GPU as soon as the page opens (the server limits how often it really calls it).
+  fetch("/api/demo/warm", { method: "POST", keepalive: true }).catch(() => {});
   const T = JSON.parse(document.getElementById("demo-text").textContent);
   const SVG = "http://www.w3.org/2000/svg";
   const pct = (x, d = 0) => (x * 100).toLocaleString(lang, { maximumFractionDigits: d, minimumFractionDigits: d }) + " %";

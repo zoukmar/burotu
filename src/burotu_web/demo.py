@@ -10,6 +10,8 @@ the Meta Model API are only called when needed.
 from __future__ import annotations
 
 import json
+import os
+import threading
 import time
 from pathlib import Path
 
@@ -27,6 +29,9 @@ CACHE_SECONDS = 3 * 3600  # the demo files never change: only the first visitor 
 RUNS_PER_HOUR = 30
 _cache: dict[str, tuple[float, dict]] = {}  # (sample:lang) -> (time, payload)
 _hits: dict[str, list[float]] = {}
+WARM_EVERY = 120  # seconds between two wake-up calls, whatever the number of visitors
+_last_warm = 0.0
+_warm_lock = threading.Lock()
 
 TEXT = {
     "en": {
@@ -207,6 +212,44 @@ def _tissue(cls: str, lang: str) -> str:
     from burotu.analysis.wording import tissue
 
     return tissue(cls, lang)
+
+
+def _health_url() -> str | None:
+    url = os.environ.get("BUROTU_MUSE_URL", "")
+    if not url:
+        return None
+    base = url.rstrip("/")
+    return (base[: -len("/predict")] if base.endswith("/predict") else base) + "/health"
+
+
+def _ping(url: str) -> None:
+    import contextlib
+
+    import httpx
+
+    # A cold start of the 30B model takes several minutes; failures are fine (the demo reports them).
+    with contextlib.suppress(Exception):
+        httpx.get(url, timeout=900)
+
+
+def warm() -> bool:
+    """Wake the GPU in the background; at most once every WARM_EVERY seconds."""
+    global _last_warm
+    url = _health_url()
+    if not url:
+        return False
+    with _warm_lock:
+        if time.time() - _last_warm < WARM_EVERY:
+            return False
+        _last_warm = time.time()
+    threading.Thread(target=_ping, args=(url,), daemon=True).start()
+    return True
+
+
+@router.post("/api/demo/warm")
+def demo_warm():
+    """Called when the home page opens, so Glimmer is awake by the time the visitor reaches the demo."""
+    return {"started": warm()}
 
 
 def _allowed(ip: str) -> bool:
