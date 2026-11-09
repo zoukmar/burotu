@@ -1,0 +1,34 @@
+# Manual, read-only: summary of who used the live demo, from the server's access logs.
+name: Usage report
+
+on:
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf 'Host prod\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  IdentitiesOnly yes\n' \
+            "${{ secrets.DEPLOY_HOST }}" "${{ secrets.DEPLOY_USER }}" > ~/.ssh/config
+      - name: Read the access logs
+        run: |
+          ssh prod 'for f in /var/log/caddy/burotu.log*; do zcat -f "$f" 2>/dev/null; done' > caddy.log || true
+          echo "Caddy log lines: $(wc -l < caddy.log)"
+          if [ ! -s caddy.log ]; then
+            ssh prod 'cd /opt/burotu && docker compose logs --no-color --no-log-prefix web 2>&1' > caddy.log || true
+            echo "Container log lines: $(wc -l < caddy.log)"
+          fi
+      - name: Summary
+        run: python3 scripts/usage_report.py < caddy.log
