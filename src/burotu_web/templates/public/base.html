@@ -1,3 +1,4 @@
+{%- set c = consent(lang) -%}
 <!doctype html>
 <html lang="{{ lang }}">
 <head>
@@ -46,9 +47,17 @@
 <footer class="footer">
   <div class="wrap footer-inner">
     <p class="footer-note">{{ t.footer_note }}</p>
-    <p class="footer-meta">{{ t.footer_rights }} <span class="langs">{% for l in LANGS %}<a href="/{{ l }}/" lang="{{ l }}">{{ LANG_NAMES[l] }}</a>{% endfor %}</span></p>
+    <p class="footer-meta">{{ t.footer_rights }} · <a href="#" data-consent-open>{{ c.manage }}</a> <span class="langs">{% for l in LANGS %}<a href="/{{ l }}/" lang="{{ l }}">{{ LANG_NAMES[l] }}</a>{% endfor %}</span></p>
   </div>
 </footer>
+<div class="consent" id="consent" role="dialog" aria-live="polite" aria-label="{{ c.title }}" hidden>
+  <p>{{ c.text }}</p>
+  <div class="consent-btns">
+    <button type="button" class="btn btn-ghost btn-small" data-consent="refuse">{{ c.refuse }}</button>
+    <button type="button" class="btn btn-small" data-consent="accept">{{ c.accept }}</button>
+  </div>
+</div>
+<script src="/static/consent.js" defer></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

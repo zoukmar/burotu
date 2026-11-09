@@ -660,3 +660,9 @@ legend { font-weight: 700; font-size: var(--step-1); margin-bottom: 1rem; paddin
   .facts, .results { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
   .video-play svg { width: 3.5rem; height: 3.5rem; padding: .8rem; }
 }
+
+/* Cookie banner */
+.consent { position: fixed; left: 1rem; right: 1rem; bottom: 1rem; z-index: 50; max-width: 34rem; margin-left: auto; background: var(--white); border: 1.5px solid var(--line); border-radius: 10px; box-shadow: 0 12px 40px rgba(27, 33, 48, .2); padding: 1rem 1.25rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.consent[hidden] { display: none; }
+.consent p { margin: 0; flex: 1 1 16rem; font-size: var(--step--1); }
+.consent-btns { display: flex; gap: .5rem; }

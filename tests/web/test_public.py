@@ -112,3 +112,15 @@ def test_opening_the_page_wakes_the_gpu_at_most_every_two_minutes(public, monkey
     time.sleep(0.2)
     assert calls == ["https://gpu.example/health", "https://gpu.example/health"]
     assert "/api/demo/warm" in public.get("/static/demo.js").text
+
+
+def test_cookie_banner_and_analytics_only_after_consent(public):
+    for lang, word in [("en", "Accept"), ("fr", "Accepter"), ("es", "Aceptar")]:
+        html = public.get(f"/{lang}/").text
+        assert html.startswith("<!doctype html>")
+        assert 'id="consent"' in html and word in html and "/static/consent.js" in html
+        assert "googletagmanager.com/gtm.js" not in html  # loaded by consent.js, only after "Accept"
+    js = public.get("/static/consent.js").text
+    assert "GTM-P5JNNMNJ" in js and 'choice === "granted"' in js
+    csp = public.get("/en/").headers["content-security-policy"]
+    assert "https://www.googletagmanager.com" in csp and "google-analytics.com" in csp
